@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portfolio</title>
+
+  <!-- 폰트: Pretendard (어그로체는 style.css에서 불러와요) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+
+  <!-- fullPage.js CSS (내 CSS보다 먼저) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/4.0.41/fullpage.min.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- 헤더: 풀페이지 바깥에 둬야 항상 위에 고정돼요 -->
+  <header class="header">
+    <!-- header-inner: 실제 내용이 들어가는 가운데 80% 영역 -->
+    <div class="header-inner">
+      <!-- 로고: 클릭하면 첫 섹션으로 -->
+      <a href="#hero" class="logo">
+        <img src="img/logo.png" alt="로고">
+      </a>
+
+      <!-- 메뉴: 모바일에서는 CSS로 숨김 -->
+      <nav class="nav">
+        <ul>
+          <!-- data-menuanchor = 섹션의 data-key와 같게 -->
+          <li data-menuanchor="about"><a href="#about">About</a></li>
+          <li data-menuanchor="projects"><a href="#projects">Projects</a></li>
+          <li data-menuanchor="contact"><a href="#contact">Contact</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- 풀페이지 영역: .section 하나 = 한 화면 -->
+  <!-- id="fullpage", class="section"은 fullPage.js가 찾는 이름이라 바꾸면 안 돼요 -->
+  <!-- data-key = 섹션 이름 (주소창 #이름, 메뉴 data-menuanchor와 같게) -->
+  <div id="fullpage">
+    <section class="section hero" data-key="hero">
+      <!-- 장식 동그라미: 꾸밈용이라 aria-hidden (화면낭독기가 읽지 않음) -->
+      <span class="hero_dot hero_dot--green" aria-hidden="true"></span>
+      <span class="hero_dot hero_dot--blue" aria-hidden="true"></span>
+      <span class="hero_dot hero_dot--orange" aria-hidden="true"></span>
+      <span class="hero_dot hero_dot--pink" aria-hidden="true"></span>
+
+      <div class="hero_inner">
+        <!-- 제목: 세 줄이 합쳐서 하나의 제목 -->
+        <h1 class="hero_title">
+          <span class="hero_sub hero_sub--top">WEB</span>
+          <span class="hero_main">PORTFOLIO</span>
+          <span class="hero_sub hero_sub--bottom">PUBLISHER</span>
+        </h1>
+        <p class="hero_name">YOO HYE JI</p>
+      </div>
+    </section>
+
+    <!-- About: 1440px 미만에서는 두 섹션, 1440px 이상에서는 about2의 패널이 about 안으로 옮겨져 좌우 배치 -->
+    <section class="section about" data-key="about">
+      <div class="about-panel about-panel--1">About 1</div>
+    </section>
+    <section class="section about2" data-key="about2">
+      <div class="about-panel about-panel--2">About 2</div>
+    </section>
+
+    <section class="section projects" data-key="projects">Projects</section>
+    <section class="section contact" data-key="contact">Contact</section>
+
+    <!-- fp-auto-height: 화면 전체가 아니라 내용 높이만큼만 -->
+    <footer class="section footer fp-auto-height" data-key="footer">Footer</footer>
+  </div>
+
+  <!-- fullPage.js JS (내 JS보다 먼저) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/4.0.41/fullpage.min.js"></script>
+  <script src="script/main.js"></script>
+</body>
+</html>
