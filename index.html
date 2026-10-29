@@ -1,53 +1,48 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Portfolio</title>
 
-  <!-- 폰트: Pretendard (어그로체는 style.css에서 불러와요) -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+  <!-- 폰트 -->
+  <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 
-  <!-- fullPage.js CSS (내 CSS보다 먼저) -->
+  <!-- fullPage.js CSS -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/4.0.41/fullpage.min.css">
   <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
 
-  <!-- 헤더: 풀페이지 바깥에 둬야 항상 위에 고정돼요 -->
   <header class="header">
-    <!-- header-inner: 실제 내용이 들어가는 가운데 80% 영역 -->
-    <div class="header-inner">
-      <!-- 로고: 클릭하면 첫 섹션으로 -->
+    <div class="header_inner">
       <a href="#hero" class="logo">
         <img src="img/logo.png" alt="로고">
       </a>
 
-      <!-- 메뉴: 모바일에서는 CSS로 숨김 -->
       <nav class="nav">
         <ul>
-          <!-- data-menuanchor = 섹션의 data-key와 같게 -->
           <li data-menuanchor="about"><a href="#about">About</a></li>
           <li data-menuanchor="projects"><a href="#projects">Projects</a></li>
           <li data-menuanchor="contact"><a href="#contact">Contact</a></li>
         </ul>
       </nav>
+
     </div>
   </header>
 
-  <!-- 풀페이지 영역: .section 하나 = 한 화면 -->
-  <!-- id="fullpage", class="section"은 fullPage.js가 찾는 이름이라 바꾸면 안 돼요 -->
-  <!-- data-key = 섹션 이름 (주소창 #이름, 메뉴 data-menuanchor와 같게) -->
   <div id="fullpage">
     <section class="section hero" data-key="hero">
-      <!-- 장식 동그라미: 꾸밈용이라 aria-hidden (화면낭독기가 읽지 않음) -->
-      <span class="hero_dot hero_dot--green" aria-hidden="true"></span>
-      <span class="hero_dot hero_dot--blue" aria-hidden="true"></span>
-      <span class="hero_dot hero_dot--orange" aria-hidden="true"></span>
-      <span class="hero_dot hero_dot--pink" aria-hidden="true"></span>
-
       <div class="hero_inner">
-        <!-- 제목: 세 줄이 합쳐서 하나의 제목 -->
+
+        <span class="hero_dot hero_dot--green" aria-hidden="true"></span>
+        <span class="hero_dot hero_dot--blue" aria-hidden="true"></span>
+        <span class="hero_dot hero_dot--orange" aria-hidden="true"></span>
+        <span class="hero_dot hero_dot--pink" aria-hidden="true"></span>
+
         <h1 class="hero_title">
           <span class="hero_sub hero_sub--top">WEB</span>
           <span class="hero_main">PORTFOLIO</span>
@@ -57,23 +52,301 @@
       </div>
     </section>
 
-    <!-- About: 1440px 미만에서는 두 섹션, 1440px 이상에서는 about2의 패널이 about 안으로 옮겨져 좌우 배치 -->
-    <section class="section about" data-key="about">
-      <div class="about-panel about-panel--1">About 1</div>
-    </section>
-    <section class="section about2" data-key="about2">
-      <div class="about-panel about-panel--2">About 2</div>
+    <!-- About: 1440px 미만에서는 두 섹션, 1440px 이상에서는 workstyle의 패널이 about 안으로 옮겨져 좌우 배치 -->
+    <section class="section about_intro" data-key="about">
+      <div class="about_panel about_panel--intro">
+        <div class="about_inner">
+          <h2 class="eyebrow">ABOUT ME</h2>
+
+          <div class="about_keywords">
+            <span>꼼꼼함</span>
+            <span>책임감</span>
+            <span>배움</span>
+            <span>소통</span>
+            <span>끈기</span>
+          </div>
+
+          <div class="about_profile">
+            <div class="about_character">
+              <img src="./img/about.png" alt="프로필 캐릭터">
+            </div>
+
+            <div class="about_info">
+              <p class="about_name">유혜지 | YOO HYE JI</p>
+              <p class="about_job">Web Publisher</p>
+              <a class="about_email" href="mailto:2yooh2@naver.com">
+                2yooh2@naver.com
+              </a>
+            </div>
+          </div>
+
+          <div class="about_content">
+            <p class="about_title">작은 차이를 놓치지 않는<br>웹 퍼블리셔 유혜지입니다.</p>
+            <div class="about_desc">
+              <p class="about_text">저는 디자인에 담긴 의도를 이해하고, 이를 웹페이지로 만드는 과정이 즐겁습니다.</p>
+              <p class="about_text about_text--desktop">단순히 보이는 화면을 만드는 데 그치지 않고, 간격이나 미세한 움직임까지 신경 쓰며 작업합니다.</p>
+              <p class="about_text">새로운 기술은 직접 써 보면서 익히는 편이고, 배운 것은 다음 작업에 바로 적용해 봅니다.</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
 
-    <section class="section projects" data-key="projects">Projects</section>
-    <section class="section contact" data-key="contact">Contact</section>
 
-    <!-- fp-auto-height: 화면 전체가 아니라 내용 높이만큼만 -->
-    <footer class="section footer fp-auto-height" data-key="footer">Footer</footer>
+    <section class="section about_workstyle" data-key="workstyle">
+      <div class="about_panel about_panel--workstyle">
+        <div class="about_inner">
+
+          <h2 class="eyebrow">MY WORK STYLE</h2>
+
+          <ol class="workstyle_list">
+
+            <li class="workstyle_item">
+              <span class="workstyle_num">01</span>
+
+              <div class="workstyle_content">
+                <h3 class="workstyle_title">이해하기</h3>
+                <p class="workstyle_desc workstyle_desc--desktop">
+                  요구사항과 디자인 의도를 살펴보고,<br>
+                  전체적인 구조와 방향을 정리합니다.
+                </p>
+                <p class="workstyle_desc workstyle_desc--mobile">
+                  요구사항과 디자인 의도를 살펴보고 구조와 방향을 먼저 정리합니다.
+                </p>
+              </div>
+            </li>
+
+            <li class="workstyle_item">
+              <span class="workstyle_num">02</span>
+
+              <div class="workstyle_content">
+                <h3 class="workstyle_title">구현하기</h3>
+                <p class="workstyle_desc workstyle_desc--desktop">
+                  막히는 부분은 여러 방법을 찾아 직접 적용해 봅니다.<br>
+                  문제를 하나씩 해결하면서 새로운 것을 배워 나갑니다.
+                </p>
+                <p class="workstyle_desc workstyle_desc--mobile">
+                  막히는 부분은 여러 방법을 시도하며 하나씩 해결해 나갑니다.
+                </p>
+              </div>
+            </li>
+
+            <li class="workstyle_item">
+              <span class="workstyle_num">03</span>
+
+              <div class="workstyle_content">
+                <h3 class="workstyle_title">실행하기</h3>
+                <p class="workstyle_desc workstyle_desc--desktop">
+                  작업한 페이지를 다양한 화면 크기에서 확인하고,<br>
+                  피드백을 반영해 부족한 부분을 수정합니다.
+                </p>
+                <p class="workstyle_desc workstyle_desc--mobile">
+                  다양한 화면 크기에서 확인하고 피드백을 반영해 수정합니다.
+                </p>
+              </div>
+            </li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="section skills" data-key="skills">
+      <div class="skills_inner">
+        <h2 class="eyebrow">SKILLS</h2>
+
+        <ul class="skills_list">
+
+          <li class="skills_item skills_item--publishing">
+            <span class="skills_num">01</span>
+            <div class="skills_content">
+              <h3 class="skills_title">Publishing</h3>
+              <p class="skills_desc skills_desc--desktop">
+                시맨틱 마크업을 기반으로 반응형 웹페이지를 제작하고,<br>
+                다양한 인터랙션을 구현합니다.
+              </p>
+              <p class="skills_desc skills_desc--mobile">
+                반응형 웹 제작과 다양한 인터랙션 구현
+              </p>
+            </div>
+
+            <ul class="skills_icons">
+              <li class="skills_icon">
+                <img src="" alt="HTML5">
+              </li>
+              <li class="skills_icon">
+                <img src="" alt="CSS3">
+              </li>
+              <li class="skills_icon">
+                <img src="" alt="jQuery">
+              </li>
+              <li class="skills_icon">
+                <img src="" alt="JavaScript">
+              </li>
+            </ul>
+          </li>
+
+          <li class="skills_item skills_item--design">
+            <span class="skills_num">02</span>
+            <div class="skills_content">
+              <h3 class="skills_title">Design</h3>
+              <p class="skills_desc skills_desc--desktop">
+                디자인 시안을 제작하고, 웹페이지에 필요한<br>
+                이미지와 그래픽 요소를 편집합니다.
+              </p>
+              <p class="skills_desc skills_desc--mobile">
+                디자인 시안 제작과 그래픽 편집
+              </p>
+            </div>
+
+            <ul class="skills_icons">
+              <li class="skills_icon">
+                <img src="" alt="FIGMA">
+              </li>
+              <li class="skills_icon">
+                <img src="" alt="PHOTOSHOP">
+              </li>
+              <li class="skills_icon">
+                <img src="" alt="ILLUSTRATOR">
+              </li>
+            </ul>
+          </li>
+
+        <li class="skills_item skills_item--tools">
+          <span class="skills_num">03</span>
+          <div class="skills_content">
+            <h3 class="skills_title">Tools</h3>
+            <p class="skills_desc skills_desc--desktop">
+              개발 도구를 활용해 코드를 작성하고 프로젝트를 관리하며,<br>
+              AI 도구를 활용해 작업 효율을 높입니다.
+            </p>
+            <p class="skills_desc skills_desc--mobile">
+              프로젝트 관리와 AI 도구 활용
+            </p>
+          </div>
+
+          <ul class="skills_icons">
+            <li class="skills_icon">
+              <img src="" alt="VS CODE">
+            </li>
+            <li class="skills_icon">
+              <img src="" alt="GIT">
+            </li>
+            <li class="skills_icon">
+              <img src="" alt="GITHUB">
+            </li>
+            <li class="skills_icon">
+              <img src="" alt="CLAUDE CODE">
+            </li>
+            <li class="skills_icon">
+              <img src="" alt="SLACK">
+            </li>
+          </ul>
+        </li>
+
+        </ul>
+      </div>
+    </section>
+
+    <section class="section projects projects--tesla" data-key="projects">
+      <div class="projects_inner">
+        <span class="eyebrow">WORKS</span>
+
+          <div class="project_visual">
+            <img class="project_mockup" src="" alt="Tesla 웹사이트 리뉴얼 목업">
+            <a class="project_link" href="https://2yoooh2.github.io/TESLA/" target="_blank" rel="noopener noreferrer"
+              aria-label="Tesla 웹사이트 새 창에서 보기">
+              VIEW<br>SITE
+            </a>
+          </div>
+
+
+          <div class="project_content">
+            <div class="project_heading">
+              <span class="project_num">01</span>
+              <h2 class="project_title">TESLA</h2>
+            </div>
+
+            <p class="project_subtitle">Main + 4 Sub Pages</p>
+            <div class="project_desc project_desc--desktop">
+              <p>Tesla의 차량과 기술을 소개하는 PC 웹사이트 리뉴얼 프로젝트입니다.</p>
+              <p>흑백 대비와 레드 포인트, 각진 타이포그래피로 브랜드의 기술적인 이미지를 표현했습니다.</p>
+              <p>메인과 4개의 서브 페이지를 제작하고, 슬라이드, 탭, 스크롤 애니메이션을 적용했습니다.</p>
+            </div>
+            <div class="project_desc project_desc--mobile">
+              <p>
+                Tesla의 차량과 기술을 소개하는<br>
+                PC 웹사이트 리뉴얼 프로젝트입니다.
+              </p>
+              <p>
+                흑백 대비와 레드 포인트로 기술적인<br>
+                이미지를 표현하고, 메인과 4개의 서브 페이지에<br>
+                다양한 인터랙션을 적용했습니다.
+              </p>
+            </div>
+          </div>
+
+          <div class="project_details">
+            <div class="project_detail">
+              <h3 class="project_label">DEVICE</h3>
+              <p class="project_value">Desktop</p>
+            </div>
+
+            <div class="project_detail">
+              <h3 class="project_label">ROLE</h3>
+              <p class="project_value">Design · Publishing</p>
+            </div>
+
+            <div class="project_detail">
+              <h3 class="project_label">TOOLS</h3>
+              <p class="project_value">
+                HTML · CSS · JavaScript<br>
+                jQuery · Swiper · AOS<br>
+                Figma · Claude Code</p>
+            </div>
+          </div>
+      </div>
+    </section>
+
+
+    <section class="section contact" data-key="contact">
+      <div class="contact_inner">
+
+        <div class="contact_visual">
+          <!-- 첫 번째 장면 -->
+          <div class="contact_scene contact_scene--first">
+            <p class="contact_message contact_typing">함께 일할 동료를 찾고 계신가요?</p>
+            <img class="contact_character" src="./img/contact1.png" alt="기다리는 캐릭터">
+          </div>
+
+          <!-- 두 번째 장면 -->
+          <div class="contact_scene contact_scene--second">
+            <p class="contact_message">저 여기 있어요!!</p>
+            <img class="contact_character" src="./img/contact2.png" alt="손을 흔드는 캐릭터">
+          </div>
+        </div>
+
+        <div class="contact_content">
+          <h2 class="contact_title">CONTACT</h2>
+
+          <a class="contact_link" href="mailto:2yooh2@naver.com">
+            <img src="" alt="">
+            <span>메일 보내기</span>
+          </a>
+        </div>
+
+      </div>
+      <footer class="footer">
+        <p class="footer_copyright">
+          © 2026 YOO HYE JI. All rights reserved.
+        </p>
+      </footer>
+    </section>
   </div>
 
-  <!-- fullPage.js JS (내 JS보다 먼저) -->
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/4.0.41/fullpage.min.js"></script>
   <script src="script/main.js"></script>
 </body>
+
 </html>
