@@ -266,7 +266,7 @@
         <span class="eyebrow">WORKS</span>
 
           <div class="project_visual">
-            <img class="project_mockup" src="" alt="Tesla 웹사이트 리뉴얼 목업">
+            <img class="project_mockup" src="./img/project_tesla.png" alt="Tesla 웹사이트 리뉴얼 목업">
             <a class="project_link" href="https://2yoooh2.github.io/TESLA/" target="_blank" rel="noopener noreferrer"
               aria-label="Tesla 웹사이트 새 창에서 보기">
               VIEW<br>SITE
@@ -291,11 +291,11 @@
                 Tesla의 차량과 기술을 소개하는<br>
                 PC 웹사이트 리뉴얼 프로젝트입니다.
               </p>
-              <p>
+              <!-- <p>
                 흑백 대비와 레드 포인트로 기술적인<br>
                 이미지를 표현하고, 메인과 4개의 서브 페이지에<br>
                 다양한 인터랙션을 적용했습니다.
-              </p>
+              </p> -->
             </div>
           </div>
 
@@ -323,37 +323,53 @@
 
 
     <section class="section contact" data-key="contact">
-      <div class="contact_inner">
+      <!-- 문구 1 타이핑 → 문구 2 타이핑(캐릭터 2로 바뀜) → 3초 뒤 처음부터 반복 (script/main.js) -->
+      <div class="contact_inner contact_visual">
+        <p class="contact_message contact_message--first">함께 일할 동료를 찾고 계신가요?</p>
+        <p class="contact_message contact_message--second">저 여기 있어요!!</p>
 
-        <div class="contact_visual">
-          <!-- 첫 번째 장면 -->
-          <div class="contact_scene contact_scene--first">
-            <p class="contact_message contact_typing">함께 일할 동료를 찾고 계신가요?</p>
-            <img class="contact_character" src="./img/contact1.png" alt="기다리는 캐릭터">
-          </div>
-
-          <!-- 두 번째 장면 -->
-          <div class="contact_scene contact_scene--second">
-            <p class="contact_message">저 여기 있어요!!</p>
-            <img class="contact_character" src="./img/contact2.png" alt="손을 흔드는 캐릭터">
-          </div>
+        <div class="contact_character">
+          <img class="contact_character_img is-active" src="./img/contact1.png" alt="기다리는 캐릭터">
+          <img class="contact_character_img" src="./img/contact2.png" alt="손을 흔드는 캐릭터">
         </div>
+      </div>
 
-        <div class="contact_content">
+      <div class="contact_content">
+        <a class="contact_link" href="mailto:2yooh2@naver.com">
+          <span class="contact_link_icon"></span>
+          <span>메일 보내기</span>
+        </a>
+
+        <div class="contact_inner">
           <h2 class="contact_title">CONTACT</h2>
 
-          <a class="contact_link" href="mailto:2yooh2@naver.com">
-            <img src="" alt="">
-            <span>메일 보내기</span>
-          </a>
+          <ul class="contact_list">
+            <li>
+              <a class="contact_pill" href="tel:010-5661-9802" aria-label="010-5661-9802로 전화 걸기">
+                <span class="contact_pill_icon"><img src="./img/contact_phone.png" alt=""></span>
+                <span class="contact_pill_text">010 - 5661 - 9802</span>
+              </a>
+            </li>
+            <li>
+              <button class="contact_pill contact_copy" type="button" data-copy="2yooh2@naver.com"
+                aria-label="이메일 주소 2yooh2@naver.com 복사하기">
+                <span class="contact_pill_icon"><img src="./img/contact_mail.png" alt=""></span>
+                <span class="contact_pill_text" aria-live="polite">2yooh2@naver.com</span>
+              </button>
+            </li>
+          </ul>
         </div>
 
+        <footer class="footer">
+          <p class="footer_copyright">
+            © 2026 YOO HYE JI. All rights reserved.
+          </p>
+          <p class="footer_notice">
+            본 사이트는 개인 포트폴리오 용도로 제작되었으며,<br>
+            상업적 목적으로 사용되지 않습니다.
+          </p>
+        </footer>
       </div>
-      <footer class="footer">
-        <p class="footer_copyright">
-          © 2026 YOO HYE JI. All rights reserved.
-        </p>
-      </footer>
     </section>
   </div>
 
