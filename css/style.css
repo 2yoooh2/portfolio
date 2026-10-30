@@ -151,7 +151,8 @@ button {
 /*hero*/
 .hero{
   width: 100%;
-  height: 100vh;
+  height: 90vh;  /* svh 지원 안 하는 브라우저용 */
+  height: 90svh; /* 아래 섹션이 살짝 보이게 (svh: 폰 주소창 보일 때 높이 기준) */
   overflow: hidden; /* 오른쪽으로 나가는 띠 때문에 가로 스크롤 생기지 않게 */
 }
 
