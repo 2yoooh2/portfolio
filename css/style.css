@@ -37,6 +37,10 @@
 
   --header-height: 80px;
   --gap: 16px;
+
+  /* 비율 단위: 360px 화면에서 1px, 화면 폭에 따라 커지다가 1.3px(468px 화면)에서 멈춤
+     사용법: calc(시안 숫자 * var(--u)) */
+  --u: clamp(1px, 100vw / 360, 1.3px);
 }
 
 
@@ -88,6 +92,32 @@ button {
 }
 
 
+/* ===== Layout ===== */
+/* 모든 섹션 공통 이너 */
+.header_inner,
+.hero_inner,
+.about_inner,
+.skills_inner,
+.projects_inner,
+.contact_inner{
+  width: 80%;
+  margin: 0 auto;
+}
+
+
+/* ===== Animations ===== */
+/* 배경 찌그러진 원: 모양이 출렁이면서 천천히 회전 */
+@keyframes wobble {
+  0%, 100% { border-radius: 42% 58% 63% 37% / 41% 44% 56% 59%; }
+  25%      { border-radius: 58% 42% 38% 62% / 55% 61% 39% 45%; }
+  50%      { border-radius: 50% 50% 34% 66% / 56% 38% 62% 44%; }
+  75%      { border-radius: 33% 67% 58% 42% / 63% 48% 52% 37%; }
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+
 /* ===== Header ===== */
 .header {
   position: fixed;
@@ -99,10 +129,8 @@ button {
   z-index: 100;
 }
 
-.header-inner {
-  width: 80%;
+.header_inner{
   height: 100%;
-  margin: 0 auto;
   padding: 10px 0;
   display: flex;
   align-items: center;
@@ -116,4 +144,461 @@ button {
 
 .nav {
   display: none;
+}
+
+#fullpage{}
+
+/*hero*/
+.hero{
+  width: 100%;
+  height: 100vh;
+  overflow: hidden; /* 오른쪽으로 나가는 띠 때문에 가로 스크롤 생기지 않게 */
+}
+
+.hero_inner{
+  position: relative; /* 원 위치 기준 */
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* 세로 가운데 */
+  align-items: flex-end;   /* 이너 오른쪽에 붙이기 */
+}
+
+/* 찌그러진 원: border-radius 값을 모서리마다 다르게 */
+.hero_dot{
+  position: absolute;
+  display: block;
+  border-radius: 60% 40% 55% 45% / 50% 60% 40% 50%;
+}
+.hero_dot--green{
+  top: 19%;
+  left: 24%;
+  width: 22px;
+  height: 19px;
+  background-color: #B5D66D;
+}
+.hero_dot--blue{
+  top: 30%;
+  left: 87%;
+  width: 15px;
+  height: 13px;
+  background-color: #78A9E8;
+  border-radius: 45% 55% 40% 60% / 55% 45% 60% 40%;
+}
+.hero_dot--orange{
+  top: 61%;
+  left: 17%;
+  width: 20px;
+  height: 17px;
+  background-color: #F2C96D;
+  border-radius: 50% 50% 45% 55% / 40% 45% 55% 60%;
+}
+.hero_dot--pink{
+  top: 73%;
+  left: 65%;
+  width: 17px;
+  height: 15px;
+  background-color: #F2A0B5;
+  border-radius: 55% 45% 60% 40% / 45% 55% 45% 55%;
+}
+
+.hero_title{
+  display: flex;
+  flex-direction: column;
+  width: fit-content; /* 가장 긴 글자(PORTFOLIO) 너비에 맞춤 */
+  font-size: clamp(36px, 16px + 5.56vw, 96px); /* 360px에서 36px → 1440px에서 96px까지 자연스럽게 커짐 */
+  font-weight: 700;
+  line-height: 1.2;
+}
+.hero_sub{
+  color: #CCE0FF;
+}
+.hero_sub--top{
+  align-self: flex-start; /* WEB은 PORTFOLIO 왼쪽에 맞춤 */
+  margin-bottom: -0.42em; /* 띠에 살짝 가려지게 겹치기 (360px에서 -15px) */
+}
+.hero_main{
+  position: relative;
+  isolation: isolate; /* 띠(::before)가 글자 뒤, 흰 배경 앞에 오도록 */
+  display: flex;
+  align-items: center; /* 띠 안에서 세로 가운데 */
+  height: 1.95em; /* 360px에서 70px */
+  color: #fff;
+}
+/* 띠: 왼쪽은 둥글게, 오른쪽은 화면 끝까지 */
+.hero_main::before{
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -1.1em; /* 360px에서 -40px */
+  right: -10vw; /* 이너(80%) 바깥 여백 10%만큼 더 늘림 */
+  z-index: -1;
+  background-color: #33597f;
+  border-radius: 999px 0 0 999px; /* 높이가 바뀌어도 왼쪽은 반원 유지 */
+}
+.hero_sub--bottom{
+  align-self: flex-end; /* PUBLISHER는 오른쪽에 맞춤 */
+  margin-top: -0.14em; /* 띠에 살짝 가려지게 겹치기 (360px에서 -5px) */
+}
+.hero_name{
+  margin-top: 2.5em; /* 360px에서 50px */
+  font-family: var(--font-title);
+  font-size: clamp(20px, 13.33px + 1.85vw, 40px); /* 360px에서 20px → 1440px에서 40px */
+  font-weight: 700;
+  line-height: 1.2;
+  color: #578bbb;
+}
+
+/* 공통: 섹션 제목 */
+.eyebrow{
+  font-family: var(--font-title);
+  font-size: calc(40 * var(--u));
+  font-weight: 700;
+  line-height: 1.2;
+  color: #33597F;
+}
+
+/*about intro*/
+.about_intro{
+  position: relative;
+  isolation: isolate; /* 배경 원(z-index: -1)이 섹션 밖으로 숨지 않게 */
+  padding-top: var(--header-height); /* 고정 헤더만큼 비워두기 */
+  padding-bottom: calc(50 * var(--u)); /* 워크스타일과 사이 여백 */
+  overflow: hidden; /* 화면 밖으로 나가는 원 잘라내기 */
+}
+
+/* 배경 찌그러진 원 두 개
+   --u는 468px에서 멈추니까 원은 따로 2px(720px 화면)까지 계속 커지게 */
+.about_intro::before,
+.about_intro::after{
+  --blob: clamp(1px, 100vw / 360, 2px);
+  content: '';
+  position: absolute;
+  z-index: -1;
+  background-color: #CFDBE6;
+}
+.about_intro::before{
+  top: 48%;
+  right: calc(-70 * var(--blob));
+  width: calc(200 * var(--blob));
+  height: calc(185 * var(--blob)); /* 가로가 살짝 더 긴 원 */
+  border-radius: 55% 45% 50% 50% / 50% 55% 45% 50%;
+  animation: wobble 6s ease-in-out infinite,
+             spin 20s linear infinite;
+}
+.about_intro::after{
+  bottom: calc(-50 * var(--blob));
+  left: calc(-70 * var(--blob));
+  width: calc(210 * var(--blob));
+  height: calc(220 * var(--blob));
+  border-radius: 45% 55% 50% 50% / 55% 45% 55% 45%;
+  /* 원마다 속도·시작점·방향을 달리해서 똑같이 움직이지 않게 */
+  animation: wobble 7s ease-in-out -2s infinite,
+             spin 24s linear infinite reverse;
+}
+
+.about_keywords{
+  display: flex;
+  justify-content: center; /* 키워드는 가운데에 모아두고 남는 공간은 양옆으로 */
+  gap: calc(10 * var(--u));
+  margin-top: calc(30 * var(--u));
+}
+.about_keywords span{
+  padding: calc(4 * var(--u)) calc(8 * var(--u));
+  border-radius: calc(8 * var(--u));
+  background-color: rgba(183, 209, 236, 0.2); /* #B7D1EC 20% */
+  font-size: calc(14 * var(--u));
+  font-weight: 400;
+  line-height: 1.3;
+  text-align: center;
+}
+
+/* 캐릭터 카드: 배경은 카드 자체에, 정보 박스는 카드 아래쪽에 겹쳐 올림 */
+.about_profile{
+  position: relative;
+  width: calc(250 * var(--u));
+  height: calc(340 * var(--u));
+  margin: calc(10 * var(--u)) auto 0;
+  border-radius: calc(16 * var(--u));
+  background-color: rgba(122, 163, 219, 0.2); /* #7AA3DB 20% */
+}
+.about_character{
+  padding-top: calc(30 * var(--u));
+}
+.about_character img{
+  width: calc(180 * var(--u));
+  height: calc(197 * var(--u));
+  margin: 0 auto;
+}
+.about_info{
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: calc(115 * var(--u));
+  display: grid;
+  place-content: center; /* 텍스트 묶음은 박스 가운데 */
+  justify-items: start;  /* 글자는 왼쪽 정렬 */
+  gap: calc(5 * var(--u));
+  border-radius: 0 0 calc(16 * var(--u)) calc(16 * var(--u));
+  background-color: #7AA3DB;
+  font-size: calc(14 * var(--u));
+  font-weight: 600;
+  line-height: 1.3;
+  color: #fff;
+}
+
+.about_content{
+  margin-top: calc(30 * var(--u));
+  text-align: center;
+}
+.about_title{
+  font-size: calc(18 * var(--u));
+  font-weight: 600;
+  line-height: calc(24 * var(--u));
+}
+.about_desc{
+  margin-top: calc(20 * var(--u)); /* 시안에 수치가 없어 눈대중으로 맞춤 */
+  font-size: calc(14 * var(--u));
+  font-weight: 400;
+  line-height: calc(20 * var(--u));
+}
+.about_text + .about_text{
+  margin-top: calc(5 * var(--u));
+}
+.about_text--desktop{
+  display: none;
+}
+
+/*about workstyle*/
+.about_workstyle{
+  background-color: #33597F;
+}
+
+.about_panel--workstyle{
+  padding: calc(100 * var(--u)) 0;
+}
+
+.about_workstyle .eyebrow{
+  width: min-content; /* 가장 긴 단어 너비로 줄여서 한 단어씩 줄바꿈 → 세 줄 */
+  margin-left: auto;  /* 이너 오른쪽에 붙이기 */
+  text-align: right;
+  color: #fff; /* 배경과 같은 색(#33597F)이면 안 보여서 시안대로 흰색 */
+}
+
+.workstyle_list{
+  display: flex;
+  flex-direction: column;
+  gap: calc(40 * var(--u));
+  margin-top: calc(40 * var(--u));
+  list-style: none;
+}
+
+.workstyle_item{
+  position: relative; /* 점선 위치 기준 */
+  display: flex;
+  align-items: flex-start; /* 번호와 내용 윗라인 맞추기 */
+  gap: calc(20 * var(--u));
+}
+
+/* 번호 원 가운데를 다음 번호 원 가운데까지 잇는 점선 (마지막 항목은 제외) */
+.workstyle_item:not(:last-child)::before{
+  content: '';
+  position: absolute;
+  top: calc(20 * var(--u));  /* 원(40) 가운데 */
+  left: calc(19 * var(--u)); /* 원 가운데 - 선 굵기 절반 */
+  width: calc(2 * var(--u)); /* 선 굵기 */
+  height: calc(100% + 40 * var(--u)); /* 항목 높이 + 항목 간 여백 */
+  /* 선 4 + 빈칸 3 반복 (숫자 바꾸면 점선 길이/간격 조절) */
+  background: repeating-linear-gradient(
+    to bottom,
+    #B7D1EC 0 calc(4 * var(--u)),
+    transparent calc(4 * var(--u)) calc(7 * var(--u))
+  );
+}
+
+.workstyle_num{
+  position: relative;
+  z-index: 1; /* 점선보다 위에 */
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: calc(40 * var(--u));
+  height: calc(40 * var(--u));
+  border-radius: 50%;
+  background-color: #B7D1EC;
+  font-size: calc(16 * var(--u));
+  font-weight: 700;
+  color: #578BBB;
+}
+
+.workstyle_content{
+  color: #fff;
+}
+.workstyle_title{
+  font-family: var(--font-base); /* h3 기본(어그로체) 대신 프리텐다드 */
+  font-size: calc(18 * var(--u));
+  font-weight: 700;
+  line-height: 1.3;
+}
+.workstyle_desc{
+  margin-top: calc(8 * var(--u)); /* 시안에 수치가 없어 눈대중으로 맞춤 */
+  font-size: calc(14 * var(--u));
+  font-weight: 400;
+  line-height: 1.4;
+  width: 85%;
+  word-break: keep-all; /* 한글 단어 중간에서 줄바꿈되지 않게 */
+}
+.workstyle_desc--desktop{
+  display: none;
+}
+/*skills*/
+.skills{
+  position: relative;
+  isolation: isolate; /* 배경 원(z-index: -1)이 섹션 밖으로 숨지 않게 */
+  padding: calc(100 * var(--u)) 0 calc(200 * var(--u));
+  overflow: hidden; /* 오른쪽 끝까지 가는 구분선, 화면 밖 원 잘라내기 */
+}
+
+/* eyebrow 뒤 찌그러진 원 (about intro 원처럼 720px 화면까지 커짐) */
+.skills::before{
+  --blob: clamp(1px, 100vw / 360, 2px);
+  content: '';
+  position: absolute;
+  z-index: -1;
+  top: calc(-30 * var(--blob));
+  left: calc(-80 * var(--blob));
+  width: calc(240 * var(--blob));
+  height: calc(230 * var(--blob));
+  border-radius: 50% 50% 45% 55% / 55% 45% 55% 45%;
+  background-color: rgba(183, 209, 236, 0.3); /* #B7D1EC 30% */
+  animation: wobble 8s ease-in-out -4s infinite,
+             spin 22s linear infinite;
+}
+
+.skills_list{
+  display: flex;
+  flex-direction: column;
+  gap: calc(80 * var(--u)); /* 아이템 40 + 구분선 + 40 */
+  margin-top: calc(40 * var(--u)); /* 시안에 수치가 없어 눈대중으로 맞춤 */
+}
+
+/* 번호·제목은 한 줄, 설명·아이콘은 각자 한 줄씩 */
+.skills_item{
+  position: relative; /* 구분선 위치 기준 */
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;     /* 번호, 실선, 제목 세로 가운데 */
+  column-gap: calc(20 * var(--u));
+}
+.skills_content{
+  display: contents; /* 안에 있는 제목·설명을 skills_item의 flex 항목으로 */
+}
+
+/* 아이템 사이 구분선: 이너 왼쪽에서 시작해 화면 오른쪽 끝까지 */
+.skills_item:not(:last-child)::after{
+  content: '';
+  position: absolute;
+  bottom: calc(-40 * var(--u));
+  left: 0;
+  right: -10vw; /* 이너(80%) 바깥 여백만큼 */
+  height: 1px;
+  background-color: #d9d9d9;
+}
+
+.skills_num{
+  display: flex;
+  align-items: center;
+  gap: calc(20 * var(--u)); /* 번호 - 실선 사이 */
+  font-family: var(--font-title);
+  font-size: calc(18 * var(--u));
+  font-weight: 700;
+  color: #33597F;
+}
+/* 번호와 제목 사이 실선 */
+.skills_num::after{
+  content: '';
+  width: calc(20 * var(--u));
+  height: 1px;
+  background-color: #d9d9d9;
+}
+
+.skills_title{
+  font-size: calc(18 * var(--u));
+  font-weight: 500;
+  color: #333;
+}
+
+.skills_desc{
+  flex-basis: 100%; /* 한 줄 통째로 */
+  margin-top: calc(10 * var(--u));
+  font-size: calc(14 * var(--u));
+  font-weight: 400;
+  text-align: center;
+  color: #333;
+}
+.skills_desc--desktop{
+  display: none;
+}
+
+/* 아이콘 카드 */
+.skills_icons{
+  display: grid;
+  justify-content: center;
+  gap: calc(20 * var(--u));
+  flex-basis: 100%;
+  margin-top: calc(30 * var(--u));
+}
+.skills_item--publishing .skills_icons{
+  grid-template-columns: repeat(2, calc(80 * var(--u))); /* 2-2 */
+}
+.skills_item--design .skills_icons{
+  grid-template-columns: repeat(3, calc(80 * var(--u))); /* 3개 한 줄 */
+}
+/* 2-3: 칸을 6개로 쪼개고 카드 하나가 2칸씩 차지
+   첫 카드를 2번째 칸부터 시작하면 윗줄 2개가 가운데로 옴 */
+.skills_item--tools .skills_icons{
+  grid-template-columns: repeat(6, calc(30 * var(--u)));
+}
+.skills_item--tools .skills_icon{
+  grid-column: span 2;
+}
+.skills_item--tools .skills_icon:first-child{
+  grid-column: 2 / span 2;
+}
+
+.skills_icon{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: calc(10 * var(--u));
+  height: calc(90 * var(--u));
+  border-radius: calc(8 * var(--u));
+  background-color: rgba(183, 209, 236, 0.2); /* #B7D1EC 20% */
+}
+.skills_icon img{
+  width: calc(36 * var(--u));
+  height: calc(36 * var(--u));
+}
+.skills_name{
+  font-size: calc(12 * var(--u));
+  font-weight: 500;
+  line-height: 1.2;
+  text-align: center;
+}
+.projects{display: none;}
+.contact{display: none;}
+
+/* ===== Reduced Motion ===== */
+/* 움직임 줄이기 설정한 사용자에게는 배경 원 멈춤 (위 animation을 덮어써야 해서 맨 아래에 둠) */
+@media (prefers-reduced-motion: reduce) {
+  .about_intro::before,
+  .about_intro::after,
+  .skills::before{
+    animation: none;
+  }
 }
