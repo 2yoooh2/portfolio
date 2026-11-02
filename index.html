@@ -25,23 +25,26 @@
 
       <nav class="nav">
         <ul>
+          <li data-menuanchor="hero"><a href="#hero">Home</a></li>
           <li data-menuanchor="about"><a href="#about">About</a></li>
-          <li data-menuanchor="projects"><a href="#projects">Projects</a></li>
+          <li data-menuanchor="projects"><a href="#projects">Works</a></li>
           <li data-menuanchor="contact"><a href="#contact">Contact</a></li>
         </ul>
       </nav>
 
+      <a href="#projects" class="header_work">WORK</a>
     </div>
   </header>
 
   <div id="fullpage">
-    <section class="section hero" data-key="hero">
+    <section class="section hero" id="hero" data-key="hero">
       <div class="hero_inner">
 
-        <span class="hero_dot hero_dot--green" aria-hidden="true"></span>
-        <span class="hero_dot hero_dot--blue" aria-hidden="true"></span>
-        <span class="hero_dot hero_dot--orange" aria-hidden="true"></span>
-        <span class="hero_dot hero_dot--pink" aria-hidden="true"></span>
+        <!-- 색 점: 누르면 터졌다가 2초 뒤 다시 나타남 (script/main.js) -->
+        <button type="button" class="hero_dot hero_dot--green" aria-label="초록 점 터뜨리기"></button>
+        <button type="button" class="hero_dot hero_dot--blue" aria-label="파란 점 터뜨리기"></button>
+        <button type="button" class="hero_dot hero_dot--orange" aria-label="노란 점 터뜨리기"></button>
+        <button type="button" class="hero_dot hero_dot--pink" aria-label="분홍 점 터뜨리기"></button>
 
         <h1 class="hero_title">
           <span class="hero_sub hero_sub--top">WEB</span>
@@ -53,7 +56,7 @@
     </section>
 
     <!-- About: 1440px 미만에서는 두 섹션, 1440px 이상에서는 workstyle의 패널이 about 안으로 옮겨져 좌우 배치 -->
-    <section class="section about_intro" data-key="about">
+    <section class="section about_intro" id="about" data-key="about">
       <div class="about_panel about_panel--intro">
         <div class="about_inner">
           <h2 class="eyebrow">ABOUT ME</h2>
@@ -85,7 +88,7 @@
             <div class="about_desc">
               <p class="about_text">저는 디자인에 담긴 의도를 이해하고,<br>
                 이를 웹페이지로 만드는 과정이 즐겁습니다.</p>
-              <p class="about_text about_text--desktop">단순히 보이는 화면을 만드는 데 그치지 않고, 간격이나 미세한 움직임까지 신경 쓰며 작업합니다.</p>
+              <p class="about_text about_text--desktop">단순히 보이는 화면을 만드는 데 그치지 않고,<br>간격이나 미세한 움직임까지 신경 쓰며 작업합니다.</p>
               <p class="about_text">새로운 기술은 직접 써 보면서 익히는 편이고,<br>배운 것은 다음 작업에 바로 적용해 봅니다.</p>
             </div>
           </div>
@@ -136,7 +139,7 @@
               <span class="workstyle_num">03</span>
 
               <div class="workstyle_content">
-                <h3 class="workstyle_title">실행하기</h3>
+                <h3 class="workstyle_title">점검하기</h3>
                 <p class="workstyle_desc workstyle_desc--desktop">
                   작업한 페이지를 다양한 화면 크기에서 확인하고,<br>
                   피드백을 반영해 부족한 부분을 수정합니다.
@@ -261,7 +264,7 @@
       </div>
     </section>
 
-    <section class="section projects projects--tesla" data-key="projects">
+    <section class="section projects projects--tesla" id="projects" data-key="projects">
       <div class="projects_inner">
         <span class="eyebrow">WORKS</span>
 
@@ -322,7 +325,7 @@
     </section>
 
 
-    <section class="section contact" data-key="contact">
+    <section class="section contact" id="contact" data-key="contact">
       <!-- 문구 1 타이핑 → 문구 2 타이핑(캐릭터 2로 바뀜) → 3초 뒤 처음부터 반복 (script/main.js) -->
       <div class="contact_inner contact_visual">
         <p class="contact_message contact_message--first">함께 일할 동료를 찾고 계신가요?</p>

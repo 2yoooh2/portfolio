@@ -35,7 +35,7 @@
   --font-base: 'Pretendard', 'Apple SD Gothic Neo', sans-serif;  /* 본문 */
   --font-title: 'SBAggro', var(--font-base);                     /* 제목 */
 
-  --header-height: 80px;
+  --header-height: clamp(60px, 38.313px + 6.0241vw, 100px); /* 360에서 60px → 1024에서 100px */
   --gap: 16px;
 
   /* 비율 단위: 360px 화면에서 1px, 화면 폭에 따라 커지다가 1.3px(468px 화면)에서 멈춤
@@ -63,6 +63,10 @@ body {
   color: var(--color-main);
   background-color: var(--color-bg);
   line-height: 1.6;
+  /* 화면 밖으로 나가는 장식(띠, 원, 구분선) 때문에 가로 스크롤이 생기지 않게
+     clip은 hidden과 달리 스크롤 영역을 만들지 않아서 fullPage.js, sticky에 영향 없음 */
+  overflow-x: hidden; /* clip 지원 안 하는 옛 브라우저용 */
+  overflow-x: clip;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -103,6 +107,16 @@ button {
   width: 80%;
   margin: 0 auto;
 }
+@media (min-width: 1024px) {
+  .header_inner,
+  .hero_inner,
+  .about_inner,
+  .skills_inner,
+  .projects_inner,
+  .contact_inner{
+    width: 89.0625%; /* 1024 시안 이너 912px ÷ 1024 (반올림 안 함) */
+  }
+}
 
 
 /* ===== Animations ===== */
@@ -127,23 +141,65 @@ button {
   height: var(--header-height);
   background-color: var(--color-bg);
   z-index: 100;
+  transition: background-color 0.3s, box-shadow 0.3s;
+}
+/* 스크롤하면 반투명 + 뒤 흐림 + 아래 연한 선 (script/main.js에서 is-scrolled 붙임) */
+.header.is-scrolled{
+  background-color: rgba(255, 255, 255, 0.75);
+  -webkit-backdrop-filter: blur(12px); /* Safari */
+  backdrop-filter: blur(12px);
+  box-shadow: 0 1px 0 rgba(51, 89, 127, 0.08), 0 4px 16px rgba(51, 89, 127, 0.06);
+}
+/* 흐림 효과를 지원 안 하는 브라우저는 글자가 비쳐 보이지 않게 덜 투명하게 */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .header.is-scrolled{
+    background-color: rgba(255, 255, 255, 0.95);
+  }
 }
 
 .header_inner{
   height: 100%;
-  padding: 10px 0;
   display: flex;
   align-items: center;
+  justify-content: space-between; /* 로고 왼쪽, WORK 버튼 오른쪽 */
 }
 
 .logo,
 .logo img {
-  width: 60px;
-  height: 60px;
+  width: clamp(40px, 29.157px + 3.012vw, 60px); /* 360에서 40px → 1024에서 60px */
+  height: clamp(40px, 29.157px + 3.012vw, 60px);
+}
+
+/* WORK 바로가기: 글자 16px + 위아래 패딩 14px = 터치 영역 44px */
+.header_work {
+  display: block;
+  padding: 14px 0;
+  font-family: var(--font-base);
+  font-size: 16px;
+  line-height: 1;
 }
 
 .nav {
   display: none;
+}
+
+@media (min-width: 1024px) {
+  /* PC에서는 WORK 버튼 대신 전체 메뉴 */
+  .header_work {
+    display: none;
+  }
+  .nav {
+    display: block;
+  }
+  .nav ul {
+    display: flex;
+    gap: 70px; /* 메뉴끼리 간격, Contact 끝은 이너 오른쪽에 붙음 */
+  }
+  .nav a {
+    font-family: var(--font-base);
+    font-size: 18px;
+    font-weight: 400; /* Regular */
+  }
 }
 
 #fullpage{}
@@ -151,8 +207,8 @@ button {
 /*hero*/
 .hero{
   width: 100%;
-  height: 90vh;  /* svh 지원 안 하는 브라우저용 */
-  height: 90svh; /* 아래 섹션이 살짝 보이게 (svh: 폰 주소창 보일 때 높이 기준) */
+  height: 85vh;  /* svh 지원 안 하는 브라우저용 */
+  height: 85svh; /* 아래 섹션이 살짝 보이게 (svh: 폰 주소창 보일 때 높이 기준) */
   overflow: hidden; /* 오른쪽으로 나가는 띠 때문에 가로 스크롤 생기지 않게 */
 }
 
@@ -171,34 +227,77 @@ button {
   display: block;
   border-radius: 60% 40% 55% 45% / 50% 60% 40% 50%;
 }
+/* 보이는 크기는 그대로, 누르는 영역만 44px */
+.hero_dot::before{
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 44px;
+  height: 44px;
+  transform: translate(-50%, -50%);
+}
+/* hover: 살짝 커져서 누를 수 있다는 걸 알려줌
+   등장/둥둥 애니메이션은 scale, translate 속성을 쓰고 여기선 transform을 써서 서로 안 덮어씀 */
+.hero_dot:focus-visible{
+  transform: scale(1.3);
+}
+@media (hover: hover) {
+  .hero_dot:hover{
+    transform: scale(1.3);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .hero_dot{
+    transition: transform 0.25s cubic-bezier(0.3, 1.6, 0.5, 1); /* 살짝 튕기듯 */
+  }
+}
+/* 터진 뒤 다시 나타날 때까지 숨김 */
+.hero_dot.is-burst{
+  opacity: 0;
+  pointer-events: none;
+}
+/* 터질 때 퍼지는 파편 (script/main.js에서 만듦) */
+.hero_burst_piece{
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: heroPiece 0.6s ease-out forwards;
+}
 .hero_dot--green{
+  --i: 0; /* 등장 순서 */
   top: 19%;
   left: 24%;
-  width: 22px;
-  height: 19px;
+  width: clamp(22px, 14.952px + 1.9578vw, 35px); /* 360에서 22px → 1024에서 35px */
+  aspect-ratio: 22 / 19; /* 높이는 360 시안 비율대로 따라감 */
   background-color: #B5D66D;
 }
 .hero_dot--blue{
+  --i: 1;
   top: 30%;
   left: 87%;
-  width: 15px;
-  height: 13px;
+  width: clamp(15px, 11.205px + 1.0542vw, 22px); /* 360에서 15px → 1024에서 22px */
+  aspect-ratio: 15 / 13;
   background-color: #78A9E8;
   border-radius: 45% 55% 40% 60% / 55% 45% 60% 40%;
 }
 .hero_dot--orange{
+  --i: 2;
   top: 61%;
   left: 17%;
-  width: 20px;
-  height: 17px;
+  width: clamp(20px, 14.036px + 1.6566vw, 31px); /* 360에서 20px → 1024에서 31px */
+  aspect-ratio: 20 / 17;
   background-color: #F2C96D;
   border-radius: 50% 50% 45% 55% / 40% 45% 55% 60%;
 }
 .hero_dot--pink{
+  --i: 3;
   top: 73%;
   left: 65%;
-  width: 17px;
-  height: 15px;
+  width: clamp(17px, 12.120px + 1.3554vw, 26px); /* 360에서 17px → 1024에서 26px */
+  aspect-ratio: 17 / 15;
   background-color: #F2A0B5;
   border-radius: 55% 45% 60% 40% / 45% 55% 45% 55%;
 }
@@ -207,11 +306,13 @@ button {
   display: flex;
   flex-direction: column;
   width: fit-content; /* 가장 긴 글자(PORTFOLIO) 너비에 맞춤 */
-  font-size: clamp(36px, 16px + 5.56vw, 96px); /* 360px에서 36px → 1440px에서 96px까지 자연스럽게 커짐 */
+  font-size: clamp(36px, 1.301px + 9.6386vw, 100px); /* WEB, PUBLISHER: 360에서 36px → 1024에서 100px */
   font-weight: 700;
   line-height: 1.2;
 }
 .hero_sub{
+  position: relative;
+  z-index: 0; /* 띠(.hero_main) 뒤로 */
   color: #CCE0FF;
 }
 .hero_sub--top{
@@ -220,10 +321,12 @@ button {
 }
 .hero_main{
   position: relative;
+  z-index: 1; /* WEB, PUBLISHER가 띠 뒤에서 나오도록 앞에 둠 */
   isolation: isolate; /* 띠(::before)가 글자 뒤, 흰 배경 앞에 오도록 */
   display: flex;
   align-items: center; /* 띠 안에서 세로 가운데 */
-  height: 1.95em; /* 360px에서 70px */
+  height: clamp(70px, 21.0843vw - 5.904px, 210px); /* 띠 높이: 360에서 70px → 1024에서 210px */
+  font-size: clamp(36px, 10.3916vw - 1.410px, 105px); /* PORTFOLIO: 360에서 36px → 1024에서 105px */
   color: #fff;
 }
 /* 띠: 왼쪽은 둥글게, 오른쪽은 화면 끝까지 */
@@ -232,11 +335,29 @@ button {
   position: absolute;
   top: 0;
   bottom: 0;
-  left: -1.1em; /* 360px에서 -40px */
-  right: -10vw; /* 이너(80%) 바깥 여백 10%만큼 더 늘림 */
+  left: calc(-1 * clamp(40px, 9.639px + 8.4337vw, 96px)); /* P 앞 간격: 360에서 40px → 1024에서 96px */
+  right: -10vw; /* 이너(80%) 바깥 여백 10%만큼 더 늘려서 화면 끝까지 */
   z-index: -1;
   background-color: #33597f;
   border-radius: 999px 0 0 999px; /* 높이가 바뀌어도 왼쪽은 반원 유지 */
+}
+/* PORTFOLIO 글자 (script/main.js에서 한 글자씩 쪼갬) */
+.hero_main_letters{
+  display: inline-flex;
+  overflow: hidden; /* 아래에서 올라오는 글자를 줄 밖에서는 안 보이게 */
+}
+.hero_main_letter{
+  display: inline-block;
+}
+/* 화면에는 안 보이고 스크린리더만 읽는 글자 */
+.sr-only{
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 .hero_sub--bottom{
   align-self: flex-end; /* PUBLISHER는 오른쪽에 맞춤 */
@@ -245,16 +366,125 @@ button {
 .hero_name{
   margin-top: 2.5em; /* 360px에서 50px */
   font-family: var(--font-title);
-  font-size: clamp(20px, 13.33px + 1.85vw, 40px); /* 360px에서 20px → 1440px에서 40px */
+  font-size: clamp(20px, 13.494px + 1.8072vw, 32px); /* 360에서 20px → 1024에서 32px */
   font-weight: 700;
   line-height: 1.2;
   color: #578bbb;
 }
 
+@media (min-width: 1024px) {
+  /* fullPage.js로 섹션마다 화면에 꽉 차게 (모바일은 85%라 아래 About이 살짝 보임) */
+  .hero{
+    height: 100vh;
+    height: 100svh;
+  }
+  /* fullPage.js가 섹션 안을 .fp-overflow로 감싸서 .hero_inner의 height: 100%가 안 먹음
+     → 감싼 div도 섹션 높이만큼 채워서 세로 가운데 정렬 살리기 */
+  .hero .fp-overflow{
+    height: 100%;
+  }
+  /* 화면이 넓어진 만큼 점을 가장자리 쪽으로 더 퍼뜨림 (%는 .hero_inner 기준) */
+  .hero_dot--green{
+    top: 17%;
+    left: 14%;
+  }
+  .hero_dot--blue{
+    top: 25%;
+    left: 90%;
+  }
+  .hero_dot--orange{
+    top: 66%;
+    left: 10%;
+  }
+  .hero_dot--pink{
+    top: 83%;
+    left: 56%;
+  }
+  /* 이너가 89.0625%라 바깥 여백이 화면의 5.46875%로 줄어듦 → 띠도 그만큼만 늘림 */
+  .hero_main::before{
+    right: -5.46875vw;
+  }
+  /* 헤더(100px) 아래 공간에서 세로 가운데 → 낮은 노트북 화면에서 WEB이 헤더에 가리지 않게 */
+  .hero_inner{
+    padding-top: var(--header-height);
+  }
+}
+
+/* Hero 등장 애니메이션: 처음 들어올 때 .hero에 is-play가 붙으면 한 번 재생
+   움직임 줄이기 설정이면 이 블록이 통째로 빠져서 최종 화면만 보임 */
+@media (prefers-reduced-motion: no-preference) {
+  /* 1. 띠 슬라이드인 (0 ~ 0.6초) */
+  .hero.is-play .hero_main::before{
+    animation: heroBandIn 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+  /* 2. PORTFOLIO 한 글자씩 (0.45초부터 0.05초 간격) */
+  .hero.is-play .hero_main_letter{
+    animation: heroLetterUp 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) calc(0.45s + var(--i) * 0.05s) both;
+  }
+  /* 3. WEB은 위로, PUBLISHER는 아래로 띠 뒤에서 나옴 (1.05초) */
+  .hero.is-play .hero_sub--top{
+    animation: heroWebIn 0.5s ease-out 1.05s both;
+  }
+  .hero.is-play .hero_sub--bottom{
+    animation: heroPubIn 0.5s ease-out 1.05s both;
+  }
+  /* 4. 이름 (1.5초) */
+  .hero.is-play .hero_name{
+    animation: heroFade 0.5s ease-out 1.5s both;
+  }
+  /* 5. 점이 하나씩 톡 (1.9초부터) → 계속 둥둥 */
+  .hero.is-play .hero_dot{
+    animation:
+      heroDotPop 0.4s cubic-bezier(0.3, 1.6, 0.5, 1) calc(1.9s + var(--i) * 0.1s) both,
+      heroDotFloat 4.5s ease-in-out calc(2.3s + var(--i) * 0.4s) infinite;
+  }
+  /* 점 눌렀을 때: 커지면서 사라짐 → 2초 뒤 다시 톡 */
+  .hero.is-play .hero_dot.is-burst{
+    animation: heroDotBurst 0.35s ease-out forwards;
+  }
+  .hero.is-play .hero_dot.is-respawn{
+    animation:
+      heroDotPop 0.4s cubic-bezier(0.3, 1.6, 0.5, 1) both,
+      heroDotFloat 4.5s ease-in-out 0.4s infinite;
+  }
+}
+
+@keyframes heroBandIn{
+  from { transform: translateX(110%); }
+}
+@keyframes heroLetterUp{
+  from { transform: translateY(100%); opacity: 0; }
+}
+@keyframes heroWebIn{
+  from { transform: translateY(0.78em); opacity: 0; } /* 36px 글자에서 28px */
+}
+@keyframes heroPubIn{
+  from { transform: translateY(-0.78em); opacity: 0; }
+}
+@keyframes heroFade{
+  from { transform: translateY(6px); opacity: 0; }
+}
+/* 등장(scale)과 둥둥(translate)은 다른 속성이라 같이 돌아도 안 겹침 */
+@keyframes heroDotPop{
+  from { scale: 0; }
+}
+@keyframes heroDotFloat{
+  0%, 100% { translate: 0 0; }
+  50%      { translate: 3px -9px; }
+}
+@keyframes heroDotBurst{
+  from { scale: 1; opacity: 1; }
+  to   { scale: 1.8; opacity: 0; }
+}
+@keyframes heroPiece{
+  from { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  to   { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(0.3); opacity: 0; }
+}
+
 /* 공통: 섹션 제목 */
 .eyebrow{
   font-family: var(--font-title);
-  font-size: calc(50 * var(--u));
+  font-size: clamp(50px, 44.578px + 1.5060vw, 60px); /* 360에서 50px → 1024에서 60px */
   font-weight: 700;
   line-height: 1.2;
   color: #33597F;
@@ -310,30 +540,31 @@ button {
   margin-top: calc(30 * var(--u));
 }
 .about_keywords span{
-  padding: calc(4 * var(--u)) calc(8 * var(--u));
+  /* 글자로부터 세로 4→5px, 가로 8→10px (360 → 1024) */
+  padding: clamp(4px, 3.458px + 0.1506vw, 5px) clamp(8px, 6.916px + 0.3012vw, 10px);
   border-radius: calc(8 * var(--u));
   background-color: rgba(183, 209, 236, 0.2); /* #B7D1EC 20% */
-  font-size: calc(14 * var(--u));
+  font-size: clamp(14px, 11.831px + 0.6024vw, 18px);   /* 14 → 18 */
   font-weight: 400;
-  line-height: calc(20 * var(--u));
+  line-height: clamp(20px, 17.831px + 0.6024vw, 24px); /* 20 → 24 */
   text-align: center;
 }
 
 /* 캐릭터 카드: 배경은 카드 자체에, 정보 박스는 카드 아래쪽에 겹쳐 올림 */
 .about_profile{
   position: relative;
-  width: calc(250 * var(--u));
-  height: calc(340 * var(--u));
+  width: clamp(250px, 206.626px + 12.0482vw, 330px);  /* 250 → 330 */
+  height: clamp(340px, 280.361px + 16.5663vw, 450px); /* 340 → 450 */
   margin: calc(10 * var(--u)) auto 0;
   border-radius: calc(16 * var(--u));
   background-color: rgba(122, 163, 219, 0.2); /* #7AA3DB 20% */
 }
 .about_character{
-  padding-top: calc(30 * var(--u));
+  padding-top: clamp(30px, 21.867px + 2.2590vw, 45px); /* 30 → 45: 캐릭터 아래가 정보 박스 위에 딱 닿게 */
 }
 .about_character img{
-  width: calc(180 * var(--u));
-  height: calc(197 * var(--u));
+  width: clamp(180px, 151.265px + 7.9819vw, 233px);  /* 180 → 233 */
+  height: clamp(197px, 165.554px + 8.7349vw, 255px); /* 197 → 255 */
   margin: 0 auto;
 }
 .about_info{
@@ -341,16 +572,16 @@ button {
   left: 0;
   bottom: 0;
   width: 100%;
-  height: calc(115 * var(--u));
+  height: clamp(115px, 96.024px + 5.2711vw, 150px); /* 115 → 150 */
   display: grid;
   place-content: center; /* 텍스트 묶음은 박스 가운데 */
   justify-items: start;  /* 글자는 왼쪽 정렬 */
-  gap: calc(5 * var(--u));
+  gap: clamp(5px, 2.289px + 0.7530vw, 10px); /* 5 → 10 */
   border-radius: 0 0 calc(16 * var(--u)) calc(16 * var(--u));
   background-color: #33597F;
-  font-size: calc(14 * var(--u));
+  font-size: clamp(14px, 11.831px + 0.6024vw, 18px);   /* 14 → 18 */
   font-weight: 500;
-  line-height: calc(20 * var(--u));
+  line-height: clamp(20px, 17.831px + 0.6024vw, 24px); /* 20 → 24 */
   color: #fff;
 }
 
@@ -359,21 +590,89 @@ button {
   text-align: center;
 }
 .about_title{
-  font-size: calc(18 * var(--u));
+  font-size: clamp(18px, 10.410px + 2.1084vw, 32px);   /* 18 → 32 */
   font-weight: 600;
-  line-height: calc(24 * var(--u));
+  line-height: clamp(24px, 16.410px + 2.1084vw, 38px); /* 24 → 38 */
 }
 .about_desc{
-  margin-top: calc(20 * var(--u)); /* 시안에 수치가 없어 눈대중으로 맞춤 */
-  font-size: calc(14 * var(--u));
+  margin-top: clamp(20px, 3.735px + 4.5181vw, 50px); /* 20 → 50 (360 값은 눈대중) */
+  font-size: clamp(14px, 11.831px + 0.6024vw, 18px);   /* 14 → 18 */
   font-weight: 400;
-  line-height: calc(20 * var(--u));
+  line-height: clamp(20px, 17.831px + 0.6024vw, 24px); /* 20 → 24 */
 }
 .about_text + .about_text{
-  margin-top: calc(5 * var(--u));
+  margin-top: clamp(5px, 1.5060vw - 0.422px, 15px); /* p끼리 5 → 15 */
 }
 .about_text--desktop{
   display: none;
+}
+
+/* 1024: 제목 아래로 왼쪽 사진, 오른쪽 텍스트
+   텍스트 묶음(키워드 + 제목 + 설명)은 사진 높이 기준 세로 가운데 (빈 1fr 줄이 위아래로 나눠 가짐) */
+@media (min-width: 1024px) {
+  /* 헤더 아래 공간에서 세로 가운데
+     margin: auto 방식이라 화면이 낮아 내용이 넘치면 위가 잘리지 않고 위에서부터 보임 */
+  .about_intro{
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* fullPage.js 없이 볼 때도 화면 높이 확보 */
+    padding-bottom: 40px; /* 아래 40px을 비워서 가운데보다 20px 위로 */
+  }
+  /* fullPage.js가 섹션 안을 감싸는 .fp-overflow도 섹션 높이만큼 채우기 (Hero와 같은 문제) */
+  .about_intro .fp-overflow{
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  .about_panel--intro{
+    margin-block: auto;
+  }
+  /* 오른쪽 원: 왼쪽 아래 원(420×440)보다 살짝 작게 380×350, 세로는 ABOUT ME 줄 가운데에 맞춤
+     ABOUT ME 가운데 = 화면 50% - 225px (헤더 100, 아래 여백 40, 내용 높이 582, 제목 높이 72 기준)
+     → 원 높이 절반(175)만큼 더 올림 */
+  .about_intro::before{
+    top: calc(50% - 400px);
+    right: -140px;
+    width: 380px;
+    height: 350px;
+  }
+  .about_intro .eyebrow{
+    grid-area: eyebrow;
+    width: auto; /* ABOUT ME 한 줄 */
+    margin-bottom: 60px; /* 제목 ~ 사진 사이 */
+  }
+  .about_intro .about_inner{
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto 1fr auto auto 1fr;
+    grid-template-areas:
+      "eyebrow eyebrow"
+      "profile ."
+      "profile keywords"
+      "profile content"
+      "profile .";
+    column-gap: 60px; /* 사진 ~ 텍스트 */
+  }
+  .about_profile{
+    grid-area: profile;
+    margin: 0; /* 이너 왼쪽에 붙이기 */
+  }
+  .about_info{
+    font-weight: 600; /* SemiBold */
+  }
+  .about_keywords{
+    grid-area: keywords;
+    justify-content: flex-start;
+    margin-top: 0;
+  }
+  .about_content{
+    grid-area: content;
+    margin-top: 50px; /* 키워드 ~ 제목 */
+    text-align: left;
+  }
+  .about_text--desktop{
+    display: block;
+  }
 }
 
 /*about workstyle*/
@@ -393,9 +692,12 @@ button {
 }
 
 .workstyle_list{
+  /* 번호 원 크기, 항목끼리 간격 (점선 길이 계산에도 같이 씀) */
+  --num: clamp(40px, 34.578px + 1.5060vw, 50px);      /* 원 40 → 50 */
+  --item-gap: clamp(40px, 29.157px + 3.0120vw, 60px); /* 40 → 60 */
   display: flex;
   flex-direction: column;
-  gap: calc(40 * var(--u));
+  gap: var(--item-gap);
   margin-top: calc(40 * var(--u));
   list-style: none;
 }
@@ -411,10 +713,10 @@ button {
 .workstyle_item:not(:last-child)::before{
   content: '';
   position: absolute;
-  top: calc(20 * var(--u));  /* 원(40) 가운데 */
-  left: calc(19 * var(--u)); /* 원 가운데 - 선 굵기 절반 */
+  top: calc(var(--num) / 2);  /* 원 가운데 */
+  left: calc(var(--num) / 2 - 1 * var(--u)); /* 원 가운데 - 선 굵기 절반 */
   width: calc(2 * var(--u)); /* 선 굵기 */
-  height: calc(100% + 40 * var(--u)); /* 항목 높이 + 항목 간 여백 */
+  height: calc(100% + var(--item-gap)); /* 항목 높이 + 항목 간 여백 */
   /* 선 4 + 빈칸 3 반복 (숫자 바꾸면 점선 길이/간격 조절) */
   background: repeating-linear-gradient(
     to bottom,
@@ -430,11 +732,11 @@ button {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: calc(40 * var(--u));
-  height: calc(40 * var(--u));
+  width: var(--num);
+  height: var(--num);
   border-radius: 50%;
   background-color: #B7D1EC;
-  font-size: calc(16 * var(--u));
+  font-size: clamp(16px, 14.916px + 0.3012vw, 18px); /* 16 → 18 */
   font-weight: 700;
   color: #578BBB;
 }
@@ -444,20 +746,115 @@ button {
 }
 .workstyle_title{
   font-family: var(--font-base); /* h3 기본(어그로체) 대신 프리텐다드 */
-  font-size: calc(18 * var(--u));
-  font-weight: 600;
-  line-height: calc(24 * var(--u));
+  font-size: clamp(18px, 15.831px + 0.6024vw, 22px);   /* 18 → 22 */
+  font-weight: 600; /* SemiBold */
+  line-height: clamp(24px, 21.831px + 0.6024vw, 28px); /* 24 → 28 */
 }
 .workstyle_desc{
-  margin-top: calc(8 * var(--u)); /* 시안에 수치가 없어 눈대중으로 맞춤 */
-  font-size: calc(14 * var(--u));
+  margin-top: clamp(8px, 6.916px + 0.3012vw, 10px); /* 8 → 10 (360 값은 눈대중) */
+  font-size: clamp(14px, 11.831px + 0.6024vw, 18px);   /* 14 → 18 */
   font-weight: 400;
-  line-height: calc(20 * var(--u));
+  line-height: clamp(20px, 17.831px + 0.6024vw, 24px); /* 20 → 24 */
   width: 85%;
   word-break: keep-all; /* 한글 단어 중간에서 줄바꿈되지 않게 */
 }
 .workstyle_desc--desktop{
   display: none;
+}
+
+/* 1024: 위는 흰 배경에 제목, 아래는 높이 500 남색 띠에 목록 (띠는 섹션 맨 아래)
+   목록은 띠 가운데, 제목 ~ 띠 여백 = 띠 ~ 이해하기 여백 */
+@media (min-width: 1024px) {
+  .about_workstyle{
+    --band: 580px; /* 위 여백 60 + 목록 약 380 + 아래 여백 약 140 (아래를 늘려서 내용을 위로 올림) */ /* 남색 띠 높이 (여기만 바꾸면 배경, 목록, 원 위치가 같이 따라감) */
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* fullPage.js 없이 볼 때도 화면 높이 확보 */
+    padding-top: var(--header-height);
+    overflow: hidden; /* 화면 밖 원 잘라내기 */
+    background-color: #fff;
+  }
+  /* fullPage.js가 감싸는 .fp-overflow도 섹션 높이만큼 (About과 같은 문제) */
+  .about_workstyle .fp-overflow{
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  /* 패널과 이너가 헤더 아래 남은 높이를 전부 채움 */
+  .about_panel--workstyle{
+    position: relative; /* 배경 원 위치 기준 (띠 위치를 따라가게) */
+    overflow: hidden; /* 회전하는 원이 fullPage.js 스크롤 영역(.fp-overflow)을 넓히지 않게 여기서 잘라냄 */
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    /* 남색 띠: 패널 아래쪽 --band만큼만 칠함 (= 목록 영역, 화면 양끝까지) */
+    background: linear-gradient(to bottom, transparent calc(100% - var(--band)), #33597F 0);
+  }
+  .about_panel--workstyle .about_inner{
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  .about_workstyle .eyebrow{
+    width: auto; /* 한 줄 */
+    /* 띠 위 ~ 이해하기 여백(띠 500 - 목록 약 380 = 위아래 60씩)과 눈으로 보기에 같게
+       제목 글자 아래 라인하이트 빈 공간(약 14px)만큼 빼서 46, 남는 공간은 제목 위로 */
+    margin: auto auto 46px;
+    text-align: center;
+    color: #333;
+  }
+  .workstyle_list{
+    flex-shrink: 0;
+    display: grid;
+    justify-content: center; /* 목록 묶음은 가로 가운데 */
+    align-content: start;
+    row-gap: var(--item-gap);
+    height: var(--band);
+    margin-top: 0;
+    padding-top: 60px; /* 띠 위 ~ 이해하기 (제목 ~ 띠 여백과 같게) */
+  }
+  .workstyle_item{
+    z-index: 1; /* 배경 원보다 위 */
+  }
+  .workstyle_desc{
+    width: auto;
+  }
+  .workstyle_desc--desktop{
+    display: block;
+  }
+  .workstyle_desc--mobile{
+    display: none;
+  }
+
+  /* 배경 원: About 원(420×440, 380×350)보다 살짝 작게, 색은 같음
+     왼쪽 위 원은 흰 배경과 남색 띠 경계에 걸치고, 오른쪽 아래 원은 띠 안 */
+  .about_panel--workstyle::before,
+  .about_panel--workstyle::after{
+    content: '';
+    position: absolute;
+    background-color: #CFDBE6;
+  }
+  .about_panel--workstyle::before{
+    bottom: calc(var(--band) + 35px - 240px); /* 띠 위로 35px 걸치게 (240 = 원 높이) */
+    left: -160px;
+    width: 300px;
+    height: 240px;
+    border-radius: 45% 55% 50% 50% / 55% 45% 55% 45%;
+    animation: wobble 7s ease-in-out -1s infinite,
+               spin 22s linear infinite;
+  }
+  .about_panel--workstyle::after{
+    bottom: 60px;
+    right: -125px;
+    width: 340px;
+    height: 320px;
+    border-radius: 55% 45% 50% 50% / 50% 55% 45% 50%;
+    animation: wobble 6s ease-in-out -3s infinite,
+               spin 26s linear infinite reverse;
+  }
 }
 /*skills*/
 .skills{
@@ -517,34 +914,34 @@ button {
 .skills_num{
   display: flex;
   align-items: center;
-  gap: calc(20 * var(--u)); /* 번호 - 실선 사이 */
+  gap: clamp(20px, 14.578px + 1.5060vw, 30px); /* 번호 - 실선 사이 20 → 30 */
   font-family: var(--font-title);
-  font-size: calc(18 * var(--u));
-  font-weight: 700;
-  line-height: calc(24 * var(--u));
+  font-size: clamp(18px, 14.747px + 0.9036vw, 24px);   /* 18 → 24 */
+  font-weight: 700; /* 어그로체는 세미볼드가 없어서 Bold */
+  line-height: clamp(24px, 20.747px + 0.9036vw, 30px); /* 24 → 30 */
   color: #33597F;
 }
 /* 번호와 제목 사이 실선 */
 .skills_num::after{
   content: '';
-  width: calc(20 * var(--u));
+  width: clamp(20px, 9.157px + 3.0120vw, 40px); /* 20 → 40 */
   height: 1px;
   background-color: #d9d9d9;
 }
 
 .skills_title{
-  font-size: calc(18 * var(--u));
+  font-size: clamp(18px, 8.241px + 2.7108vw, 36px);    /* 18 → 36 */
   font-weight: 500;
-  line-height: calc(24 * var(--u));
+  line-height: clamp(24px, 14.241px + 2.7108vw, 42px); /* 24 → 42 */
   color: #333;
 }
 
 .skills_desc{
   flex-basis: 100%; /* 한 줄 통째로 */
   margin-top: calc(10 * var(--u));
-  font-size: calc(14 * var(--u));
+  font-size: clamp(14px, 11.831px + 0.6024vw, 18px);   /* 14 → 18 */
   font-weight: 400;
-  line-height: calc(20 * var(--u));
+  line-height: clamp(20px, 17.831px + 0.6024vw, 24px); /* 20 → 24 */
   text-align: center;
   color: #333;
 }
@@ -554,22 +951,26 @@ button {
 
 /* 아이콘 카드 */
 .skills_icons{
+  /* 카드 너비 80 → 90, 높이 90 → 100 */
+  --card-w: clamp(80px, 74.578px + 1.5060vw, 90px);
+  --card-h: clamp(90px, 84.578px + 1.5060vw, 100px);
+  --card-gap: calc(20 * var(--u)); /* 카드끼리 (1024에서 20px) */
   display: grid;
   justify-content: center;
-  gap: calc(20 * var(--u));
+  gap: var(--card-gap);
   flex-basis: 100%;
   margin-top: calc(30 * var(--u));
 }
 .skills_item--publishing .skills_icons{
-  grid-template-columns: repeat(2, calc(80 * var(--u))); /* 2-2 */
+  grid-template-columns: repeat(2, var(--card-w)); /* 2-2 */
 }
 .skills_item--design .skills_icons{
-  grid-template-columns: repeat(3, calc(80 * var(--u))); /* 3개 한 줄 */
+  grid-template-columns: repeat(3, var(--card-w)); /* 3개 한 줄 */
 }
 /* 2-3: 칸을 6개로 쪼개고 카드 하나가 2칸씩 차지
    첫 카드를 2번째 칸부터 시작하면 윗줄 2개가 가운데로 옴 */
 .skills_item--tools .skills_icons{
-  grid-template-columns: repeat(6, calc(30 * var(--u)));
+  grid-template-columns: repeat(6, calc((var(--card-w) - var(--card-gap)) / 2)); /* 카드 하나 = 2칸 + 칸 사이 */
 }
 .skills_item--tools .skills_icon{
   grid-column: span 2;
@@ -584,19 +985,111 @@ button {
   justify-content: center;
   align-items: center;
   gap: calc(10 * var(--u));
-  height: calc(90 * var(--u));
+  height: var(--card-h);
   border-radius: calc(8 * var(--u));
   background-color: rgba(183, 209, 236, 0.2); /* #B7D1EC 20% */
 }
 .skills_icon img{
-  width: calc(36 * var(--u));
-  height: calc(36 * var(--u));
+  width: clamp(36px, 30.578px + 1.5060vw, 46px);  /* 36 → 46 */
+  height: clamp(36px, 30.578px + 1.5060vw, 46px);
 }
 .skills_name{
-  font-size: calc(12 * var(--u));
+  font-size: clamp(12px, 10.916px + 0.3012vw, 14px);   /* 12 → 14, Medium */
   font-weight: 500;
-  line-height: 1.2;
+  line-height: clamp(14.4px, 11.364px + 0.8434vw, 20px); /* 360은 원래 값(12 × 1.2) → 1024에서 20 */
   text-align: center;
+}
+
+/* 1024: 왼쪽에 번호 · 실선 · 제목 + 설명, 오른쪽 끝에 아이콘 카드
+   카드 묶음은 3개 너비(90×3 + 20×2 = 310) 기준, 2개짜리 줄은 그 안에서 가운데 */
+@media (min-width: 1024px) {
+  .skills{
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* fullPage.js 없이 볼 때도 화면 높이 확보 */
+    padding: var(--header-height) 0 0;
+  }
+  /* fullPage.js가 감싸는 .fp-overflow도 섹션 높이만큼 (About과 같은 문제) */
+  .skills .fp-overflow{
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  .skills_inner{
+    margin-block: auto; /* 헤더 아래 공간에서 세로 가운데 (넘치면 위에서부터 보이고 섹션 안 스크롤) */
+  }
+
+  /* 오른쪽 위 1/4을 덮는 큰 원 */
+  .skills::before{
+    top: -260px;
+    left: -200px;
+    width: 760px;
+    height: 700px;
+  }
+
+  /* 구분선: 이너가 89.0625%라 바깥 여백(5.46875vw)만큼만 늘려서 화면 끝까지
+     (-10vw면 fullPage.js 스크롤 영역 밖으로 나가 가로 스크롤이 생김) */
+  .skills_item:not(:last-child)::after{
+    bottom: -40px;
+    right: -5.46875vw;
+  }
+
+  /* 세 줄이 같은 칸 너비를 쓰게 (번호 폭이 01/02/03마다 달라도 제목 시작점이 같음) */
+  .skills_list{
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    row-gap: 80px; /* 아이템 40 + 구분선 + 40 */
+    margin-top: 0; /* 첫 카드 줄이 아이브로우 바로 밑에 오게 (시안 60에서 줄임) */
+  }
+  /* 빈 1fr 줄이 위아래로 나눠 가져서 왼쪽 묶음이 카드 높이 기준 세로 가운데 */
+  .skills_item{
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
+    grid-template-rows: 1fr auto auto 1fr;
+    grid-template-areas:
+      ".   .     icons"
+      "num title icons"
+      ".   desc  icons"
+      ".   .     icons";
+    column-gap: 30px; /* 실선 ~ 제목 */
+    align-items: center; /* 번호 · 실선 · 제목 세로 가운데 */
+  }
+  .skills_num{
+    grid-area: num;
+    justify-content: space-between; /* 실선을 칸 오른쪽 끝에 붙여서 세 줄 실선 위치 통일 */
+  }
+  .skills_title{
+    grid-area: title;
+  }
+  .skills_desc{
+    grid-area: desc;
+    margin-top: 10px;
+    align-self: start;
+    text-align: left; /* 제목 시작점에 맞춰 왼쪽 정렬 */
+  }
+  .skills_desc--desktop{
+    display: block;
+  }
+  .skills_desc--mobile{
+    display: none;
+  }
+
+  /* 카드: 모든 줄을 6칸(카드 하나 = 2칸)으로 맞춰서 묶음 너비를 3개 기준으로 통일 */
+  .skills_item .skills_icons{
+    --card-gap: 20px;
+    grid-area: icons;
+    grid-template-columns: repeat(6, calc((var(--card-w) - var(--card-gap)) / 2));
+    margin-top: 0;
+  }
+  .skills_item .skills_icon{
+    grid-column: span 2;
+    gap: 10px; /* 아이콘 ~ 이름 */
+  }
+  /* 2개짜리 줄은 2번째 칸부터 시작 → 3개 너비 안에서 가운데 */
+  .skills_item--publishing .skills_icon:nth-child(odd){
+    grid-column: 2 / span 2;
+  }
 }
 /*projects*/
 .projects{
@@ -899,6 +1392,8 @@ button {
 @media (prefers-reduced-motion: reduce) {
   .about_intro::before,
   .about_intro::after,
+  .about_panel--workstyle::before,
+  .about_panel--workstyle::after,
   .skills::before,
   .projects::before,
   .contact_char.is-cursor::after{
