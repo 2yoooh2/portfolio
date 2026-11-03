@@ -55,9 +55,7 @@
       </div>
     </section>
 
-    <!-- About: 1440px 미만에서는 두 섹션, 1440px 이상에서는 workstyle의 패널이 about 안으로 옮겨져 좌우 배치 -->
     <section class="section about_intro" id="about" data-key="about">
-      <div class="about_panel about_panel--intro">
         <div class="about_inner">
           <h2 class="eyebrow">ABOUT ME</h2>
 
@@ -93,16 +91,17 @@
             </div>
           </div>
         </div>
-      </div>
     </section>
 
 
     <section class="section about_workstyle" data-key="workstyle">
-      <div class="about_panel about_panel--workstyle">
+      <div class="about_inner">
+        <h2 class="eyebrow">MY WORK STYLE</h2>
+      </div>
+
+      <!-- 목록 영역 (PC에서는 남색 띠) -->
+      <div class="workstyle_band">
         <div class="about_inner">
-
-          <h2 class="eyebrow">MY WORK STYLE</h2>
-
           <ol class="workstyle_list">
 
             <li class="workstyle_item">
@@ -162,8 +161,8 @@
         <ul class="skills_list">
 
           <li class="skills_item skills_item--publishing">
-            <span class="skills_num">01</span>
             <div class="skills_content">
+              <span class="skills_num">01</span>
               <h3 class="skills_title">Publishing</h3>
               <p class="skills_desc skills_desc--desktop">
                 시맨틱 마크업을 기반으로 반응형 웹페이지를 제작하고,<br>
@@ -195,8 +194,8 @@
           </li>
 
           <li class="skills_item skills_item--design">
-            <span class="skills_num">02</span>
             <div class="skills_content">
+              <span class="skills_num">02</span>
               <h3 class="skills_title">Design</h3>
               <p class="skills_desc skills_desc--desktop">
                 디자인 시안을 제작하고, 웹페이지에 필요한<br>
@@ -224,8 +223,8 @@
           </li>
 
         <li class="skills_item skills_item--tools">
-          <span class="skills_num">03</span>
           <div class="skills_content">
+            <span class="skills_num">03</span>
             <h3 class="skills_title">Tools</h3>
             <p class="skills_desc skills_desc--desktop">
               개발 도구를 활용해 코드를 작성하고 프로젝트를 관리하며,<br>
@@ -268,59 +267,64 @@
       <div class="projects_inner">
         <span class="eyebrow">WORKS</span>
 
+        <!-- PC: 이미지 왼쪽, 글 오른쪽 -->
+        <div class="project">
           <div class="project_visual">
             <img class="project_mockup" src="./img/project_tesla.png" alt="Tesla 웹사이트 리뉴얼 목업">
+            <!-- PC에서는 목업에 마우스를 올리면 커서를 따라다님 (script/main.js) -->
             <a class="project_link" href="https://2yoooh2.github.io/TESLA/" target="_blank" rel="noopener noreferrer"
               aria-label="Tesla 웹사이트 새 창에서 보기">
               VIEW<br>SITE
             </a>
           </div>
 
+          <div class="project_text">
+            <div class="project_content">
+              <div class="project_heading">
+                <span class="project_num">01</span>
+                <h2 class="project_title">TESLA</h2>
+              </div>
 
-          <div class="project_content">
-            <div class="project_heading">
-              <span class="project_num">01</span>
-              <h2 class="project_title">TESLA</h2>
+              <p class="project_subtitle">Main + 4 Sub Pages</p>
+              <div class="project_desc project_desc--desktop">
+                <p>Tesla의 차량과 기술을 소개하는 PC 웹사이트 리뉴얼 프로젝트입니다.</p>
+                <p>흑백 대비와 레드 포인트, 각진 타이포그래피로 브랜드의 기술적인 이미지를 표현했습니다.</p>
+                <p>메인과 4개의 서브 페이지를 제작하고, 슬라이드, 탭, 스크롤 애니메이션을 적용했습니다.</p>
+              </div>
+              <div class="project_desc project_desc--mobile">
+                <p>
+                  Tesla의 차량과 기술을 소개하는<br>
+                  PC 웹사이트 리뉴얼 프로젝트입니다.
+                </p>
+                <!-- <p>
+                  흑백 대비와 레드 포인트로 기술적인<br>
+                  이미지를 표현하고, 메인과 4개의 서브 페이지에<br>
+                  다양한 인터랙션을 적용했습니다.
+                </p> -->
+              </div>
             </div>
 
-            <p class="project_subtitle">Main + 4 Sub Pages</p>
-            <div class="project_desc project_desc--desktop">
-              <p>Tesla의 차량과 기술을 소개하는 PC 웹사이트 리뉴얼 프로젝트입니다.</p>
-              <p>흑백 대비와 레드 포인트, 각진 타이포그래피로 브랜드의 기술적인 이미지를 표현했습니다.</p>
-              <p>메인과 4개의 서브 페이지를 제작하고, 슬라이드, 탭, 스크롤 애니메이션을 적용했습니다.</p>
-            </div>
-            <div class="project_desc project_desc--mobile">
-              <p>
-                Tesla의 차량과 기술을 소개하는<br>
-                PC 웹사이트 리뉴얼 프로젝트입니다.
-              </p>
-              <!-- <p>
-                흑백 대비와 레드 포인트로 기술적인<br>
-                이미지를 표현하고, 메인과 4개의 서브 페이지에<br>
-                다양한 인터랙션을 적용했습니다.
-              </p> -->
+            <div class="project_details">
+              <div class="project_detail">
+                <h3 class="project_label">DEVICE</h3>
+                <p class="project_value">Desktop</p>
+              </div>
+
+              <div class="project_detail">
+                <h3 class="project_label">ROLE</h3>
+                <p class="project_value">Design · Publishing</p>
+              </div>
+
+              <div class="project_detail">
+                <h3 class="project_label">TOOLS</h3>
+                <p class="project_value">
+                  HTML · CSS · JavaScript<br>
+                  jQuery · Swiper · AOS<br>
+                  Figma · Claude Code</p>
+              </div>
             </div>
           </div>
-
-          <div class="project_details">
-            <div class="project_detail">
-              <h3 class="project_label">DEVICE</h3>
-              <p class="project_value">Desktop</p>
-            </div>
-
-            <div class="project_detail">
-              <h3 class="project_label">ROLE</h3>
-              <p class="project_value">Design · Publishing</p>
-            </div>
-
-            <div class="project_detail">
-              <h3 class="project_label">TOOLS</h3>
-              <p class="project_value">
-                HTML · CSS · JavaScript<br>
-                jQuery · Swiper · AOS<br>
-                Figma · Claude Code</p>
-            </div>
-          </div>
+        </div>
       </div>
     </section>
 

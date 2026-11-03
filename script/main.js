@@ -271,3 +271,32 @@ function handlePcQuery() {
 
 handlePcQuery();
 pcQuery.addEventListener('change', handlePcQuery);
+
+
+/* ===== Works: PC에서 VIEW SITE 원이 마우스를 따라다님 =====
+   보이고 숨는 건 CSS(:hover)에서, 여기서는 위치와 클릭만 처리 */
+document.querySelectorAll('.project_visual').forEach((visual) => {
+  const mockup = visual.querySelector('.project_mockup');
+  const link = visual.querySelector('.project_link');
+  if (!mockup || !link) return;
+
+  function followMouse(event) {
+    if (!pcQuery.matches) return; // 모바일은 버튼이 제자리에 고정
+    const rect = visual.getBoundingClientRect();
+    link.style.left = `${event.clientX - rect.left}px`;
+    link.style.top = `${event.clientY - rect.top}px`;
+  }
+
+  mockup.addEventListener('mouseenter', followMouse);
+  mockup.addEventListener('mousemove', followMouse);
+
+  // PC에서는 원이 클릭을 안 받아서(pointer-events: none) 이미지를 누르면 링크 열기
+  mockup.addEventListener('click', () => {
+    if (pcQuery.matches) link.click();
+  });
+  // 화면이 1024 미만으로 줄면 모바일 위치(오른쪽 아래)로 돌려놓기
+  pcQuery.addEventListener('change', () => {
+    link.style.left = '';
+    link.style.top = '';
+  });
+});
