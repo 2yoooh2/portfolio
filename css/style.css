@@ -2,7 +2,8 @@
   모바일 퍼스트 방식
   - 기본 스타일 = 모바일 화면 (360 시안 숫자 그대로)
   - @media (min-width: 1024px) = PC (1024 시안 숫자)
-  PC 스타일은 파일 맨 아래 미디어쿼리 하나에 섹션 순서대로 모아 두었어요.
+  - @media (min-width: 1600px) = 큰 PC (1920 시안 숫자, 이너 1500 고정)
+  PC 스타일은 파일 맨 아래 미디어쿼리에 섹션 순서대로 모아 두었어요.
 */
 
 /* ===== Fonts ===== */
@@ -426,7 +427,7 @@ button {
   animation-direction: normal, reverse; /* 반대로 회전 */
 }
 
-.about_intro .eyebrow {
+.about_main .eyebrow {
   width: min-content; /* ABOUT / ME 두 줄 */
 }
 
@@ -490,6 +491,11 @@ button {
   margin-top: 5px;
 }
 .about_text--desktop {
+  display: none;
+}
+
+/* Work style 복사본: 1600 이상에서만 About 오른쪽에 보임 */
+.about_workstyle_pc {
   display: none;
 }
 
@@ -1005,6 +1011,7 @@ button {
     display: flex;
     flex-direction: column;
     height: 100%;
+    overflow-x: hidden; /* 화면 밖으로 나가는 띠 · 장식 때문에 가로 스크롤 안 생기게 */
   }
 
   /* ----- Header ----- */
@@ -1086,6 +1093,8 @@ button {
   }
   .about_intro .about_inner {
     margin-block: auto; /* 세로 가운데 */
+  }
+  .about_main {
     display: grid;
     grid-template-columns: auto 1fr;
     /* 위아래 빈 1fr 줄 덕분에 키워드+글 묶음이 사진 높이 기준 세로 가운데 */
@@ -1098,7 +1107,7 @@ button {
       "profile .";
     column-gap: 60px;
   }
-  .about_intro .eyebrow {
+  .about_main .eyebrow {
     grid-area: eyebrow;
     width: auto;
     margin-bottom: 60px;
@@ -1549,6 +1558,106 @@ button {
   }
   .footer_notice br {
     display: none; /* PC는 한 줄 */
+  }
+}
+
+
+/* ===== 큰 PC (1600px 이상) ===== */
+/* 1920 시안 숫자. 이너는 1500 고정, 남는 폭은 양옆 여백으로 */
+@media (min-width: 1600px) {
+  /* ----- Layout ----- */
+  .header_inner,
+  .hero_inner,
+  .about_inner,
+  .skills_inner,
+  .projects_inner,
+  .contact_inner {
+    width: 1500px;
+  }
+
+  /* ----- Header ----- */
+  .nav ul {
+    gap: 150px;
+  }
+
+  /* ----- Hero ----- */
+  .hero_title {
+    font-size: 150px; /* WEB, PUBLISHER */
+  }
+  .hero_main {
+    height: 250px;
+    font-size: 160px;
+  }
+  /* 띠 1583 × 250: P 앞 146px에서 시작해 화면 오른쪽 끝까지 */
+  .hero_main::before {
+    left: -146px;
+    right: -50vw; /* 넉넉하게 빼고 .hero의 overflow: hidden으로 잘라냄 */
+  }
+  .hero_name {
+    margin-top: 40px; /* PUBLISHER 아래 40 */
+    font-size: 36px;
+  }
+
+  /* ----- About + Work style (한 화면) ----- */
+  /* 왼쪽: About (사진 + 글), 오른쪽: 남색 칸에 Work style
+     남색 칸은 1920 기준 821 = 이너 안 611 + 이너 밖 210 */
+  .about_intro {
+    padding: 0; /* 남색 칸이 화면 위아래 끝까지 닿게 */
+  }
+  .about_intro .about_inner {
+    flex: 1; /* 섹션 높이만큼 늘림 */
+    display: flex;
+    margin-block: 0;
+  }
+  .about_main {
+    flex: 1;
+    margin-block: auto; /* 세로 가운데 */
+    column-gap: 50px; /* 캐릭터 카드 ~ 글 */
+  }
+  .about_character img {
+    width: 237px;
+    height: 259px;
+  }
+  /* 오른쪽 위 원: ABOUT ME 오른쪽 위 (남색 칸 왼쪽) */
+  .about_intro::before {
+    top: 135px;
+    left: 44%;
+    right: auto;
+    width: 205px;
+    height: 190px;
+  }
+
+  .about_workstyle_pc {
+    position: relative; /* 남색 배경 위치 기준 */
+    flex-shrink: 0;
+    width: 611px;
+    padding-left: 110px; /* 남색 칸 왼쪽 ~ 글 */
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* 세로 가운데 */
+  }
+  /* 남색 배경: 칸 왼쪽에서 화면 오른쪽 끝까지 (넘친 부분은 잘림) */
+  .about_workstyle_pc::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: -50vw;
+    z-index: -1;
+    background-color: var(--color-navy);
+  }
+  .about_workstyle_pc .eyebrow {
+    font-size: 40px;
+    color: #fff;
+  }
+  .about_workstyle_pc .workstyle_list {
+    margin: 70px 0 0; /* 제목 ~ 목록 70 */
+  }
+
+  /* 원래 Work style 섹션은 숨김 (fullPage.js도 건너뜀: script/main.js) */
+  .about_workstyle {
+    display: none;
   }
 }
 

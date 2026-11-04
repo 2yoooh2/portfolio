@@ -47,8 +47,10 @@ document.querySelectorAll('.header a[href^="#"]').forEach((link) => {
     history.pushState(null, '', link.getAttribute('href')); // 주소창 #도 원래처럼 바뀌게
 
     // 1024 이상: fullPage.js가 해당 섹션으로 넘겨줌 (moveTo는 1부터 셈)
+    // 1600 이상에서 숨긴 Work style 섹션은 빼고 셈
     if (isFullpage) {
-      const sections = [...document.querySelectorAll('#fullpage .section')];
+      const sections = [...document.querySelectorAll('#fullpage .section')]
+        .filter((section) => getComputedStyle(section).display !== 'none');
       fullpage_api.moveTo(sections.indexOf(target.closest('.section')) + 1);
       return;
     }
@@ -271,6 +273,14 @@ function handlePcQuery() {
 
 handlePcQuery();
 pcQuery.addEventListener('change', handlePcQuery);
+
+// 1600 이상에서는 Work style 섹션이 About 안으로 합쳐져서 섹션 수가 바뀜
+// fullPage.js는 켤 때만 섹션을 세므로, 1600을 넘나들면 껐다가 다시 켬
+const bigQuery = window.matchMedia('(min-width: 1600px)');
+bigQuery.addEventListener('change', () => {
+  destroyFullpage();
+  handlePcQuery();
+});
 
 
 /* ===== Works: PC에서 VIEW SITE 원이 마우스를 따라다님 =====
