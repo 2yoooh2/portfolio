@@ -1274,7 +1274,7 @@ button {
   }
 
   .skills_list {
-    margin-top: 0;
+    margin-top: 50px; /* 제목 ~ 목록 50 */
   }
   .skills_item {
     display: flex;
@@ -1303,7 +1303,7 @@ button {
     line-height: 42px;
   }
   .skills_desc {
-    margin-left: 140px; /* 번호 110 + 간격 30 → 제목 시작점에 맞춤 */
+    margin-top: 20px; /* 제목 ~ 본문 20 */
     text-align: left;
   }
   .skills_desc--desktop {
@@ -1313,11 +1313,16 @@ button {
     display: none;
   }
 
+  /* 카드 한 줄, 간격 10, 오른쪽 정렬 */
   .skills_icons {
-    width: 310px; /* 카드 3개(90 × 3) + 간격 2개(20 × 2) */
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    width: auto;
     margin: 0;
   }
   .skills_icon {
+    width: 90px;
     height: 100px;
     border-radius: 10px;
   }
@@ -1658,6 +1663,159 @@ button {
   /* 원래 Work style 섹션은 숨김 (fullPage.js도 건너뜀: script/main.js) */
   .about_workstyle {
     display: none;
+  }
+
+  /* ----- Skills ----- */
+  /* 이너 1500 = 왼쪽 738 + 여백 24 + 오른쪽 738
+     왼쪽 738 = 빈 칸 + 글 칸(가장 긴 퍼블리싱 글 폭) → 글 묶음이 오른쪽에 닿음
+     항목마다 같은 칸을 쓰도록 목록 전체를 한 그리드로 */
+  .skills_list {
+    display: grid;
+    grid-template-columns: 1fr max-content 24px 738px;
+    column-gap: 0;
+    row-gap: 80px;
+    margin-top: 60px; /* 제목 ~ 목록 60 */
+  }
+  .skills_item {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid; /* 목록의 칸을 그대로 씀 */
+    align-items: center;
+  }
+  /* 구분선 1400, 이너 1500 안에서 가운데 (양쪽 50) */
+  .skills_item:not(:last-child)::after {
+    left: 50px;
+    right: 50px;
+  }
+
+  /* 번호 | 제목
+          | 설명 (제목 왼쪽 라인에 맞춤) */
+  .skills_content {
+    grid-column: 2;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: 40px; /* 라인 ~ 제목 40 */
+    row-gap: 10px;    /* 제목 ~ 설명 10 */
+  }
+  .skills_num {
+    width: auto;
+    justify-content: flex-start;
+    gap: 40px; /* 번호 ~ 라인 40 */
+  }
+  .skills_num::after {
+    width: 100px;
+  }
+  .skills_desc {
+    grid-column: 2;
+    width: auto;
+    margin: 0;
+  }
+
+  .skills_icons {
+    grid-column: 4;
+    justify-content: center;
+  }
+  .skills_icon {
+    width: 100px;
+    height: 120px;
+    gap: 15px; /* 아이콘 ~ 이름 15 */
+  }
+  .skills_icon img {
+    width: 60px;
+    height: 60px;
+  }
+
+  /* ----- Projects ----- */
+  /* 이너 1500 = 이미지 구역 865 + 여백 24 + 글 구역 611 */
+  .project {
+    gap: 24px;
+    margin-top: 30px; /* WORKS ~ 내용 30 */
+  }
+  /* 목업 611 × 611, 865 구역 안에서 가운데 (양쪽 127) */
+  .project_visual {
+    width: 611px;
+    margin-inline: 127px;
+  }
+  /* 장식 위치 · 크기 (1920 시안 기준 대략) */
+  .project_visual::before {
+    top: -30px;
+    right: calc(100% + 152px); /* 이너 왼쪽보다 25px 바깥에서 끝남 */
+  }
+  .project_visual::after {
+    left: 75px;
+    bottom: 5px;
+    width: 90px;
+    height: 90px;
+    border-radius: 30px;
+  }
+  .project::after {
+    top: -70px;
+    right: 105px;
+    width: 205px;
+    height: 195px;
+  }
+
+  .project_details {
+    column-gap: 135px; /* DEVICE ~ ROLE 135 */
+    row-gap: 30px;     /* DEVICE ~ TOOLS 30 */
+    margin-top: 60px; /* 설명 ~ 상세 60 */
+  }
+  .project_label {
+    font-size: 22px;
+  }
+
+  /* ----- Contact ----- */
+  /* 위: 캐릭터 (이너 왼쪽에서 6.614% = 99px) + 오른쪽에 문구 두 줄 (왼쪽 정렬) */
+  .contact_visual {
+    grid-template-rows: auto 1fr; /* 남는 높이는 2줄로 → 두 문구 사이 20 유지 */
+    column-gap: 20px; /* 캐릭터 ~ 문구 20 */
+  }
+  .contact_character {
+    grid-row: 1 / -1;
+    width: 360px;
+    height: 432px;
+    margin-left: 99px; /* 이너 1500 × 6.614% */
+  }
+  .contact_message {
+    justify-self: start;
+    margin-left: 0; /* 모바일 margin-left: auto 지움 → 캐릭터 쪽으로 붙음 */
+    text-align: left;
+  }
+  .contact_message--first {
+    grid-column: 2;
+    grid-row: 1;
+    margin-top: 40px; /* 캐릭터 위에서 40 아래 */
+  }
+  .contact_message--second {
+    margin-top: 20px; /* 문구 사이 20 */
+  }
+
+  /* 흰 박스: 높이 450 (1024와 같음), 위 여백 100 */
+  .contact_content {
+    padding-top: 100px;
+  }
+
+  /* 메일 보내기: 230 × 230, 원 가운데가 박스 위쪽 경계
+     이너 오른쪽에서 99px 안쪽 → 화면 가운데 기준으로 잡음
+     (이너 절반 750 - 99 - 버튼 230 = 421) */
+  .contact_link {
+    top: -115px;
+    left: 50%;
+    right: auto;
+    margin-left: 421px;
+    width: 230px;
+    height: 230px;
+  }
+
+  .contact_title {
+    margin-left: 0; /* 이너 왼쪽에 붙임 */
+  }
+
+  .footer_copyright {
+    font-size: 16px;
+  }
+  .footer_notice {
+    font-size: 14px;
   }
 }
 
