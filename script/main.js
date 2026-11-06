@@ -220,21 +220,24 @@ async function playContactScenes() {
 if (firstMessage && secondMessage) playContactScenes();
 
 
-/* ===== Contact: 이메일 알약 누르면 주소 복사 ===== */
-document.querySelectorAll('.contact_copy').forEach((button) => {
-  const label = button.querySelector('.contact_pill_text');
-  const original = label.textContent;
+/* ===== Contact: 복사하기 누르면 이메일 복사 → 체크 + 복사완료! → 3초 뒤 원래대로 ===== */
+document.querySelectorAll('.contact_btn--copy').forEach((button) => {
+  const label = button.querySelector('.contact_btn_txt');
   let timer;
 
   button.addEventListener('click', async () => {
     try {
       await navigator.clipboard.writeText(button.dataset.copy);
-      label.textContent = '복사됐어요!';
+      button.classList.add('is-copied');
+      label.textContent = '복사완료!';
     } catch {
-      label.textContent = '복사에 실패했어요';
+      label.textContent = '복사실패';
     }
     clearTimeout(timer);
-    timer = setTimeout(() => (label.textContent = original), 1500);
+    timer = setTimeout(() => {
+      button.classList.remove('is-copied');
+      label.textContent = '복사하기';
+    }, 3000);
   });
 });
 
@@ -303,6 +306,22 @@ document.querySelectorAll('.project_visual').forEach((visual) => {
   // PC에서는 원이 클릭을 안 받아서(pointer-events: none) 이미지를 누르면 링크 열기
   mockup.addEventListener('click', () => {
     if (pcQuery.matches) link.click();
+  });
+
+  // 모바일: 누르면 색 원 효과를 먼저 보여주고 0.5초 뒤에 새 탭 열기
+  link.addEventListener('click', (event) => {
+    if (pcQuery.matches) return; // PC는 hover에서 이미 효과가 나와서 바로 열기
+    event.preventDefault();
+    if (link.classList.contains('is-active')) return; // 연타 막기
+    link.classList.add('is-active');
+
+    setTimeout(() => {
+      // 'noopener'를 넣으면 항상 null이 돌아와서, 대신 opener를 직접 끊음
+      const opened = window.open(link.href, '_blank');
+      if (opened) opened.opener = null;
+      else location.href = link.href; // 새 탭이 막히면 현재 탭에서 열기
+      link.classList.remove('is-active');
+    }, 500);
   });
   // 화면이 1024 미만으로 줄면 모바일 위치(오른쪽 아래)로 돌려놓기
   pcQuery.addEventListener('change', () => {

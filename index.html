@@ -217,19 +217,19 @@
 
             <ul class="skills_icons">
               <li class="skills_icon">
-                <img src="./img/HTML5.png" alt="">
+                <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/html5/html5-original.svg" alt="">
                 <span class="skills_name">HTML5</span>
               </li>
               <li class="skills_icon">
-                <img src="./img/CSS3.png" alt="">
+                <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/css3/css3-original.svg" alt="">
                 <span class="skills_name">CSS3</span>
               </li>
               <li class="skills_icon">
-                <img src="./img/jQuery.png" alt="">
+                <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/jquery/jquery-original.svg" alt="">
                 <span class="skills_name">jQuery</span>
               </li>
               <li class="skills_icon">
-                <img src="./img/JavaScript.png" alt="">
+                <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg" alt="">
                 <span class="skills_name">JavaScript</span>
               </li>
             </ul>
@@ -250,15 +250,15 @@
 
             <ul class="skills_icons">
               <li class="skills_icon">
-                <img src="./img/Figma.png" alt="">
+                <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/figma/figma-original.svg" alt="">
                 <span class="skills_name">Figma</span>
               </li>
               <li class="skills_icon">
-                <img src="./img/Photoshop.png" alt="">
+                <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/photoshop/photoshop-original.svg" alt="">
                 <span class="skills_name">Photoshop</span>
               </li>
               <li class="skills_icon">
-                <img src="./img/Illustrator.png" alt="">
+                <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/illustrator/illustrator-original.svg" alt="">
                 <span class="skills_name">Illustrator</span>
               </li>
             </ul>
@@ -279,23 +279,23 @@
 
           <ul class="skills_icons">
             <li class="skills_icon">
-              <img src="./img/VSCode.png" alt="">
+              <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vscode/vscode-original.svg" alt="">
               <span class="skills_name">VS Code</span>
             </li>
             <li class="skills_icon">
-              <img src="./img/Git.png" alt="">
+              <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/git/git-original.svg" alt="">
               <span class="skills_name">Git</span>
             </li>
             <li class="skills_icon">
-              <img src="./img/GitHub.png" alt="">
+              <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="">
               <span class="skills_name">GitHub</span>
             </li>
             <li class="skills_icon">
-              <img src="./img/ClaudeCode.png" alt="">
+              <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/claudecode/claudecode-original.svg" alt="">
               <span class="skills_name">Claude Code</span>
             </li>
             <li class="skills_icon">
-              <img src="./img/Slack.png" alt="">
+              <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/slack/slack-original.svg" alt="">
               <span class="skills_name">Slack</span>
             </li>
           </ul>
@@ -316,7 +316,12 @@
             <!-- PC에서는 목업에 마우스를 올리면 커서를 따라다님 (script/main.js) -->
             <a class="project_link" href="https://2yoooh2.github.io/TESLA/" target="_blank" rel="noopener noreferrer"
               aria-label="Tesla 웹사이트 새 창에서 보기">
-              VIEW<br>SITE
+              <span class="project_link_txt">VIEW<br>SITE</span>
+              <!-- 색 원 4개: 가운데서 차례로 퍼짐 (색은 Hero 점 색) -->
+              <span class="project_link_bg" aria-hidden="true"></span>
+              <span class="project_link_bg" aria-hidden="true"></span>
+              <span class="project_link_bg" aria-hidden="true"></span>
+              <span class="project_link_bg" aria-hidden="true"></span>
             </a>
           </div>
 
@@ -384,27 +389,58 @@
       </div>
 
       <div class="contact_content">
-        <a class="contact_link" href="mailto:2yooh2@naver.com">
-          <span class="contact_link_icon"></span>
-          <span>메일 보내기</span>
-        </a>
-
         <div class="contact_inner">
           <h2 class="contact_title">CONTACT</h2>
 
           <ul class="contact_list">
-            <li>
-              <a class="contact_pill" href="tel:010-5661-9802" aria-label="010-5661-9802로 전화 걸기">
-                <span class="contact_pill_icon"><img src="./img/contact_phone.png" alt=""></span>
-                <span class="contact_pill_text">010 - 5661 - 9802</span>
-              </a>
+            <!-- 이메일: 글 아래 오른쪽에 복사하기 | 메일쓰기 -->
+            <li class="contact_item contact_item--email">
+              <div class="contact_text">
+                <h3 class="contact_label">EMAIL</h3>
+                <p class="contact_value">2yooh2@naver.com</p>
+              </div>
+
+              <div class="contact_btns">
+                <!-- 누르면 체크 아이콘 + 복사완료! → 3초 뒤 원래대로 (script/main.js) -->
+                <button class="contact_btn contact_btn--copy" type="button" data-copy="2yooh2@naver.com">
+                  <svg class="contact_btn_icon contact_btn_icon--copy" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M7 9.667a2.667 2.667 0 0 1 2.667 -2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1 -2.667 2.667h-8.666a2.667 2.667 0 0 1 -2.667 -2.667l0 -8.666" />
+                    <path d="M4.012 16.737a2.005 2.005 0 0 1 -1.012 -1.737v-10c0 -1.1 .9 -2 2 -2h10c.75 0 1.158 .385 1.5 1" />
+                  </svg>
+                  <svg class="contact_btn_icon contact_btn_icon--check" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M5 12l5 5l10 -10" />
+                  </svg>
+                  <span class="contact_btn_txt" aria-live="polite">복사하기</span>
+                </button>
+
+                <a class="contact_btn contact_btn--mail" href="mailto:2yooh2@naver.com">
+                  <svg class="contact_btn_icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M10 14l11 -11" />
+                    <path d="M21 3l-6.5 18a.55 .55 0 0 1 -1 0l-3.5 -7l-7 -3.5a.55 .55 0 0 1 0 -1l18 -6.5" />
+                  </svg>
+                  <span class="contact_btn_txt">메일쓰기</span>
+                </a>
+              </div>
             </li>
-            <li>
-              <button class="contact_pill contact_copy" type="button" data-copy="2yooh2@naver.com"
-                aria-label="이메일 주소 2yooh2@naver.com 복사하기">
-                <span class="contact_pill_icon"><img src="./img/contact_mail.png" alt=""></span>
-                <span class="contact_pill_text" aria-live="polite">2yooh2@naver.com</span>
-              </button>
+
+            <!-- 자기소개서: 글 왼쪽, 버튼 오른쪽 (세로 가운데) -->
+            <li class="contact_item contact_item--letter">
+              <div class="contact_text">
+                <h3 class="contact_label">COVER LETTER</h3>
+                <p class="contact_value">자기소개서</p>
+              </div>
+
+              <!-- TODO: 자기소개서 주소 넣기 -->
+              <a class="contact_btn contact_btn--letter" href="#" target="_blank" rel="noopener noreferrer">
+                <svg class="contact_btn_icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+                  <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2" />
+                  <path d="M9 9l1 0" />
+                  <path d="M9 13l6 0" />
+                  <path d="M9 17l6 0" />
+                </svg>
+                <span class="contact_btn_txt">읽어보기</span>
+              </a>
             </li>
           </ul>
         </div>

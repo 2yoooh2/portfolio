@@ -721,7 +721,40 @@ button {
   line-height: 20px;
   text-align: center;
   color: #fff;
+  overflow: hidden; /* 퍼지는 색 원이 버튼 밖으로 안 나가게 */
 }
+.project_link_txt {
+  position: relative;
+  z-index: 2; /* 색 원보다 위 */
+  transition: color 0.2s;
+}
+
+/* VIEW SITE 색 원: 평소엔 크기 0, 켜지면 1 → 4 순서로 퍼짐
+   켜지는 조건 - 모바일: 누르면 .is-active (script/main.js)
+                PC: 목업에 마우스를 올리면 (1024 미디어쿼리) */
+.project_link_bg {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: 50%;
+  transform: scale(0);
+  transition: transform 0.175s cubic-bezier(0.5, 1, 0.89, 1);
+}
+/* 꺼질 때는 4 → 1 순서로 빠르게 */
+.project_link_bg:nth-of-type(2) { background-color: #B5D66D; transition-delay: 0.17s; }
+.project_link_bg:nth-of-type(3) { background-color: #78A9E8; transition-delay: 0.115s; }
+.project_link_bg:nth-of-type(4) { background-color: #F2C96D; transition-delay: 0.06s; }
+/* 마지막은 남색 → 끝나면 원래 버튼 색으로 돌아옴 (글자는 흰색 그대로) */
+.project_link_bg:nth-of-type(5) { background-color: var(--color-navy); transition-delay: 0s; }
+
+/* 모바일은 0.5초 뒤에 링크가 열려서 그 안에 다 퍼지게 빠르게 (PC보다 약 2배) */
+.project_link.is-active .project_link_bg {
+  transform: scale(1.5);
+  transition: transform 0.2s cubic-bezier(0.11, 0, 0.5, 0);
+}
+.project_link.is-active .project_link_bg:nth-of-type(3) { transition-delay: 0.08s; }
+.project_link.is-active .project_link_bg:nth-of-type(4) { transition-delay: 0.16s; }
+.project_link.is-active .project_link_bg:nth-of-type(5) { transition-delay: 0.24s; }
 
 .project_content {
   margin-top: 40px;
@@ -865,38 +898,11 @@ button {
 
 /* 흰 카드: 캐릭터 아래 5px를 덮음 */
 .contact_content {
-  position: relative; /* 메일 버튼 위치 기준 */
   min-height: 350px;
   margin-top: -5px;
   padding-top: 30px;
   border-radius: 24px 24px 0 0;
   background-color: #fff;
-}
-
-/* 카드 위쪽 경계에 반쯤 걸친 원형 버튼 */
-.contact_link {
-  position: absolute;
-  top: -50px;
-  right: 10%; /* 이너 바깥 여백만큼 */
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  background-color: #B7D1EC;
-  font-family: var(--font-title);
-  font-size: 14px;
-  font-weight: 300;
-  line-height: 20px;
-}
-/* 아이콘 이미지 들어가기 전 임시 박스 */
-.contact_link_icon {
-  width: 30px;
-  height: 30px;
-  background-color: #7AA3DB;
 }
 
 .contact_title {
@@ -906,45 +912,98 @@ button {
   color: var(--color-navy);
 }
 
-/* 알약 */
+/* 이메일 · 자기소개서: 이너 왼쪽에서 8.333% 들여쓰기 */
 .contact_list {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  margin-top: 30px;
+  gap: 40px;
+  margin: 40px 0 0 8.333%;
 }
-.contact_pill {
+.contact_item--email {
   display: flex;
-  align-items: center;
-  width: 280px;
-  height: 40px;
-  border-radius: 24px;
-  overflow: hidden; /* 왼쪽 흰 칸도 둥글게 잘리게 */
-  background-color: var(--color-navy);
-  font-family: var(--font-title);
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 20px;
-  color: #fff;
+  flex-direction: column;
 }
-/* 왼쪽 흰 칸 (아이콘 자리) */
-.contact_pill_icon {
+/* 자기소개서: 글 왼쪽, 버튼 오른쪽, 세로 가운데 */
+.contact_item--letter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.contact_label {
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 1.2;
+  color: #666;
+}
+.contact_value {
+  margin-top: 5px; /* 라벨 ~ 값 5 */
+  font-family: var(--font-title);
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--color-navy);
+}
+
+/* 복사하기 | 메일쓰기: 이메일 아래 10, 이너 오른쪽 끝에 붙임 */
+.contact_btns {
+  display: flex;
+  align-self: flex-end;
+  margin-top: 10px;
+}
+
+/* 버튼 공통 */
+.contact_btn {
   display: flex;
   justify-content: center;
   align-items: center;
+  gap: 5px;
+  height: 40px;
+  font-family: var(--font-title);
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 1;
+}
+.contact_btn_icon {
   flex-shrink: 0;
-  width: 40px;
-  height: 100%;
-  background-color: #fff;
+  width: 15px;
+  height: 15px;
 }
-.contact_pill_icon img {
-  width: 30px;
-  height: 28px;
+
+/* 복사하기: 왼쪽만 둥글게, 오른쪽 보더 없음 */
+.contact_btn--copy {
+  width: 100px;
+  border: 1px solid var(--color-navy);
+  border-right: none;
+  border-radius: 24px 0 0 24px;
+  color: var(--color-navy);
 }
-.contact_pill_text {
-  flex: 1;
-  text-align: center;
+/* 체크 아이콘은 복사됐을 때만 */
+.contact_btn_icon--check {
+  display: none;
+}
+.contact_btn--copy.is-copied .contact_btn_icon--copy {
+  display: none;
+}
+.contact_btn--copy.is-copied .contact_btn_icon--check {
+  display: block;
+}
+
+/* 메일쓰기: 오른쪽만 둥글게 */
+.contact_btn--mail {
+  width: 100px;
+  border-radius: 0 24px 24px 0;
+  background-color: var(--color-navy);
+  color: #fff;
+}
+
+/* 자기소개서 읽어보기 */
+.contact_btn--letter {
+  flex-shrink: 0;
+  width: 120px;
+  border-radius: 24px;
+  background-color: var(--color-navy);
+  color: #fff;
 }
 
 .footer {
@@ -1378,6 +1437,10 @@ button {
     right: auto;
     bottom: auto;
     z-index: 2; /* 작은 사각형보다 위 */
+    width: 120px;
+    height: 120px;
+    font-size: 18px;
+    line-height: 24px;
     translate: -50% -50%; /* 원 가운데가 커서에 오게 */
     scale: 0;
     transition: scale 0.2s;
@@ -1387,6 +1450,16 @@ button {
   .project_link:focus-visible {
     scale: 1;
   }
+  /* PC: 원이 뜨면 안에서 색 원이 퍼짐 (모바일 .is-active와 같은 효과) */
+  .project_mockup:hover + .project_link .project_link_bg,
+  .project_link:focus-visible .project_link_bg {
+    transform: scale(1.5);
+    transition: transform 0.35s cubic-bezier(0.11, 0, 0.5, 0);
+  }
+  .project_mockup:hover + .project_link .project_link_bg:nth-of-type(2) { transition-delay: 0.115s; }
+  .project_mockup:hover + .project_link .project_link_bg:nth-of-type(3) { transition-delay: 0.23s; }
+  .project_mockup:hover + .project_link .project_link_bg:nth-of-type(4) { transition-delay: 0.345s; }
+  .project_mockup:hover + .project_link .project_link_bg:nth-of-type(5) { transition-delay: 0.46s; }
 
   /* 장식 1: 목업 뒤 큰 원 (목업 왼쪽에 살짝 겹침) */
   .project_visual::before {
@@ -1486,7 +1559,7 @@ button {
   }
 
   /* ----- Contact ----- */
-  /* 위: 왼쪽 캐릭터 + 오른쪽 문구, 아래: 높이 450 흰 박스 */
+  /* 위: 왼쪽 캐릭터 + 오른쪽 문구, 아래: 높이 550 흰 박스 */
   .contact {
     padding: var(--header-height) 0 0;
   }
@@ -1526,28 +1599,69 @@ button {
     flex-shrink: 0;
     display: flex;
     flex-direction: column;
-    height: 450px;
+    height: 550px; /* 버튼 ~ 풋터 여유 */
     min-height: 0;
     margin-top: -10px;
     padding-top: 80px;
   }
 
-  /* 메일 보내기: 원 가운데가 박스 위쪽 경계에 오게 */
-  .contact_link {
-    top: -116px; /* 원 높이 절반 */
-    right: 12%;
-    width: 233px;
-    height: 233px;
-    font-size: 20px;
-  }
-  .contact_link_icon {
-    width: 50px;
-    height: 50px;
-  }
-
   .contact_title {
     margin-left: 5.273vw; /* 1024에서 54px */
     font-size: 60px;
+  }
+
+  /* 이메일 왼쪽, 자기소개서 오른쪽 한 줄
+     좌우 여백 같게(이너의 16.667%, 1024에서 152px), 가운데는 남는 만큼 */
+  .contact_list {
+    flex-direction: row;
+    justify-content: space-between;
+    margin: 50px 0 0; /* CONTACT ~ 항목 50 */
+    padding-inline: 16.667%;
+  }
+  /* 항목 안: 글 위, 버튼 아래, 가운데 정렬, 간격 20 */
+  .contact_item--email,
+  .contact_item--letter {
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 20px;
+  }
+  .contact_btns {
+    align-self: auto;
+    margin-top: 0;
+  }
+
+  .contact_label {
+    font-size: 14px;
+  }
+  .contact_value {
+    font-size: 24px;
+  }
+
+  .contact_btn {
+    gap: 10px;
+    height: 60px;
+    font-size: 16px;
+  }
+  .contact_btn_icon {
+    width: 30px;
+    height: 30px;
+  }
+  .contact_btn--copy,
+  .contact_btn--mail {
+    width: 130px;
+  }
+  .contact_btn--letter {
+    width: 140px;
+  }
+  .contact_btn--copy {
+    border-radius: 30px 0 0 30px;
+  }
+  .contact_btn--mail {
+    border-radius: 0 30px 30px 0;
+  }
+  .contact_btn--letter {
+    border-radius: 30px;
   }
 
   /* 풋터는 박스 맨 아래 */
@@ -1736,6 +1850,12 @@ button {
     width: 611px;
     margin-inline: 127px;
   }
+  .project_link {
+    width: 140px;
+    height: 140px;
+    font-size: 22px;
+    line-height: 28px;
+  }
   /* 장식 위치 · 크기 (1920 시안 기준 대략) */
   .project_visual::before {
     top: -30px;
@@ -1790,25 +1910,33 @@ button {
     margin-top: 20px; /* 문구 사이 20 */
   }
 
-  /* 흰 박스: 높이 450 (1024와 같음), 위 여백 100 */
+  /* 흰 박스: 높이 550 (1024와 같음), 위 여백 100 */
   .contact_content {
     padding-top: 100px;
   }
 
-  /* 메일 보내기: 230 × 230, 원 가운데가 박스 위쪽 경계
-     이너 오른쪽에서 99px 안쪽 → 화면 가운데 기준으로 잡음
-     (이너 절반 750 - 99 - 버튼 230 = 421) */
-  .contact_link {
-    top: -115px;
-    left: 50%;
-    right: auto;
-    margin-left: 421px;
-    width: 230px;
-    height: 230px;
-  }
-
   .contact_title {
     margin-left: 0; /* 이너 왼쪽에 붙임 */
+  }
+
+  /* 이메일 · 자기소개서 한 줄 가운데, 사이 100 (버튼 크기는 1024와 같음) */
+  .contact_list {
+    justify-content: center;
+    gap: 100px;
+    margin-top: 80px; /* CONTACT ~ 항목 80 */
+    padding-inline: 0;
+  }
+  /* 항목 안: 글 왼쪽, 버튼 오른쪽, 세로 가운데, 간격 20 */
+  .contact_item--email,
+  .contact_item--letter {
+    flex-direction: row;
+  }
+
+  .contact_label {
+    font-size: 18px;
+  }
+  .contact_value {
+    font-size: 28px;
   }
 
   .footer_copyright {
