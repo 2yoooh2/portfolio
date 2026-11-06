@@ -1,8 +1,9 @@
 /*
   모바일 퍼스트 방식
   - 기본 스타일 = 모바일 화면 (360 시안 숫자 그대로)
-  - @media (min-width: 1024px) = PC (1024 시안 숫자)
-  - @media (min-width: 1600px) = 큰 PC (1920 시안 숫자, 이너 1500 고정)
+  - @media (min-width: 1024px) = PC (1024 시안 숫자, 이너 912 고정 = 적응형)
+  - @media (min-width: 1600px) = 큰 PC (1920 시안 숫자, 이너 1500 고정 = 적응형)
+  1024 이상은 크기를 px로 고정하고 남는 폭은 양옆 여백으로 (창 크기 따라 늘지 않음)
   PC 스타일은 파일 맨 아래 미디어쿼리에 섹션 순서대로 모아 두었어요.
 */
 
@@ -1032,8 +1033,8 @@ button {
   :root {
     --header-height: 100px;
     /* ABOUT · SKILLS · WORKS 공통 이너 높이 (제목 위치 맞춤용)
-       예전 WORKS 이너 높이: 글 칸(678)과 원 이미지(WORKS 72 + 간격 80 + 이너의 43.164%) 중 큰 쪽 */
-    --section-inner-height: max(678px, calc(152px + 38.416vw));
+       WORKS 이너 높이: 글 칸(678)과 원 이미지(WORKS 72 + 간격 80 + 394 = 546) 중 큰 쪽 */
+    --section-inner-height: 678px;
   }
 
   /* ----- Layout ----- */
@@ -1043,7 +1044,7 @@ button {
   .skills_inner,
   .projects_inner,
   .contact_inner {
-    width: 89%; /* 1024 시안 이너 912px */
+    width: 912px; /* 1024 시안 이너 912 고정 */
   }
 
   .about_keywords span,
@@ -1114,7 +1115,7 @@ button {
   }
   .hero_main::before {
     left: -96px;
-    right: -5.5vw; /* 이너 89% → 바깥 여백 5.5% */
+    right: -50vw; /* 화면 오른쪽 끝까지: 넉넉하게 빼고 .hero의 overflow: hidden으로 잘라냄 */
   }
   .hero_name {
     font-size: 32px;
@@ -1354,7 +1355,7 @@ button {
     align-items: center;
   }
   .skills_item:not(:last-child)::after {
-    right: -5.5vw;
+    right: -50vw; /* 화면 오른쪽 끝까지 (.skills의 overflow: hidden으로 잘림) */
   }
 
   .skills_content {
@@ -1427,10 +1428,10 @@ button {
     margin-top: 20px; 
   }
 
-  /* 이미지: 정원, 이너의 43.164% */
+  /* 이미지: 정원, 이너 912의 43.164% = 394 */
   .project_visual {
     flex-shrink: 0;
-    width: 43.164%;
+    width: 394px;
     margin-top: 0;
   }
   .project_mockup {
@@ -1541,7 +1542,7 @@ button {
     line-height: 1.4;
   }
   .project_desc {
-    width: 75%; /* 글 칸 기준 (1024에서 약 343px, 이너의 약 37%) */
+    width: 343px;
     margin-top: 30px;
     font-size: 18px;
     line-height: 1.4;
@@ -1619,17 +1620,17 @@ button {
   }
 
   .contact_title {
-    margin-left: 5.273vw; /* 1024에서 54px */
+    margin-left: 54px;
     font-size: 60px;
   }
 
   /* 이메일 왼쪽, 자기소개서 오른쪽 한 줄
-     좌우 여백 같게(이너의 16.667%, 1024에서 152px), 가운데는 남는 만큼 */
+     좌우 여백 같게(152), 가운데는 남는 만큼 */
   .contact_list {
     flex-direction: row;
     justify-content: space-between;
     margin: 50px 0 0; /* CONTACT ~ 항목 50 */
-    padding-inline: 16.667%;
+    padding-inline: 152px;
   }
   /* 항목 안: 글 위, 버튼 아래, 가운데 정렬, 간격 20 */
   .contact_item--email,
@@ -1763,7 +1764,7 @@ button {
   /* 오른쪽 위 원: ABOUT ME 오른쪽 위 (남색 칸 왼쪽) */
   .about_intro::before {
     top: 135px;
-    left: 44%;
+    left: calc(50% - 115px); /* 화면 가운데 기준 → 이너와 같이 움직임 (1920에서 845) */
     right: auto;
     width: 205px;
     height: 190px;
@@ -1902,6 +1903,9 @@ button {
     height: 195px;
   }
 
+  .project_desc {
+    width: 458px; /* 글 구역 611의 75% */
+  }
   .project_details {
     column-gap: 135px; /* DEVICE ~ ROLE 135 */
     row-gap: 30px;     /* DEVICE ~ TOOLS 30 */
