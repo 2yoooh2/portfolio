@@ -39,7 +39,7 @@ function smoothScrollTo(targetY) {
   requestAnimationFrame(step);
 }
 
-document.querySelectorAll('.header a[href^="#"]').forEach((link) => {
+document.querySelectorAll('.header a[href^="#"], .side_nav a[href^="#"]').forEach((link) => {
   link.addEventListener('click', (event) => {
     const target = document.querySelector(link.getAttribute('href'));
     if (!target) return;
@@ -48,7 +48,10 @@ document.querySelectorAll('.header a[href^="#"]').forEach((link) => {
 
     // 1024 이상: fullPage.js가 해당 섹션으로 넘겨줌 (moveTo는 1부터 셈)
     // 1600 이상에서 숨긴 Work style 섹션은 빼고 셈
+    // stopPropagation: fullPage.js도 문서 전체에서 # 링크 클릭을 받아 섹션 안 스크롤을
+    // 대상.offsetTop(페이지 기준 값)만큼 내려버림 → Contact가 풋터까지 내려가는 문제라 막음
     if (isFullpage) {
+      event.stopPropagation();
       const sections = [...document.querySelectorAll('#fullpage .section')]
         .filter((section) => getComputedStyle(section).display !== 'none');
       fullpage_api.moveTo(sections.indexOf(target.closest('.section')) + 1);
@@ -245,6 +248,25 @@ document.querySelectorAll('.contact_btn--copy').forEach((button) => {
 /* ===== 1024 이상: fullPage.js로 섹션 단위 스크롤 =====
    1024 미만은 지금처럼 일반 스크롤. 창 크기가 1024를 넘나들면 켜고 끔 */
 const pcQuery = window.matchMedia('(min-width: 1024px)');
+// 1600 이상에서는 Work style 섹션이 About 안으로 합쳐짐
+const bigQuery = window.matchMedia('(min-width: 1600px)');
+
+/* 사이드 메뉴: 지금 보고 있는 섹션 표시
+   남색 배경 위에서는 흰 글자로 (Contact, 1024의 Work style 띠, 1600의 About 오른쪽 칸) */
+const sideNav = document.querySelector('.side_nav');
+
+function updateSideNav(key) {
+  if (!sideNav) return;
+  sideNav.querySelectorAll('li').forEach((item) => {
+    const isCurrent = item.dataset.key === key;
+    item.classList.toggle('is-active', isCurrent);
+    if (isCurrent) item.querySelector('a').setAttribute('aria-current', 'true');
+    else item.querySelector('a').removeAttribute('aria-current');
+  });
+  const isDark = key === 'contact' || key === 'workstyle' || (key === 'about' && bigQuery.matches);
+  sideNav.classList.toggle('is-dark', isDark);
+  sideNav.classList.toggle('is-hidden', key === 'hero'); // Home에서는 숨김
+}
 
 function initFullpage() {
   if (isFullpage || typeof fullpage === 'undefined') return;
@@ -257,9 +279,11 @@ function initFullpage() {
     // 첫 섹션(Hero)을 벗어나면 헤더를 반투명 유리 스타일로
     onLeave: (origin, destination) => {
       header?.classList.toggle('is-scrolled', destination.index > 0);
+      updateSideNav(destination.item.dataset.key); // 넘어가기 시작할 때 바로 바뀌게
     },
   });
   isFullpage = true;
+  updateSideNav(fullpage_api.getActiveSection().item.dataset.key);
 }
 
 function destroyFullpage() {
@@ -279,7 +303,6 @@ pcQuery.addEventListener('change', handlePcQuery);
 
 // 1600 이상에서는 Work style 섹션이 About 안으로 합쳐져서 섹션 수가 바뀜
 // fullPage.js는 켤 때만 섹션을 세므로, 1600을 넘나들면 껐다가 다시 켬
-const bigQuery = window.matchMedia('(min-width: 1600px)');
 bigQuery.addEventListener('change', () => {
   destroyFullpage();
   handlePcQuery();

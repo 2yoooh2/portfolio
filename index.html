@@ -36,6 +36,19 @@
     </div>
   </header>
 
+  <!-- 1024 이상: 오른쪽 사이드 메뉴 (현재 섹션 표시는 script/main.js) -->
+  <!-- 처음엔 Home이라 숨긴 채로 시작 (페이지 열 때 깜빡임 방지) -->
+  <nav class="side_nav is-hidden" aria-label="섹션 이동">
+    <ul>
+      <li data-key="hero"><a href="#hero">Home</a></li>
+      <li data-key="about"><a href="#about">About</a></li>
+      <li data-key="workstyle"><a href="#workstyle">Work Style</a></li>
+      <li data-key="skills"><a href="#skills">Skills</a></li>
+      <li data-key="projects"><a href="#projects">Works</a></li>
+      <li data-key="contact"><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+
   <div id="fullpage">
     <section class="section hero" id="hero" data-key="hero">
       <div class="hero_inner">
@@ -85,10 +98,12 @@
             <div class="about_content">
               <p class="about_title">작은 차이를 놓치지 않는<br>웹 퍼블리셔 유혜지입니다.</p>
               <div class="about_desc">
-                <p class="about_text">저는 디자인에 담긴 의도를 이해하고,<br>
-                  이를 웹페이지로 만드는 과정이 즐겁습니다.</p>
-                <p class="about_text about_text--desktop">단순히 보이는 화면을 만드는 데 그치지 않고,<br>간격이나 미세한 움직임까지 신경 쓰며 작업합니다.</p>
-                <p class="about_text">새로운 기술은 직접 써 보면서 익히는 편이고,<br>배운 것은 다음 작업에 바로 적용해 봅니다.</p>
+                <p class="about_text">저는 디자인에 담긴 의도를 이해하고, 
+                  <br>이를 웹페이지로 만드는 과정이 즐겁습니다.</p>
+                <p class="about_text about_text--desktop">단순히 보이는 화면을 만드는 데 그치지 않고, 
+                  <br>간격이나 미세한 움직임까지 신경 쓰며 작업합니다.</p>
+                <p class="about_text">새로운 기술은 직접 써 보면서 익히는 편이고, 
+                  <br>배운 것은 다음 작업에 바로 적용해 봅니다.</p>
               </div>
             </div>
           </div>
@@ -136,7 +151,7 @@
     </section>
 
 
-    <section class="section about_workstyle" data-key="workstyle">
+    <section class="section about_workstyle" id="workstyle" data-key="workstyle">
       <div class="about_inner">
         <h2 class="eyebrow">MY WORK STYLE</h2>
       </div>
@@ -196,7 +211,7 @@
     </section>
 
 
-    <section class="section skills" data-key="skills">
+    <section class="section skills" id="skills" data-key="skills">
       <div class="skills_inner">
         <h2 class="eyebrow">SKILLS</h2>
 
