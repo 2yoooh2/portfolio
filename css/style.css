@@ -1671,31 +1671,39 @@ button {
     padding: var(--header-height) 0 0;
   }
 
-  /* 1줄: 첫 문구 (오른쪽) → 문구 아래가 캐릭터 위와 만남
-     2줄: 캐릭터 (왼쪽) + 두 번째 문구 (오른쪽) */
+  /* 왼쪽: 캐릭터 (두 줄 다 차지)
+     오른쪽: 두 문구를 묶어서 아래쪽(흰 박스 쪽)에 붙임
+     1줄이 1fr → 남는 높이는 첫 문구 위로 가고, 첫 문구는 1줄 맨 아래에 */
   .contact_visual {
     display: grid;
     grid-template-columns: auto 1fr;
+    grid-template-rows: 1fr auto;
+    column-gap: 40px; /* 캐릭터 ~ 문구 */
     margin-top: auto; /* 남는 공간은 위로 → 캐릭터가 흰 박스에 붙음 */
   }
   .contact_message {
-    justify-self: end; /* 이너 오른쪽 */
-    width: auto;       /* 한 줄 */
-    font-size: 48px;
+    justify-self: end; /* 캐릭터 쪽에 붙임 */
+    width: auto;         /* 한 줄 */
+    margin-left: 0;      /* 모바일 margin-left: auto 지움 */
+    text-align: left;
+    font-size: 40px;
     line-height: 1.2;
   }
   .contact_message--first {
-    grid-column: 1 / -1; /* 두 칸 다 써서 길게 */
+    grid-column: 2;
+    grid-row: 1;
+    align-self: end;
   }
   .contact_message--second {
     grid-column: 2;
     grid-row: 2;
-    align-self: start;
     margin-top: 30px;
+    margin-bottom: 60px; /* 흰 박스 ~ 문구 (캐릭터 아래 10은 박스에 덮임) */
+    font-size: 48px;
   }
   .contact_character {
     grid-column: 1;
-    grid-row: 2;
+    grid-row: 1 / -1;
     width: 290px;
     height: 348px;
     margin-top: 0;
@@ -1709,7 +1717,7 @@ button {
     height: 550px; /* 버튼 ~ 풋터 여유 */
     min-height: 0;
     margin-top: -10px;
-    padding-top: 80px;
+    padding-top: 40px;
   }
 
   .contact_title {
@@ -2032,6 +2040,9 @@ button {
   /* ----- Contact ----- */
   /* 위: 캐릭터 (이너 왼쪽에서 6.614% = 99px) + 오른쪽에 문구 두 줄 (왼쪽 정렬) */
   .contact_visual {
+    /* 문구 칸 = 긴 첫 문구 폭 → 두 번째 문구를 칸 오른쪽에 붙이면 첫 문구 끝과 맞음 */
+    grid-template-columns: auto auto;
+    justify-content: start;
     grid-template-rows: auto 1fr; /* 남는 높이는 2줄로 → 두 문구 사이 20 유지 */
     column-gap: 20px; /* 캐릭터 ~ 문구 20 */
   }
@@ -2049,15 +2060,22 @@ button {
   .contact_message--first {
     grid-column: 2;
     grid-row: 1;
-    margin-top: 40px; /* 캐릭터 위에서 40 아래 */
+    align-self: start; /* 1024의 아래 붙이기 대신 위에서부터 */
+    width: auto;       /* 1600은 한 줄 */
+    margin-top: 90px; /* 캐릭터 위에서 40 아래 */
+    font-size: 48px;
   }
   .contact_message--second {
+    justify-self: end; /* "찾고 계신가요?" 끝에 맞춤 */
+    align-self: start;
     margin-top: 20px; /* 문구 사이 20 */
+    margin-bottom: 0;
+    font-size: 60px;
   }
 
   /* 흰 박스: 높이 550 (1024와 같음), 위 여백 100 */
   .contact_content {
-    padding-top: 100px;
+    padding-top: 50px;
   }
 
   .contact_title {
