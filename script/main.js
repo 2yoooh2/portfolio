@@ -232,14 +232,14 @@ document.querySelectorAll('.contact_btn--copy').forEach((button) => {
     try {
       await navigator.clipboard.writeText(button.dataset.copy);
       button.classList.add('is-copied');
-      label.textContent = '복사완료!';
+      if (label) label.textContent = '복사완료!';
     } catch {
-      label.textContent = '복사실패';
+      if (label) label.textContent = '복사실패';
     }
     clearTimeout(timer);
     timer = setTimeout(() => {
       button.classList.remove('is-copied');
-      label.textContent = '복사하기';
+      if (label) label.textContent = '복사하기';
     }, 3000);
   });
 });

@@ -926,7 +926,7 @@ button {
 }
 
 .contact_title {
-  font-size: 24px;
+  font-size: 50px;
   font-weight: 700;
   line-height: 1.2;
   color: var(--color-navy);
@@ -1026,8 +1026,94 @@ button {
   color: #fff;
 }
 
+/* ----- 1024 미만 전용 연락처 (PC는 위 .contact_list 사용) ----- */
+.contact_list {
+  display: none;
+}
+.contact_mo {
+  margin-top: 30px; /* CONTACT ~ 항목 30 */
+}
+.contact_mo_list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px; /* EMAIL 줄 ~ PHONE 줄 15 */
+}
+.contact_mo_item {
+  display: flex;
+  align-items: center;
+}
+/* 라벨 가로 50 맞춤 (EMAIL · PHONE 뒤 값 시작점 통일) */
+.contact_mo_label {
+  flex-shrink: 0;
+  box-sizing: border-box;
+  width: 50px;
+  padding-right: 4px;
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 1.2;
+  color: #999;
+}
+.contact_mo_value {
+  margin-left: 15px; /* 라벨 ~ 값 15 */
+  font-family: var(--font-title);
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--color-navy);
+}
+/* 복사 아이콘: 값 ~ 아이콘 10 (.contact_btn--copy 기본 버튼 모양 지움) */
+.contact_mo_copy {
+  display: flex;
+  width: auto;
+  margin-left: 10px;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: none;
+  color: var(--color-navy);
+  cursor: pointer;
+}
+.contact_mo_copy .contact_btn_icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* 메일 보내기 · 자기 소개서 */
+.contact_mo_btns {
+  display: flex;
+  gap: 10px;
+  margin-top: 30px;
+}
+.contact_mo_btn {
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  width: 140px;
+  height: 40px;
+  border-radius: 500px;
+  font-family: var(--font-title);
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 1;
+}
+.contact_mo_btn .contact_btn_icon {
+  width: 20px;
+  height: 20px;
+}
+.contact_mo_btn--mail {
+  background-color: var(--color-navy);
+  color: #fff;
+}
+.contact_mo_btn--letter {
+  border: 1px solid var(--color-navy); /* border-box라 안쪽 1px */
+  background-color: #fff;
+  color: var(--color-navy);
+}
+
 .footer {
-  margin-top: 50px;
+  margin-top: 60px;
   padding-bottom: 30px;
   text-align: center;
   color: #999;
@@ -1727,7 +1813,11 @@ button {
 
   /* 이메일 왼쪽, 자기소개서 오른쪽 한 줄
      좌우 여백 같게(152), 가운데는 남는 만큼 */
+  .contact_mo {
+    display: none;
+  }
   .contact_list {
+    display: flex;
     flex-direction: row;
     justify-content: space-between;
     margin: 50px 0 0; /* CONTACT ~ 항목 50 */
