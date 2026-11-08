@@ -932,118 +932,21 @@ button {
   color: var(--color-navy);
 }
 
-/* 이메일 · 자기소개서: 이너 왼쪽에서 8.333% 들여쓰기 */
+/* 연락처: CONTACT 아래 30 */
+.contact_info {
+  margin-top: 30px;
+}
 .contact_list {
-  display: flex;
-  flex-direction: column;
-  gap: 40px;
-  margin: 40px 0 0 8.333%;
-}
-.contact_item--email {
-  display: flex;
-  flex-direction: column;
-}
-/* 자기소개서: 글 왼쪽, 버튼 오른쪽, 세로 가운데 */
-.contact_item--letter {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.contact_label {
-  font-size: 12px;
-  font-weight: 300;
-  line-height: 1.2;
-  color: #666;
-}
-.contact_value {
-  margin-top: 5px; /* 라벨 ~ 값 5 */
-  font-family: var(--font-title);
-  font-size: 18px;
-  font-weight: 500;
-  line-height: 1.2;
-  color: var(--color-navy);
-}
-
-/* 복사하기 | 메일쓰기: 이메일 아래 10, 이너 오른쪽 끝에 붙임 */
-.contact_btns {
-  display: flex;
-  align-self: flex-end;
-  margin-top: 10px;
-}
-
-/* 버튼 공통 */
-.contact_btn {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 5px;
-  height: 40px;
-  font-family: var(--font-title);
-  font-size: 12px;
-  font-weight: 300;
-  line-height: 1;
-}
-.contact_btn_icon {
-  flex-shrink: 0;
-  width: 15px;
-  height: 15px;
-}
-
-/* 복사하기: 왼쪽만 둥글게, 오른쪽 보더 없음 */
-.contact_btn--copy {
-  width: 100px;
-  border: 1px solid var(--color-navy);
-  border-right: none;
-  border-radius: 24px 0 0 24px;
-  color: var(--color-navy);
-}
-/* 체크 아이콘은 복사됐을 때만 */
-.contact_btn_icon--check {
-  display: none;
-}
-.contact_btn--copy.is-copied .contact_btn_icon--copy {
-  display: none;
-}
-.contact_btn--copy.is-copied .contact_btn_icon--check {
-  display: block;
-}
-
-/* 메일쓰기: 오른쪽만 둥글게 */
-.contact_btn--mail {
-  width: 100px;
-  border-radius: 0 24px 24px 0;
-  background-color: var(--color-navy);
-  color: #fff;
-}
-
-/* 자기소개서 읽어보기 */
-.contact_btn--letter {
-  flex-shrink: 0;
-  width: 120px;
-  border-radius: 24px;
-  background-color: var(--color-navy);
-  color: #fff;
-}
-
-/* ----- 1024 미만 전용 연락처 (PC는 위 .contact_list 사용) ----- */
-.contact_list {
-  display: none;
-}
-.contact_mo {
-  margin-top: 30px; /* CONTACT ~ 항목 30 */
-}
-.contact_mo_list {
   display: flex;
   flex-direction: column;
   gap: 15px; /* EMAIL 줄 ~ PHONE 줄 15 */
 }
-.contact_mo_item {
+.contact_item {
   display: flex;
   align-items: center;
 }
 /* 라벨 가로 50 맞춤 (EMAIL · PHONE 뒤 값 시작점 통일) */
-.contact_mo_label {
+.contact_label {
   flex-shrink: 0;
   box-sizing: border-box;
   width: 50px;
@@ -1053,7 +956,7 @@ button {
   line-height: 1.2;
   color: #999;
 }
-.contact_mo_value {
+.contact_value {
   margin-left: 15px; /* 라벨 ~ 값 15 */
   font-family: var(--font-title);
   font-size: 18px;
@@ -1061,36 +964,42 @@ button {
   line-height: 1.2;
   color: var(--color-navy);
 }
-/* 복사 아이콘: 값 ~ 아이콘 10 (.contact_btn--copy 기본 버튼 모양 지움) */
-.contact_mo_copy {
-  display: flex;
-  width: auto;
-  margin-left: 10px;
-  padding: 0;
-  border: none;
-  border-radius: 0;
-  background: none;
-  color: var(--color-navy);
-  cursor: pointer;
-}
-.contact_mo_copy .contact_btn_icon {
+
+.contact_icon {
+  flex-shrink: 0;
   width: 20px;
   height: 20px;
 }
 
+/* 복사 아이콘: 값 ~ 아이콘 10 */
+.contact_copy {
+  display: flex;
+  margin-left: 10px;
+  padding: 0;
+  color: var(--color-navy);
+}
+/* 체크 아이콘은 복사됐을 때만 */
+.contact_icon--check,
+.contact_copy.is-copied .contact_icon--copy {
+  display: none;
+}
+.contact_copy.is-copied .contact_icon--check {
+  display: block;
+}
+
 /* 메일 보내기 · 자기 소개서 */
-.contact_mo_btns {
+.contact_btns {
   display: flex;
   gap: 10px;
   margin-top: 30px;
 }
-.contact_mo_btn {
+.contact_btn {
   box-sizing: border-box;
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 5px;
-  width: 140px;
+  width: 150px;
   height: 40px;
   border-radius: 500px;
   font-family: var(--font-title);
@@ -1098,15 +1007,11 @@ button {
   font-weight: 300;
   line-height: 1;
 }
-.contact_mo_btn .contact_btn_icon {
-  width: 20px;
-  height: 20px;
-}
-.contact_mo_btn--mail {
+.contact_btn--mail {
   background-color: var(--color-navy);
   color: #fff;
 }
-.contact_mo_btn--letter {
+.contact_btn--letter {
   border: 1px solid var(--color-navy); /* border-box라 안쪽 1px */
   background-color: #fff;
   color: var(--color-navy);
@@ -1784,7 +1689,7 @@ button {
     grid-column: 2;
     grid-row: 2;
     margin-top: 30px;
-    margin-bottom: 60px; /* 흰 박스 ~ 문구 (캐릭터 아래 10은 박스에 덮임) */
+    margin-bottom: 180px; /* 흰 박스 ~ 문구 (캐릭터 아래 10은 박스에 덮임) */
     font-size: 48px;
   }
   .contact_character {
@@ -1800,7 +1705,7 @@ button {
     flex-shrink: 0;
     display: flex;
     flex-direction: column;
-    height: 550px; /* 버튼 ~ 풋터 여유 */
+    height: 390px;
     min-height: 0;
     margin-top: -10px;
     padding-top: 40px;
@@ -1811,67 +1716,56 @@ button {
     font-size: 60px;
   }
 
-  /* 이메일 왼쪽, 자기소개서 오른쪽 한 줄
-     좌우 여백 같게(152), 가운데는 남는 만큼 */
-  .contact_mo {
-    display: none;
+  /* CONTACT 왼쪽, 연락처 박스(468) 오른쪽 이너 끝, 위에서 72 */
+  .contact_content .contact_inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  .contact_info {
+    width: 468px;
+    margin-top: 72px;
   }
   .contact_list {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    margin: 50px 0 0; /* CONTACT ~ 항목 50 */
-    padding-inline: 152px;
+    gap: 10px; /* 이메일 ~ 폰 10 */
   }
-  /* 항목 안: 글 위, 버튼 아래, 가운데 정렬, 간격 20 */
-  .contact_item--email,
-  .contact_item--letter {
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: center;
-    gap: 20px;
-  }
-  .contact_btns {
-    align-self: auto;
-    margin-top: 0;
-  }
-
   .contact_label {
-    font-size: 14px;
+    width: 102px; /* 값은 박스 왼쪽에서 102 */
+    padding-right: 0;
+    font-size: 18px;
   }
   .contact_value {
-    font-size: 24px;
+    margin-left: 0;
+    font-size: 28px;
   }
-
-  .contact_btn {
-    gap: 10px;
-    height: 60px;
-    font-size: 16px;
-  }
-  .contact_btn_icon {
+  .contact_copy .contact_icon {
     width: 30px;
     height: 30px;
   }
-  .contact_btn--copy,
-  .contact_btn--mail {
-    width: 130px;
+  .contact_btns {
+    margin-top: 30px; /* 폰 ~ 버튼 30 */
   }
-  .contact_btn--letter {
-    width: 140px;
+  .contact_btn {
+    gap: 10px;
+    width: 220px;
+    height: 60px;
+    font-size: 22px;
   }
-  .contact_btn--copy {
-    border-radius: 30px 0 0 30px;
-  }
-  .contact_btn--mail {
-    border-radius: 0 30px 30px 0;
-  }
-  .contact_btn--letter {
-    border-radius: 30px;
+  .contact_btn .contact_icon {
+    width: 35px;
+    height: 35px;
   }
 
-  /* 풋터는 박스 맨 아래 */
+  /* 풋터: 연락처 박스와 같은 줄, 흰 박스 아래에서 20 / 이너 왼쪽 끝에 왼쪽 정렬 */
   .footer {
-    margin-top: auto;
+    position: absolute;
+    right: 0;
+    bottom: 20px;
+    left: 0;
+    width: 912px; /* 이너 폭 */
+    margin: 0 auto;
+    padding-bottom: 0;
+    text-align: left;
   }
   .footer_copyright {
     font-size: 14px;
@@ -2152,7 +2046,7 @@ button {
     grid-row: 1;
     align-self: start; /* 1024의 아래 붙이기 대신 위에서부터 */
     width: auto;       /* 1600은 한 줄 */
-    margin-top: 90px; /* 캐릭터 위에서 40 아래 */
+    margin-top: 40px; /* 캐릭터 위에서 40 아래 */
     font-size: 48px;
   }
   .contact_message--second {
@@ -2163,33 +2057,23 @@ button {
     font-size: 60px;
   }
 
-  /* 흰 박스: 높이 550 (1024와 같음), 위 여백 100 */
+  /* 흰 박스: 높이 360, 위 여백 50 */
   .contact_content {
     padding-top: 50px;
+    height: 360px;
   }
 
   .contact_title {
     margin-left: 0; /* 이너 왼쪽에 붙임 */
   }
 
-  /* 이메일 · 자기소개서 한 줄 가운데, 사이 100 (버튼 크기는 1024와 같음) */
-  .contact_list {
-    justify-content: center;
-    gap: 100px;
-    margin-top: 80px; /* CONTACT ~ 항목 80 */
-    padding-inline: 0;
+  /* 연락처는 1024 구성 그대로, 박스만 이너 오른쪽에서 127 안쪽 */
+  .contact_info {
+    margin-right: 127px;
   }
-  /* 항목 안: 글 왼쪽, 버튼 오른쪽, 세로 가운데, 간격 20 */
-  .contact_item--email,
-  .contact_item--letter {
-    flex-direction: row;
-  }
-
-  .contact_label {
-    font-size: 18px;
-  }
-  .contact_value {
-    font-size: 28px;
+  /* 풋터 위치는 1024와 같음, 폭만 이너 1500 */
+  .footer {
+    width: 1500px;
   }
 
   .footer_copyright {

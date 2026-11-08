@@ -223,23 +223,20 @@ async function playContactScenes() {
 if (firstMessage && secondMessage) playContactScenes();
 
 
-/* ===== Contact: 복사하기 누르면 이메일 복사 → 체크 + 복사완료! → 3초 뒤 원래대로 ===== */
-document.querySelectorAll('.contact_btn--copy').forEach((button) => {
-  const label = button.querySelector('.contact_btn_txt');
+/* ===== Contact: 복사 아이콘 누르면 값 복사 → 체크 아이콘 → 3초 뒤 원래대로 ===== */
+document.querySelectorAll('.contact_copy').forEach((button) => {
   let timer;
 
   button.addEventListener('click', async () => {
     try {
       await navigator.clipboard.writeText(button.dataset.copy);
-      button.classList.add('is-copied');
-      if (label) label.textContent = '복사완료!';
     } catch {
-      if (label) label.textContent = '복사실패';
+      return;
     }
+    button.classList.add('is-copied');
     clearTimeout(timer);
     timer = setTimeout(() => {
       button.classList.remove('is-copied');
-      if (label) label.textContent = '복사하기';
     }, 3000);
   });
 });
