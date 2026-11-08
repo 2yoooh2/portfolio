@@ -954,7 +954,7 @@ button {
   font-size: 12px;
   font-weight: 300;
   line-height: 1.2;
-  color: #999;
+  color: #666;
 }
 .contact_value {
   margin-left: 15px; /* 라벨 ~ 값 15 */
@@ -999,7 +999,8 @@ button {
   justify-content: center;
   align-items: center;
   gap: 5px;
-  width: 150px;
+  flex: 1;
+  max-width: 150px; /* 화면이 좁으면 이너 안에 맞게 줄어듦 (360: 139) */
   height: 40px;
   border-radius: 500px;
   font-family: var(--font-title);
@@ -1738,6 +1739,10 @@ button {
     margin-left: 0;
     font-size: 28px;
   }
+  /* PC는 전화 걸기 링크 끔 */
+  a.contact_value {
+    pointer-events: none;
+  }
   .contact_copy .contact_icon {
     width: 30px;
     height: 30px;
@@ -1747,7 +1752,9 @@ button {
   }
   .contact_btn {
     gap: 10px;
+    flex: none;
     width: 220px;
+    max-width: none;
     height: 60px;
     font-size: 22px;
   }

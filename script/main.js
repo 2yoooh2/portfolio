@@ -269,7 +269,7 @@ function initFullpage() {
   if (isFullpage || typeof fullpage === 'undefined') return;
 
   new fullpage('#fullpage', {
-    licenseKey: '', // fullPage.js v4 라이선스 키 (없으면 콘솔 경고 표시)
+    licenseKey: 'gplv3-license', // GPLv3 오픈소스 프로젝트용 키 (비우면 워터마크 표시)
     scrollingSpeed: reduceMotion ? 0 : SCROLL_DURATION, // 헤더 링크 스크롤과 같은 0.8초
     verticalCentered: false, // 섹션 안 레이아웃은 지금 CSS 그대로
     scrollOverflow: true,    // 화면보다 긴 섹션은 안에서 스크롤한 뒤 다음 섹션으로
