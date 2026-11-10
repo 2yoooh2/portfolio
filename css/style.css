@@ -188,14 +188,218 @@ button {
   height: 40px;
 }
 
-.header_work {
-  padding: 14px 0;
-  font-size: 16px;
-  line-height: 1;
-}
-
 .nav {
   display: none;
+}
+
+/* ----- 햄버거 (1024 미만) ----- */
+/* 버튼 48px = 손가락 터치 영역, 줄 24px는 가운데 */
+.burger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  margin-right: -10px; /* 줄 오른쪽 끝을 이너 끝에 맞춤 */
+  border: 0;
+  background: none;
+  color: var(--color-navy);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.burger:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: -4px;
+}
+.burger_box {
+  position: relative;
+  width: 28px;
+  height: 20px;
+}
+.burger_line {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  border-radius: 2px;
+  background-color: currentColor;
+  transition: transform 0.35s ease-in-out;
+}
+.burger_line--top {
+  top: 0;
+}
+.burger_line--bot {
+  top: 18px;
+}
+/* 가운데 줄: 흐린 줄 위로 지금 섹션까지 차오름 (Home 40% → Contact 100%, --progress는 script/main.js) */
+.burger_mid {
+  position: absolute;
+  top: 9px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  transition: opacity 0.2s;
+}
+.burger_mid::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 2px;
+  background-color: currentColor;
+  opacity: 0.25;
+}
+.burger_fill {
+  position: absolute;
+  inset: 0;
+  border-radius: 2px;
+  background-color: currentColor;
+  transform-origin: left center;
+  transform: scaleX(var(--progress, 0.4));
+  transition: transform 0.5s ease-in-out;
+}
+
+/* 메뉴 열림: 줄 두 개는 X로, 가운데 줄은 숨김, 남색 위라 흰색 */
+.is-menu-open .burger {
+  color: #fff;
+}
+.is-menu-open .burger_line--top {
+  transform: translateY(9px) rotate(45deg);
+}
+.is-menu-open .burger_line--bot {
+  transform: translateY(-9px) rotate(-45deg);
+}
+.is-menu-open .burger_mid {
+  opacity: 0;
+}
+
+/* 메뉴 열린 동안: 뒤 페이지 스크롤 막고, 헤더는 투명하게 (메뉴가 헤더 뒤에 깔림) */
+body.is-menu-open {
+  overflow: hidden;
+}
+.is-menu-open .header {
+  background-color: transparent;
+  backdrop-filter: none;
+  box-shadow: none;
+}
+.is-menu-open .logo {
+  visibility: hidden;
+}
+
+/* ----- 전체 화면 메뉴 (1024 미만) ----- */
+/* 닫힘 = 버튼 자리에 크기 0인 원, 열림 = 화면을 덮는 원
+   원 중심(--menu-x, --menu-y)은 script/main.js에서 버튼 위치로 넣음 */
+.mobile_menu {
+  position: fixed;
+  inset: 0;
+  z-index: 99; /* 헤더(100) 바로 아래 → X 버튼은 메뉴 위에 보임 */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 110px 10% 40px;
+  background-color: var(--color-navy);
+  color: #fff;
+  clip-path: circle(0 at var(--menu-x, 90%) var(--menu-y, 30px));
+  visibility: hidden;
+  transition: clip-path 0.55s ease-in-out, visibility 0s linear 0.55s; /* 닫힐 땐 원이 다 줄어든 뒤 숨김 */
+}
+.is-menu-open .mobile_menu {
+  clip-path: circle(150% at var(--menu-x, 90%) var(--menu-y, 30px));
+  visibility: visible;
+  transition: clip-path 0.55s ease-in-out, visibility 0s;
+}
+
+.mobile_menu_list {
+  list-style: none;
+}
+/* 항목은 원이 퍼지는 동안 하나씩 올라옴 */
+.mobile_menu_list li {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.3s, transform 0.3s;
+}
+.is-menu-open .mobile_menu_list li {
+  opacity: 1;
+  transform: none;
+}
+.is-menu-open .mobile_menu_list li:nth-child(1) { transition-delay: 0.15s; }
+.is-menu-open .mobile_menu_list li:nth-child(2) { transition-delay: 0.19s; }
+.is-menu-open .mobile_menu_list li:nth-child(3) { transition-delay: 0.23s; }
+.is-menu-open .mobile_menu_list li:nth-child(4) { transition-delay: 0.27s; }
+.is-menu-open .mobile_menu_list li:nth-child(5) { transition-delay: 0.31s; }
+.is-menu-open .mobile_menu_list li:nth-child(6) { transition-delay: 0.35s; }
+
+.mobile_menu_list a {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  padding: 10px 0;
+  font-family: var(--font-title);
+  font-size: 28px;
+  font-weight: 500;
+  line-height: 1.2;
+  opacity: 0.55;
+  transition: opacity 0.2s;
+}
+.mobile_menu_list a:hover,
+.mobile_menu_list a:focus-visible,
+.mobile_menu_list a[aria-current="true"] {
+  opacity: 1;
+}
+.mobile_menu_num {
+  width: 20px;
+  font-family: var(--font-base);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+}
+/* 지금 보고 있는 섹션 표시 */
+.mobile_menu_list a[aria-current="true"]::after {
+  content: "NOW";
+  align-self: center;
+  padding: 3px 8px;
+  border-radius: 99px;
+  background-color: rgba(255, 255, 255, 0.18);
+  font-family: var(--font-base);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+}
+
+.mobile_menu_mail {
+  font-size: 14px;
+  opacity: 0.7;
+}
+
+/* ----- 맨 위로 버튼 ----- */
+/* 흰 원 + 남색 화살표 + 그림자 → 흰 배경, 남색 배경 어디서든 보임
+   Home에서는 숨김, 벗어나면 아래에서 살짝 올라오며 나타남 (script/main.js에서 is-shown) */
+.top_btn {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 90; /* 헤더(100) · 햄버거 메뉴(99)보다 아래 → 메뉴 열면 가려짐 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: #fff;
+  color: var(--color-navy);
+  box-shadow: 0 4px 16px rgba(51, 89, 127, 0.25);
+  opacity: 0;
+  visibility: hidden; /* 숨어 있을 땐 클릭 · Tab 이동도 안 됨 */
+  transform: translateY(10px);
+  transition: opacity 0.3s, transform 0.3s, visibility 0.3s;
+}
+.top_btn.is-shown {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+}
+.top_btn:focus-visible {
+  outline: 2px solid var(--color-navy);
+  outline-offset: 3px;
 }
 
 /* 사이드 메뉴는 1024 이상에서만 */
@@ -1095,8 +1299,11 @@ button {
     width: 60px;
     height: 60px;
   }
-  /* PC에서는 WORK 버튼 대신 전체 메뉴 */
-  .header_work {
+  /* PC에서는 햄버거 대신 전체 메뉴 */
+  /* 탑 버튼도 모바일만 (PC는 사이드 메뉴 · 헤더 메뉴에 Home이 있음) */
+  .burger,
+  .mobile_menu,
+  .top_btn {
     display: none;
   }
   .nav {
@@ -1194,7 +1401,6 @@ button {
     padding: 1px 11px; /* 테두리 1px만큼 줄여서 크기 그대로 */
     color: var(--color-navy);
   }
-
   /* 남색 배경 위 (script/main.js에서 is-dark 붙임): 레일만 흰색 계열로 */
   .side_nav.is-dark a::after {
     background-color: rgba(255, 255, 255, 0.4);
@@ -2159,5 +2365,13 @@ button {
   .project::after,
   .contact_char.is-cursor::after {
     animation: none;
+  }
+  .burger_line,
+  .burger_fill,
+  .mobile_menu,
+  .is-menu-open .mobile_menu,
+  .mobile_menu_list li,
+  .top_btn {
+    transition: none;
   }
 }

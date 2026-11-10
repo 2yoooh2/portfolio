@@ -42,9 +42,29 @@
         </ul>
       </nav>
 
-      <a href="#projects" class="header_work">WORK</a>
+      <!-- 1024 미만: 햄버거 (가운데 줄 = 지금 섹션까지 진행률, script/main.js) -->
+      <button class="burger" type="button" aria-expanded="false" aria-controls="mobileMenu" aria-label="메뉴 열기">
+        <span class="burger_box">
+          <span class="burger_line burger_line--top"></span>
+          <span class="burger_mid"><span class="burger_fill"></span></span>
+          <span class="burger_line burger_line--bot"></span>
+        </span>
+      </button>
     </div>
   </header>
+
+  <!-- 1024 미만: 햄버거 누르면 버튼 자리에서 원이 퍼지며 열리는 전체 화면 메뉴 -->
+  <nav class="mobile_menu" id="mobileMenu" aria-label="메뉴" inert>
+    <ol class="mobile_menu_list">
+      <li><a href="#hero"><span class="mobile_menu_num">01</span>Home</a></li>
+      <li><a href="#about"><span class="mobile_menu_num">02</span>About</a></li>
+      <li><a href="#workstyle"><span class="mobile_menu_num">03</span>Work Style</a></li>
+      <li><a href="#skills"><span class="mobile_menu_num">04</span>Skills</a></li>
+      <li><a href="#projects"><span class="mobile_menu_num">05</span>Works</a></li>
+      <li><a href="#contact"><span class="mobile_menu_num">06</span>Contact</a></li>
+    </ol>
+    <a class="mobile_menu_mail" href="mailto:2yooh2@naver.com">2yooh2@naver.com</a>
+  </nav>
 
   <!-- 1024 이상: 오른쪽 사이드 메뉴 (현재 섹션 표시는 script/main.js) -->
   <!-- 처음엔 Home이라 숨긴 채로 시작 (페이지 열 때 깜빡임 방지) -->
@@ -58,6 +78,13 @@
       <li data-key="contact"><a href="#contact"><span class="side_nav_label">Contact</span></a></li>
     </ul>
   </nav>
+
+  <!-- 오른쪽 아래 맨 위로 버튼 (Home 벗어나면 나타남, script/main.js) -->
+  <a href="#hero" class="top_btn" aria-label="맨 위로">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+      <path d="M10 16V4M4 10l6-6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </a>
 
   <div id="fullpage">
     <section class="section hero" id="hero" data-key="hero">

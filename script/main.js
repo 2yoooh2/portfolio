@@ -18,6 +18,38 @@ if (header) {
 }
 
 
+/* ===== 1024 미만: 맨 위로 버튼 (화면 반 이상 내려가면 나타남) =====
+   누르면 아래 헤더 링크 코드가 #hero로 부드럽게 스크롤해 줌
+   PC는 CSS에서 숨김 (사이드 메뉴 · 헤더 메뉴에 Home이 있음) */
+const topBtn = document.querySelector('.top_btn');
+const viewSiteLinks = document.querySelectorAll('.project_link');
+const TOP_BTN_GAP = 12; // VIEW SITE와 이 거리 안으로 가까워지면 숨김
+
+function toggleTopBtn(show) {
+  topBtn?.classList.toggle('is-shown', show);
+}
+
+// 모바일: 스크롤하다 VIEW SITE 원이 탑 버튼 자리를 지나가는 동안만 잠깐 숨김
+function isOverViewSite() {
+  const btn = topBtn.getBoundingClientRect();
+  return [...viewSiteLinks].some((link) => {
+    const rect = link.getBoundingClientRect();
+    return rect.right > btn.left - TOP_BTN_GAP && rect.left < btn.right + TOP_BTN_GAP
+      && rect.bottom > btn.top - TOP_BTN_GAP && rect.top < btn.bottom + TOP_BTN_GAP;
+  });
+}
+
+function updateTopBtn() {
+  if (isFullpage) return; // PC는 숨김이라 계산 안 함
+  toggleTopBtn(window.scrollY > window.innerHeight / 2 && !isOverViewSite());
+}
+
+if (topBtn) {
+  updateTopBtn();
+  window.addEventListener('scroll', updateTopBtn, { passive: true });
+}
+
+
 /* ===== Header: 링크 누르면 천천히 출발 → 빨라졌다가 → 부드럽게 멈추며 이동 =====
    CSS scroll-behavior: smooth는 속도를 브라우저가 정해서 너무 빨라 직접 만듦 */
 const SCROLL_DURATION = 800; // 0.8초
@@ -39,11 +71,12 @@ function smoothScrollTo(targetY) {
   requestAnimationFrame(step);
 }
 
-document.querySelectorAll('.header a[href^="#"], .side_nav a[href^="#"]').forEach((link) => {
+document.querySelectorAll('.header a[href^="#"], .side_nav a[href^="#"], .mobile_menu a[href^="#"], .top_btn').forEach((link) => {
   link.addEventListener('click', (event) => {
     const target = document.querySelector(link.getAttribute('href'));
     if (!target) return;
     event.preventDefault();
+    closeMenu(); // 햄버거 메뉴에서 눌렀으면 먼저 닫고 (스크롤 잠금 풀고) 이동
     history.pushState(null, '', link.getAttribute('href')); // 주소창 #도 원래처럼 바뀌게
 
     // 1024 이상: fullPage.js가 해당 섹션으로 넘겨줌 (moveTo는 1부터 셈)
@@ -288,6 +321,7 @@ function destroyFullpage() {
   fullpage_api.destroy('all'); // fullPage.js가 넣은 스타일, 감싼 요소 전부 원래대로
   isFullpage = false;
   if (header) updateHeader();
+  updateTopBtn();
 }
 
 function handlePcQuery() {
@@ -304,6 +338,103 @@ bigQuery.addEventListener('change', () => {
   destroyFullpage();
   handlePcQuery();
 });
+
+
+/* ===== 1024 미만: 햄버거 메뉴 =====
+   닫혀 있을 땐 가운데 줄이 지금 섹션까지 차오름 (Home 1/6 → Contact 6/6)
+   모바일은 fullPage.js가 꺼져 있어서 스크롤 위치로 지금 섹션을 계산 */
+const menuButton = document.querySelector('.burger');
+const mobileMenu = document.querySelector('.mobile_menu');
+const pageContent = document.getElementById('fullpage');
+const pageSections = [...document.querySelectorAll('#fullpage .section')];
+
+// 화면 가운데 줄을 지나간 마지막 섹션 = 지금 섹션 (맨 아래까지 내리면 Contact)
+function updateMobileNav() {
+  if (!menuButton || pcQuery.matches) return;
+  const middle = window.innerHeight / 2;
+  const atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
+
+  let index = 0;
+  pageSections.forEach((section, i) => {
+    if (section.getBoundingClientRect().top <= middle) index = i;
+  });
+  if (atBottom) index = pageSections.length - 1;
+
+  // Home 40%에서 시작해 Contact 100%까지 (처음부터 햄버거 모양이 분명하게)
+  const progress = 0.4 + 0.6 * (index / (pageSections.length - 1));
+  menuButton.style.setProperty('--progress', progress);
+  mobileMenu.querySelectorAll('.mobile_menu_list a').forEach((link, i) => {
+    if (i === index) link.setAttribute('aria-current', 'true');
+    else link.removeAttribute('aria-current');
+  });
+}
+
+// 원이 퍼지기 시작하는 점 = 버튼 가운데
+function placeMenuOrigin() {
+  if (!menuButton) return;
+  const rect = menuButton.getBoundingClientRect();
+  mobileMenu.style.setProperty('--menu-x', `${rect.left + rect.width / 2}px`);
+  mobileMenu.style.setProperty('--menu-y', `${rect.top + rect.height / 2}px`);
+}
+
+function isMenuOpen() {
+  return document.body.classList.contains('is-menu-open');
+}
+
+function openMenu() {
+  document.body.classList.add('is-menu-open');
+  mobileMenu.inert = false;
+  pageContent.inert = true; // Tab이 메뉴 뒤 페이지로 새지 않게
+  menuButton.setAttribute('aria-expanded', 'true');
+  menuButton.setAttribute('aria-label', '메뉴 닫기');
+}
+
+// 위쪽 헤더 링크 코드에서도 부르므로 function으로 (어디서든 호출 가능)
+function closeMenu() {
+  if (!isMenuOpen()) return;
+  document.body.classList.remove('is-menu-open');
+  mobileMenu.inert = true;
+  pageContent.inert = false;
+  menuButton.setAttribute('aria-expanded', 'false');
+  menuButton.setAttribute('aria-label', '메뉴 열기');
+}
+
+if (menuButton && mobileMenu) {
+  menuButton.addEventListener('click', () => {
+    if (isMenuOpen()) closeMenu();
+    else openMenu();
+  });
+
+  // Esc로 닫기
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && isMenuOpen()) {
+      closeMenu();
+      menuButton.focus();
+    }
+  });
+
+  // 열어둔 채 1024 이상으로 넓어지면 닫기 (PC엔 햄버거가 없음)
+  pcQuery.addEventListener('change', closeMenu);
+
+  // 스크롤마다 계산하지 않고 한 프레임에 한 번만
+  let navTicking = false;
+  window.addEventListener('scroll', () => {
+    if (navTicking) return;
+    navTicking = true;
+    requestAnimationFrame(() => {
+      updateMobileNav();
+      navTicking = false;
+    });
+  }, { passive: true });
+
+  window.addEventListener('resize', () => {
+    placeMenuOrigin();
+    updateMobileNav();
+  });
+
+  placeMenuOrigin();
+  updateMobileNav();
+}
 
 
 /* ===== Works: PC에서 VIEW SITE 원이 마우스를 따라다님 =====
