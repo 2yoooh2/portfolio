@@ -86,6 +86,13 @@
     </svg>
   </a>
 
+  <!-- 1024 이상: Works 장식 원 (섹션을 넘겨도 제자리에 고정, 위치는 script/main.js) -->
+  <div class="works_deco" aria-hidden="true">
+    <span class="eyebrow works_deco_eyebrow">WORKS</span>
+    <div class="works_deco_visual"></div>
+    <div class="works_deco_project"></div>
+  </div>
+
   <div id="fullpage">
     <section class="section hero" id="hero" data-key="hero">
       <div class="hero_inner">
@@ -364,7 +371,9 @@
         <!-- PC: 이미지 왼쪽, 글 오른쪽 -->
         <div class="project">
           <div class="project_visual">
-            <img class="project_mockup" src="./img/project_tesla.png" alt="Tesla 웹사이트 리뉴얼 목업">
+            <!-- PC: 목업 뒤 배경 조약돌 (목업보다 작게) -->
+            <span class="project_circle" aria-hidden="true"></span>
+            <img class="project_mockup" src="./img/work_tesla_mockup.png" alt="Tesla 웹사이트 리뉴얼 목업">
             <!-- PC에서는 목업에 마우스를 올리면 커서를 따라다님 (script/main.js) -->
             <a class="project_link" href="https://2yoooh2.github.io/TESLA/" target="_blank" rel="noopener noreferrer"
               aria-label="Tesla 웹사이트 새 창에서 보기">
@@ -381,6 +390,294 @@
             <div class="project_content">
               <div class="project_heading">
                 <span class="project_num">01</span>
+                <h2 class="project_title">TESLA</h2>
+              </div>
+
+              <p class="project_subtitle">Main + 4 Sub Pages</p>
+              <div class="project_desc project_desc--desktop">
+                <p>Tesla의 차량과 기술을 소개하는 PC 웹사이트 리뉴얼 프로젝트입니다.</p>
+                <p>흑백 대비와 레드 포인트, 각진 타이포그래피로 브랜드의 기술적인 이미지를 표현했습니다.</p>
+                <p>메인과 4개의 서브 페이지를 제작하고, 슬라이드, 탭, 스크롤 애니메이션을 적용했습니다.</p>
+              </div>
+              <div class="project_desc project_desc--mobile">
+                <p>
+                  Tesla의 차량과 기술을 소개하는<br>
+                  PC 웹사이트 리뉴얼 프로젝트입니다.
+                </p>
+                <!-- <p>
+                  흑백 대비와 레드 포인트로 기술적인<br>
+                  이미지를 표현하고, 메인과 4개의 서브 페이지에<br>
+                  다양한 인터랙션을 적용했습니다.
+                </p> -->
+              </div>
+            </div>
+
+            <div class="project_details">
+              <div class="project_detail">
+                <h3 class="project_label">DEVICE</h3>
+                <p class="project_value">Desktop</p>
+              </div>
+
+              <div class="project_detail">
+                <h3 class="project_label">ROLE</h3>
+                <p class="project_value">Design · Publishing</p>
+              </div>
+
+              <div class="project_detail">
+                <h3 class="project_label">TOOLS</h3>
+                <p class="project_value">
+                  HTML · CSS · JavaScript<br>
+                  jQuery · Swiper · AOS<br>
+                  Figma · Claude Code</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section projects projects--beiligne" data-key="projects">
+      <div class="projects_inner">
+        <span class="eyebrow">WORKS</span>
+
+        <!-- PC: 이미지 왼쪽, 글 오른쪽 -->
+        <div class="project">
+          <div class="project_visual">
+            <!-- PC: 목업 뒤 배경 조약돌 (목업보다 작게) -->
+            <span class="project_circle" aria-hidden="true"></span>
+            <img class="project_mockup" src="./img/work_beiligne_mockup.png" alt="Beiligne 프로젝트 목업">
+            <!-- PC에서는 목업에 마우스를 올리면 커서를 따라다님 (script/main.js) -->
+            <a class="project_link" href="https://2yoooh2.github.io/TESLA/" target="_blank" rel="noopener noreferrer"
+              aria-label="Tesla 웹사이트 새 창에서 보기">
+              <span class="project_link_txt">VIEW<br>SITE</span>
+              <!-- 색 원 4개: 가운데서 차례로 퍼짐 (색은 Hero 점 색) -->
+              <span class="project_link_bg" aria-hidden="true"></span>
+              <span class="project_link_bg" aria-hidden="true"></span>
+              <span class="project_link_bg" aria-hidden="true"></span>
+              <span class="project_link_bg" aria-hidden="true"></span>
+            </a>
+          </div>
+
+          <div class="project_text">
+            <div class="project_content">
+              <div class="project_heading">
+                <span class="project_num">02</span>
+                <h2 class="project_title">TESLA</h2>
+              </div>
+
+              <p class="project_subtitle">Main + 4 Sub Pages</p>
+              <div class="project_desc project_desc--desktop">
+                <p>Tesla의 차량과 기술을 소개하는 PC 웹사이트 리뉴얼 프로젝트입니다.</p>
+                <p>흑백 대비와 레드 포인트, 각진 타이포그래피로 브랜드의 기술적인 이미지를 표현했습니다.</p>
+                <p>메인과 4개의 서브 페이지를 제작하고, 슬라이드, 탭, 스크롤 애니메이션을 적용했습니다.</p>
+              </div>
+              <div class="project_desc project_desc--mobile">
+                <p>
+                  Tesla의 차량과 기술을 소개하는<br>
+                  PC 웹사이트 리뉴얼 프로젝트입니다.
+                </p>
+                <!-- <p>
+                  흑백 대비와 레드 포인트로 기술적인<br>
+                  이미지를 표현하고, 메인과 4개의 서브 페이지에<br>
+                  다양한 인터랙션을 적용했습니다.
+                </p> -->
+              </div>
+            </div>
+
+            <div class="project_details">
+              <div class="project_detail">
+                <h3 class="project_label">DEVICE</h3>
+                <p class="project_value">Desktop</p>
+              </div>
+
+              <div class="project_detail">
+                <h3 class="project_label">ROLE</h3>
+                <p class="project_value">Design · Publishing</p>
+              </div>
+
+              <div class="project_detail">
+                <h3 class="project_label">TOOLS</h3>
+                <p class="project_value">
+                  HTML · CSS · JavaScript<br>
+                  jQuery · Swiper · AOS<br>
+                  Figma · Claude Code</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section projects projects--loccitane" data-key="projects">
+      <div class="projects_inner">
+        <span class="eyebrow">WORKS</span>
+
+        <!-- PC: 이미지 왼쪽, 글 오른쪽 -->
+        <div class="project">
+          <div class="project_visual">
+            <!-- PC: 목업 뒤 배경 조약돌 (목업보다 작게) -->
+            <span class="project_circle" aria-hidden="true"></span>
+            <img class="project_mockup" src="./img/work_loccitane_mockup.png" alt="L'Occitane 프로젝트 목업">
+            <!-- PC에서는 목업에 마우스를 올리면 커서를 따라다님 (script/main.js) -->
+            <a class="project_link" href="https://2yoooh2.github.io/TESLA/" target="_blank" rel="noopener noreferrer"
+              aria-label="Tesla 웹사이트 새 창에서 보기">
+              <span class="project_link_txt">VIEW<br>SITE</span>
+              <!-- 색 원 4개: 가운데서 차례로 퍼짐 (색은 Hero 점 색) -->
+              <span class="project_link_bg" aria-hidden="true"></span>
+              <span class="project_link_bg" aria-hidden="true"></span>
+              <span class="project_link_bg" aria-hidden="true"></span>
+              <span class="project_link_bg" aria-hidden="true"></span>
+            </a>
+          </div>
+
+          <div class="project_text">
+            <div class="project_content">
+              <div class="project_heading">
+                <span class="project_num">03</span>
+                <h2 class="project_title">TESLA</h2>
+              </div>
+
+              <p class="project_subtitle">Main + 4 Sub Pages</p>
+              <div class="project_desc project_desc--desktop">
+                <p>Tesla의 차량과 기술을 소개하는 PC 웹사이트 리뉴얼 프로젝트입니다.</p>
+                <p>흑백 대비와 레드 포인트, 각진 타이포그래피로 브랜드의 기술적인 이미지를 표현했습니다.</p>
+                <p>메인과 4개의 서브 페이지를 제작하고, 슬라이드, 탭, 스크롤 애니메이션을 적용했습니다.</p>
+              </div>
+              <div class="project_desc project_desc--mobile">
+                <p>
+                  Tesla의 차량과 기술을 소개하는<br>
+                  PC 웹사이트 리뉴얼 프로젝트입니다.
+                </p>
+                <!-- <p>
+                  흑백 대비와 레드 포인트로 기술적인<br>
+                  이미지를 표현하고, 메인과 4개의 서브 페이지에<br>
+                  다양한 인터랙션을 적용했습니다.
+                </p> -->
+              </div>
+            </div>
+
+            <div class="project_details">
+              <div class="project_detail">
+                <h3 class="project_label">DEVICE</h3>
+                <p class="project_value">Desktop</p>
+              </div>
+
+              <div class="project_detail">
+                <h3 class="project_label">ROLE</h3>
+                <p class="project_value">Design · Publishing</p>
+              </div>
+
+              <div class="project_detail">
+                <h3 class="project_label">TOOLS</h3>
+                <p class="project_value">
+                  HTML · CSS · JavaScript<br>
+                  jQuery · Swiper · AOS<br>
+                  Figma · Claude Code</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section projects projects--drawmate" data-key="projects">
+      <div class="projects_inner">
+        <span class="eyebrow">WORKS</span>
+
+        <!-- PC: 이미지 왼쪽, 글 오른쪽 -->
+        <div class="project">
+          <div class="project_visual">
+            <!-- PC: 목업 뒤 배경 조약돌 (목업보다 작게) -->
+            <span class="project_circle" aria-hidden="true"></span>
+            <img class="project_mockup" src="./img/work_drawmate_mockup.png" alt="Drawmate 프로젝트 목업">
+            <!-- PC에서는 목업에 마우스를 올리면 커서를 따라다님 (script/main.js) -->
+            <a class="project_link" href="https://2yoooh2.github.io/TESLA/" target="_blank" rel="noopener noreferrer"
+              aria-label="Tesla 웹사이트 새 창에서 보기">
+              <span class="project_link_txt">VIEW<br>SITE</span>
+              <!-- 색 원 4개: 가운데서 차례로 퍼짐 (색은 Hero 점 색) -->
+              <span class="project_link_bg" aria-hidden="true"></span>
+              <span class="project_link_bg" aria-hidden="true"></span>
+              <span class="project_link_bg" aria-hidden="true"></span>
+              <span class="project_link_bg" aria-hidden="true"></span>
+            </a>
+          </div>
+
+          <div class="project_text">
+            <div class="project_content">
+              <div class="project_heading">
+                <span class="project_num">04</span>
+                <h2 class="project_title">TESLA</h2>
+              </div>
+
+              <p class="project_subtitle">Main + 4 Sub Pages</p>
+              <div class="project_desc project_desc--desktop">
+                <p>Tesla의 차량과 기술을 소개하는 PC 웹사이트 리뉴얼 프로젝트입니다.</p>
+                <p>흑백 대비와 레드 포인트, 각진 타이포그래피로 브랜드의 기술적인 이미지를 표현했습니다.</p>
+                <p>메인과 4개의 서브 페이지를 제작하고, 슬라이드, 탭, 스크롤 애니메이션을 적용했습니다.</p>
+              </div>
+              <div class="project_desc project_desc--mobile">
+                <p>
+                  Tesla의 차량과 기술을 소개하는<br>
+                  PC 웹사이트 리뉴얼 프로젝트입니다.
+                </p>
+                <!-- <p>
+                  흑백 대비와 레드 포인트로 기술적인<br>
+                  이미지를 표현하고, 메인과 4개의 서브 페이지에<br>
+                  다양한 인터랙션을 적용했습니다.
+                </p> -->
+              </div>
+            </div>
+
+            <div class="project_details">
+              <div class="project_detail">
+                <h3 class="project_label">DEVICE</h3>
+                <p class="project_value">Desktop</p>
+              </div>
+
+              <div class="project_detail">
+                <h3 class="project_label">ROLE</h3>
+                <p class="project_value">Design · Publishing</p>
+              </div>
+
+              <div class="project_detail">
+                <h3 class="project_label">TOOLS</h3>
+                <p class="project_value">
+                  HTML · CSS · JavaScript<br>
+                  jQuery · Swiper · AOS<br>
+                  Figma · Claude Code</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section projects projects--receipt" data-key="projects">
+      <div class="projects_inner">
+        <span class="eyebrow">WORKS</span>
+
+        <!-- PC: 이미지 왼쪽, 글 오른쪽 -->
+        <div class="project">
+          <div class="project_visual">
+            <!-- PC: 목업 뒤 배경 조약돌 (목업보다 작게) -->
+            <span class="project_circle" aria-hidden="true"></span>
+            <img class="project_mockup" src="./img/work_receipt_mockup.png" alt="영수증 프로젝트 목업">
+            <!-- PC에서는 목업에 마우스를 올리면 커서를 따라다님 (script/main.js) -->
+            <a class="project_link" href="https://2yoooh2.github.io/TESLA/" target="_blank" rel="noopener noreferrer"
+              aria-label="Tesla 웹사이트 새 창에서 보기">
+              <span class="project_link_txt">VIEW<br>SITE</span>
+              <!-- 색 원 4개: 가운데서 차례로 퍼짐 (색은 Hero 점 색) -->
+              <span class="project_link_bg" aria-hidden="true"></span>
+              <span class="project_link_bg" aria-hidden="true"></span>
+              <span class="project_link_bg" aria-hidden="true"></span>
+              <span class="project_link_bg" aria-hidden="true"></span>
+            </a>
+          </div>
+
+          <div class="project_text">
+            <div class="project_content">
+              <div class="project_heading">
+                <span class="project_num">05</span>
                 <h2 class="project_title">TESLA</h2>
               </div>
 

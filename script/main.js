@@ -324,9 +324,167 @@ function destroyFullpage() {
   updateTopBtn();
 }
 
+/* ===== 1024 미만: Works 5개를 옆으로 넘기기 =====
+   PC는 fullPage.js가 섹션을 하나씩 넘겨야 해서 섹션이 #fullpage 바로 아래에 있어야 함
+   → 모바일에서만 .works_slider > .works_track 으로 묶고, PC로 가면 다시 풀어놓음 */
+const works = [...document.querySelectorAll('#fullpage .projects')];
+const worksEyebrow = works[0]?.querySelector('.eyebrow'); // 테슬라 섹션의 WORKS 제목
+const worksSlider = document.createElement('div');
+const worksHead = document.createElement('div');
+const worksTrack = document.createElement('div');
+const worksDots = document.createElement('div');
+worksSlider.className = 'works_slider';
+worksHead.className = 'works_head';
+worksTrack.className = 'works_track';
+worksDots.className = 'works_dots';
+worksSlider.append(worksHead, worksTrack, worksDots);
+
+// WORKS 오른쪽 숫자: 지금 장 / 전체 (예: 01 / 05)
+const pad = (n) => String(n).padStart(2, '0');
+const worksCount = document.createElement('span');
+const worksCountNow = document.createElement('span');
+worksCount.className = 'works_count';
+worksCount.setAttribute('aria-hidden', 'true'); // 스크린리더는 아래 점의 aria-current로 앎
+worksCountNow.className = 'works_count_now';
+worksCount.append(worksCountNow, ` / ${pad(works.length)}`);
+worksHead.appendChild(worksCount);
+
+// 점: 누르면 그 프로젝트로 넘김
+const dots = works.map((section, i) => {
+  const dot = document.createElement('button');
+  dot.type = 'button';
+  dot.className = 'works_dot';
+  dot.setAttribute('aria-label', `${i + 1}번째 프로젝트 보기`);
+  dot.addEventListener('click', () => goToWork(i));
+  worksDots.appendChild(dot);
+  return dot;
+});
+
+// 지금 보이는 장 번호 (0부터)
+function currentWork() {
+  return Math.round(worksTrack.scrollLeft / worksTrack.clientWidth);
+}
+
+// i번째 장으로 부드럽게 이동
+function goToWork(i) {
+  const index = Math.min(Math.max(i, 0), works.length - 1); // 처음 · 끝 장 밖으로 안 나가게
+  worksTrack.scrollTo({ left: index * worksTrack.clientWidth, behavior: reduceMotion ? 'instant' : 'smooth' });
+}
+
+/* 스와이프: 브라우저 기본 가로 스크롤은 세게 밀면 여러 장 넘어가서 직접 처리
+   - 미는 동안: 손가락을 따라 움직임
+   - 손 뗄 때: 50px 넘게 밀었으면 딱 한 장만 넘기고, 아니면 제자리로
+   세로로 밀면 원래대로 페이지 스크롤 (CSS touch-action: pan-y) */
+const SWIPE_MIN = 50;
+let touchStartX = 0;
+let touchStartY = 0;
+let touchStartScroll = 0;
+let touchStartIndex = 0;
+let isSwipe = null; // null: 아직 모름, true: 가로로 미는 중, false: 세로 스크롤
+
+worksTrack.addEventListener('touchstart', (event) => {
+  touchStartX = event.touches[0].clientX;
+  touchStartY = event.touches[0].clientY;
+  touchStartScroll = worksTrack.scrollLeft;
+  touchStartIndex = currentWork();
+  isSwipe = null;
+}, { passive: true });
+
+worksTrack.addEventListener('touchmove', (event) => {
+  const dx = event.touches[0].clientX - touchStartX;
+  const dy = event.touches[0].clientY - touchStartY;
+  if (isSwipe === null) {
+    if (Math.abs(dx) < 5 && Math.abs(dy) < 5) return; // 너무 조금 움직이면 아직 판단 안 함
+    isSwipe = Math.abs(dx) > Math.abs(dy);
+  }
+  if (isSwipe) worksTrack.scrollTo({ left: touchStartScroll - dx, behavior: 'instant' });
+}, { passive: true });
+
+worksTrack.addEventListener('touchend', (event) => {
+  if (!isSwipe) return;
+  const dx = event.changedTouches[0].clientX - touchStartX;
+  let index = touchStartIndex;
+  if (dx < -SWIPE_MIN) index += 1;     // 왼쪽으로 밀면 다음 장
+  else if (dx > SWIPE_MIN) index -= 1; // 오른쪽으로 밀면 이전 장
+  goToWork(index);
+});
+
+// 전화가 오는 등 터치가 끊기면 원래 장으로
+worksTrack.addEventListener('touchcancel', () => {
+  if (isSwipe) goToWork(touchStartIndex);
+});
+
+// 화면을 돌리거나 폭이 바뀌면 보던 장에 다시 맞춤
+let activeWork = 0;
+window.addEventListener('resize', () => {
+  if (worksSlider.isConnected) worksTrack.scrollTo({ left: activeWork * worksTrack.clientWidth, behavior: 'instant' });
+});
+
+// 지금 보이는 장에 맞춰 점 표시
+function updateWorksDots() {
+  const index = currentWork();
+  activeWork = index;
+  worksCountNow.textContent = pad(index + 1);
+  dots.forEach((dot, i) => {
+    dot.classList.toggle('is-active', i === index);
+    if (i === index) dot.setAttribute('aria-current', 'true');
+    else dot.removeAttribute('aria-current');
+  });
+}
+worksTrack.addEventListener('scroll', updateWorksDots, { passive: true });
+
+function wrapWorks() {
+  if (worksSlider.isConnected || works.length < 2) return;
+  works[0].before(worksSlider);
+  if (worksEyebrow) worksHead.prepend(worksEyebrow); // WORKS는 넘기는 줄 위에 고정 (숫자 왼쪽)
+  worksTrack.append(...works);
+  worksTrack.scrollLeft = 0;
+  updateWorksDots();
+}
+
+function unwrapWorks() {
+  if (!worksSlider.isConnected) return;
+  worksSlider.replaceWith(...works);
+  if (worksEyebrow) works[0].querySelector('.projects_inner').prepend(worksEyebrow); // 테슬라 섹션으로 돌려놓기
+}
+
+/* ===== 1024 이상: Works 장식 원을 화면에 고정 =====
+   Works 섹션 5개는 레이아웃이 같아서, 첫 섹션(테슬라)의 목업 · 프로젝트 자리를
+   섹션 맨 위 기준으로 재서 고정 장식(.works_deco)에 똑같이 옮겨 둠
+   원 모양 · 크기 · 간격은 CSS(.works_deco_visual::before, .works_deco_project::after) */
+const decoEyebrow = document.querySelector('.works_deco_eyebrow');
+const decoVisual = document.querySelector('.works_deco_visual');
+const decoProject = document.querySelector('.works_deco_project');
+
+function placeBox(box, el, section) {
+  const sectionRect = section.getBoundingClientRect();
+  const rect = el.getBoundingClientRect();
+  box.style.top = `${rect.top - sectionRect.top}px`; // 섹션 맨 위에서 떨어진 거리 = 화면 맨 위에서 거리
+  box.style.left = `${rect.left}px`;
+  box.style.width = `${rect.width}px`;
+  box.style.height = `${rect.height}px`;
+}
+
+function placeWorksDeco() {
+  if (!pcQuery.matches || !decoEyebrow || !decoVisual || !decoProject || !works[0]) return;
+  placeBox(decoEyebrow, works[0].querySelector('.eyebrow'), works[0]);
+  placeBox(decoVisual, works[0].querySelector('.project_visual'), works[0]);
+  placeBox(decoProject, works[0].querySelector('.project'), works[0]);
+}
+
+window.addEventListener('resize', placeWorksDeco);
+window.addEventListener('load', placeWorksDeco); // 목업 이미지가 다 불러와져야 높이가 정해짐
+document.fonts?.ready.then(placeWorksDeco);     // 폰트가 바뀌면 WORKS 글자 크기 · 줄 높이가 달라짐
+
 function handlePcQuery() {
-  if (pcQuery.matches) initFullpage();
-  else destroyFullpage();
+  if (pcQuery.matches) {
+    unwrapWorks(); // fullPage.js 켜기 전에 섹션을 원래 자리로
+    initFullpage();
+    placeWorksDeco();
+  } else {
+    destroyFullpage(); // fullPage.js 끈 다음에 묶기
+    wrapWorks();
+  }
 }
 
 handlePcQuery();
@@ -347,6 +505,8 @@ const menuButton = document.querySelector('.burger');
 const mobileMenu = document.querySelector('.mobile_menu');
 const pageContent = document.getElementById('fullpage');
 const pageSections = [...document.querySelectorAll('#fullpage .section')];
+// 메뉴 항목 순서 (Works 섹션 5개는 data-key가 같아서 한 칸으로 셈)
+const menuKeys = [...new Set(pageSections.map((section) => section.dataset.key))];
 
 // 화면 가운데 줄을 지나간 마지막 섹션 = 지금 섹션 (맨 아래까지 내리면 Contact)
 function updateMobileNav() {
@@ -354,14 +514,15 @@ function updateMobileNav() {
   const middle = window.innerHeight / 2;
   const atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
 
-  let index = 0;
-  pageSections.forEach((section, i) => {
-    if (section.getBoundingClientRect().top <= middle) index = i;
+  let current = pageSections[0];
+  pageSections.forEach((section) => {
+    if (section.getBoundingClientRect().top <= middle) current = section;
   });
-  if (atBottom) index = pageSections.length - 1;
+  if (atBottom) current = pageSections.at(-1);
+  const index = menuKeys.indexOf(current.dataset.key);
 
   // Home 40%에서 시작해 Contact 100%까지 (처음부터 햄버거 모양이 분명하게)
-  const progress = 0.4 + 0.6 * (index / (pageSections.length - 1));
+  const progress = 0.4 + 0.6 * (index / (menuKeys.length - 1));
   menuButton.style.setProperty('--progress', progress);
   mobileMenu.querySelectorAll('.mobile_menu_list a').forEach((link, i) => {
     if (i === index) link.setAttribute('aria-current', 'true');
