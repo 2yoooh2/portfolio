@@ -1007,7 +1007,7 @@ body.is-menu-open {
   background-color: rgba(0, 0, 0, 0.7);
 }
 .project_title {
-  font-size: 28px; /* 360에서 L’OCCITANE · SLIP이 한 줄에 들어가게 */
+  font-size: 34px;
   font-weight: 700;
   line-height: 1.2;
 }
@@ -1028,6 +1028,9 @@ body.is-menu-open {
 }
 .project_desc--desktop {
   display: none;
+}
+.project_title--desktop {
+  display: none; /* 모바일은 록시땅 한글로 */
 }
 
 /* DEVICE | ROLE 두 칸, TOOLS는 다음 줄 */
@@ -2002,6 +2005,12 @@ body.is-menu-open {
     display: block;
   }
   .project_desc--mobile {
+    display: none;
+  }
+  .project_title--desktop {
+    display: inline;
+  }
+  .project_title--mobile {
     display: none;
   }
 
