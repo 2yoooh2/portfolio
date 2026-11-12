@@ -1060,7 +1060,8 @@ body.is-menu-open {
    섹션 5개를 .works_slider > .works_track 으로 묶는 건 script/main.js
    (PC는 fullPage.js가 섹션을 하나씩 넘겨야 해서 묶지 않음) */
 /* PC용 고정 장식 원 (1024 미디어쿼리) — 모바일은 숨김 */
-.works_deco {
+.works_deco,
+.works_title {
   display: none;
 }
 
@@ -1908,9 +1909,28 @@ body.is-menu-open {
   .works_deco_project {
     position: absolute;
   }
-  /* WORKS 제목도 고정: 섹션 안 제목은 자리만 차지하고 안 보이게 (레이아웃 · 스크린리더용)
-     보이는 건 고정 층의 WORKS */
-  .projects .eyebrow {
+  /* WORKS 제목 층: 장식 원과 달리 #fullpage 위에 둠
+     WORKS 뒤에 목업 너비만큼 배경 띠를 깔아서, Works끼리 넘길 때 목업이 WORKS를 덮지 않고 띠 뒤로 지나감
+     Works 섹션에 있을 때 · Works끼리 넘길 때만 보임 (html.is-works-fixed, script/main.js)
+     그 밖엔 숨기고 섹션 안 WORKS를 보여 줘서 섹션과 같이 움직이게 */
+  .works_title {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 2; /* #fullpage(1)보다 위, 헤더(100)보다 아래 */
+    pointer-events: none;
+    visibility: hidden;
+  }
+  .is-works-fixed .works_title {
+    visibility: visible;
+  }
+  .works_title_band {
+    position: absolute;
+    top: 0; /* 화면 맨 위 ~ WORKS 제목 아랫선 (left, width, height는 script/main.js) */
+    background-color: var(--color-bg);
+  }
+  /* 고정 WORKS가 켜져 있을 땐 섹션 안 제목은 자리만 차지하고 안 보이게 (레이아웃 · 스크린리더용) */
+  .is-works-fixed .projects .eyebrow {
     opacity: 0;
   }
   /* Works 말고는 배경이 있어야 장식 원이 비치지 않음 */

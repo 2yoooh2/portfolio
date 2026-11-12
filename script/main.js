@@ -310,10 +310,20 @@ function initFullpage() {
     onLeave: (origin, destination) => {
       header?.classList.toggle('is-scrolled', destination.index > 0);
       updateSideNav(destination.item.dataset.key); // 넘어가기 시작할 때 바로 바뀌게
+      // Works끼리 넘길 때만 고정 WORKS(+띠)를 켜 둠
+      // Works ↔ 다른 섹션일 땐 끄고, 섹션 안 WORKS가 섹션과 같이 움직이게
+      const isWorks = (section) => section.item.dataset.key === 'projects';
+      setWorksTitleFixed(isWorks(origin) && isWorks(destination));
+    },
+    // 다 넘어온 뒤 Works면 다시 고정 WORKS로 (섹션 안 WORKS와 자리가 같아서 티 안 남)
+    afterLoad: (origin, destination) => {
+      setWorksTitleFixed(destination.item.dataset.key === 'projects');
     },
   });
   isFullpage = true;
-  updateSideNav(fullpage_api.getActiveSection().item.dataset.key);
+  const activeKey = fullpage_api.getActiveSection().item.dataset.key;
+  updateSideNav(activeKey);
+  setWorksTitleFixed(activeKey === 'projects');
 }
 
 function destroyFullpage() {
@@ -470,6 +480,27 @@ function placeWorksDeco() {
   placeBox(decoEyebrow, works[0].querySelector('.eyebrow'), works[0]);
   placeBox(decoVisual, works[0].querySelector('.project_visual'), works[0]);
   placeBox(decoProject, works[0].querySelector('.project'), works[0]);
+  placeWorksBand();
+}
+
+/* WORKS 제목 층(.works_title)은 섹션보다 위에 있어서
+   목업 너비만큼 배경 띠를 깔아 Works끼리 넘길 때 목업이 WORKS 뒤로 지나가게 함
+   Works 섹션에 있을 때 · Works끼리 넘길 때만 켬 (html.is-works-fixed) */
+const worksBand = document.querySelector('.works_title_band');
+
+function setWorksTitleFixed(on) {
+  document.documentElement.classList.toggle('is-works-fixed', on);
+}
+
+// 띠: 가로는 목업과 같게, 세로는 화면 맨 위부터 WORKS 제목 아랫선까지
+function placeWorksBand() {
+  if (!worksBand) return;
+  const sectionRect = works[0].getBoundingClientRect();
+  const mockupRect = works[0].querySelector('.project_mockup').getBoundingClientRect();
+  const eyebrowRect = works[0].querySelector('.eyebrow').getBoundingClientRect();
+  worksBand.style.left = `${mockupRect.left}px`;
+  worksBand.style.width = `${mockupRect.width}px`;
+  worksBand.style.height = `${eyebrowRect.bottom - sectionRect.top}px`;
 }
 
 window.addEventListener('resize', placeWorksDeco);
