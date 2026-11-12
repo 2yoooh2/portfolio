@@ -1043,6 +1043,10 @@ body.is-menu-open {
 .project_detail:last-child {
   grid-column: 1 / -1;
 }
+/* SLIP처럼 항목이 4개면 TOOLS도 한 칸만 → 2×2 */
+.project_details--four .project_detail:last-child {
+  grid-column: auto;
+}
 .project_label {
   font-size: 18px;
   font-weight: 500;
@@ -1715,6 +1719,37 @@ body.is-menu-open {
     display: none;
   }
 
+  /* 1024: 01 02 03 가로로 세 칸 (1600은 이 섹션 대신 About 오른쪽 목록을 씀) */
+  .workstyle_band .workstyle_list {
+    flex-direction: row;
+    width: auto;  /* 이너 912 꽉 채움 */
+    margin: 0;
+    gap: 60px;
+  }
+  .workstyle_band .workstyle_item {
+    flex: 1; /* 세 칸 같은 폭 (912 - 간격 60 × 2) ÷ 3 = 264 */
+    flex-direction: column;
+    align-items: center; /* 번호 · 제목 · 설명 칸 가운데 */
+    gap: 20px; /* 번호 ~ 제목 */
+    text-align: center;
+  }
+  /* 점선: 번호 원 가운데에서 다음 번호 원 가운데까지 가로로 */
+  .workstyle_band .workstyle_item:not(:last-child)::before {
+    top: 24px;
+    left: 50%; /* 번호 원이 칸 가운데라서 */
+    width: calc(100% + 60px); /* 칸 폭 + 칸 간격 */
+    height: 0;
+    border-left: 0;
+    border-top: 2px dashed #B7D1EC;
+  }
+  /* 칸이 좁아서 <br> 없는 한 문장 버전을 씀 */
+  .workstyle_band .workstyle_desc--desktop {
+    display: none;
+  }
+  .workstyle_band .workstyle_desc--mobile {
+    display: block;
+  }
+
   /* 배경 원: 왼쪽 위 원은 띠 경계에 걸치고, 오른쪽 아래 원은 띠 안
      띠 위에 보여야 해서 z-index -1 대신 그냥 위에 둠 (목록은 z-index 1로 더 위) */
   .about_workstyle::before,
@@ -1996,7 +2031,7 @@ body.is-menu-open {
     line-height: 1.4;
   }
   .project_desc {
-    width: 343px;
+    width: 95%;
     margin-top: 30px;
     font-size: 18px;
     line-height: 1.4;
@@ -2014,13 +2049,14 @@ body.is-menu-open {
     display: none;
   }
 
-  /* DEVICE ~ ROLE 가로 115, DEVICE ~ TOOLS 세로 25 */
+  /* VIEW · ROLE · TOOLS 한 줄에 하나씩 (라벨 위, 값 아래) */
   .project_details {
-    grid-template-columns: auto auto;
-    justify-content: start;
-    column-gap: 115px;
-    row-gap: 25px;
+    grid-template-columns: 1fr;
+    row-gap: 20px;
     margin-top: 35px;
+  }
+  .project_details--four .project_detail:last-child {
+    grid-column: 1 / -1; /* PC는 TOOLS 다시 한 줄 전체 */
   }
   .project_label {
     font-size: 20px;
@@ -2430,6 +2466,8 @@ body.is-menu-open {
     width: 458px; /* 글 구역 611의 75% */
   }
   .project_details {
+    grid-template-columns: auto auto; /* 1600은 두 칸 유지 */
+    justify-content: start;
     column-gap: 135px; /* DEVICE ~ ROLE 135 */
     row-gap: 30px;     /* DEVICE ~ TOOLS 30 */
     margin-top: 60px; /* 설명 ~ 상세 60 */
