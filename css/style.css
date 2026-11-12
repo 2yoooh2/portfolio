@@ -1007,7 +1007,7 @@ body.is-menu-open {
   background-color: rgba(0, 0, 0, 0.7);
 }
 .project_title {
-  font-size: 28px; /* 360에서 L’OCCITANE · RECEIPT PARSER가 한 줄에 들어가게 */
+  font-size: 28px; /* 360에서 L’OCCITANE · SLIP이 한 줄에 들어가게 */
   font-weight: 700;
   line-height: 1.2;
 }
