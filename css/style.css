@@ -1998,6 +1998,7 @@ body.is-menu-open {
     width: 200px;
     height: 190px;
     background-color: #B7D1EC;
+    opacity: 1; /* 투명도 (0 ~ 1) — 날아다니는 원도 이 값을 그대로 씀 */
     animation: wobble 7s ease-in-out infinite,
                spin 22s linear infinite;
   }
@@ -2669,7 +2670,7 @@ body.is-menu-open {
     mix-blend-mode: multiply;
     will-change: transform;
   }
-  /* Work style 원은 원래도 남색 띠 위에 그대로 보이는 원이라 섞지 않음 */
+  /* Contact로 날아갈 때는 남색 배경 위에서 진해지지 않게 섞지 않음 (script/main.js) */
   .has-travel-blob .travel_blob.is-normal {
     mix-blend-mode: normal;
   }

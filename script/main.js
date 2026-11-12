@@ -634,6 +634,7 @@ document.fonts?.ready.then(placeWorksDeco);     // 폰트가 바뀌면 WORKS 글
 const travelBlob = document.querySelector('.travel_blob');
 const travelShape = travelBlob?.querySelector('.travel_blob_shape');
 const TRAVEL_DURATION = 1100;
+const WORKS_BLOB_OUT = 0.3; // Works 오른쪽 원이 화면 밖으로 나가는 비율 (0.3 = 원 너비의 30%)
 let travelKey = null; // 지금 원이 가 있는 섹션
 let travelBox = null; // 지금 원의 자리 · 크기 · 색
 
@@ -678,7 +679,7 @@ function travelTarget(key) {
     const sectionTop = section.getBoundingClientRect().top;
     const whiteTop = parseFloat(getComputedStyle(section).paddingTop); // 헤더 높이
     const whiteBottom = section.querySelector('.workstyle_band').getBoundingClientRect().top - sectionTop;
-    const h = Math.min(220, whiteBottom - whiteTop - 30); // 흰 바탕 안에 들어가는 크기
+    const h = Math.max(120, Math.min(220, whiteBottom - whiteTop - 30)); // 흰 바탕 안에 들어가는 크기 (낮은 화면에서도 최소 120)
     const w = h * 1.15;
     return {
       ...pseudoBox(section, '::before'),
@@ -690,7 +691,14 @@ function travelTarget(key) {
   }
   if (key === 'projects') {
     // Works 원은 화면에 고정된 .works_deco_project 안에 있음 (위치는 placeWorksDeco)
-    return pseudoBox(decoProject, '::after', parseFloat(decoProject.style.left) || 0, parseFloat(decoProject.style.top) || 0);
+    // 세로 위치 · 크기 · 색 · 투명도는 CSS(.works_deco_project::after) 값 그대로,
+    // 가로는 화면 너비와 상관없이 항상 화면 오른쪽 끝에 걸치게 (원 너비의 WORKS_BLOB_OUT만큼 화면 밖)
+    const box = pseudoBox(decoProject, '::after', parseFloat(decoProject.style.left) || 0, parseFloat(decoProject.style.top) || 0);
+    return {
+      ...box,
+      x: window.innerWidth - box.w * (1 - WORKS_BLOB_OUT),
+      opacity: parseFloat(getComputedStyle(decoProject, '::after').opacity),
+    };
   }
   // Contact: 메일 보내기 버튼 가운데로 날아가 동그랗게 내려앉았다가, 점으로 줄어들며 버튼 속으로 빨려 들어감
   // 최종 자리는 버튼 가운데의 크기 0 점 (거꾸로 넘기면 여기서 튀어나옴)
@@ -705,7 +713,7 @@ function travelTarget(key) {
     land: btnRect.height * 1.4, // 내려앉을 때 원 크기
     color: '#78A9E8',
     opacity: 0,
-    blend: 'multiply',
+    blend: 'normal', // 남색 배경 위에서 진해지지 않게 (창 크기가 바뀌어도 유지)
   };
 }
 
@@ -740,6 +748,7 @@ function flyIntoButton(from, to) {
   const midX = (fromX + to.x) / 2;
   const midY = (fromY + to.y) / 2 - 60; // 살짝 위로 휘어서
 
+  travelBlob.classList.add('is-normal'); // 남색 배경 위에서 multiply로 진해지지 않게 원래 색 그대로
   travelBlob.style.transformOrigin = 'center';
   travelBlob.style.width = `${size}px`;
   travelBlob.style.height = `${size}px`;
