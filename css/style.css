@@ -2541,6 +2541,156 @@ body.is-menu-open {
 }
 
 
+/* ===== 추가 애니메이션 ===== */
+/* 1. Hero 끈적 인트로 · 2. 섹션 따라 날아가는 원 · 3. Works 전환 (모두 script/main.js)
+   움직임 줄이기 설정이면 JS가 아예 켜지 않아서 예전 화면 그대로 */
+
+/* ----- 1. Hero: 끈적 인트로 ----- */
+/* 점 · 띠를 한 층(.hero_goo)에 모아 SVG 필터(#goo, index.html)를 걸면 가까운 것끼리 녹아 붙음
+   필터는 계산이 무거워서 인트로 중에만 켬 (.is-gooey) */
+.hero_goo {
+  position: absolute;
+  inset: 0;
+  z-index: 1; /* WEB · PUBLISHER(0)보다 위, PORTFOLIO 글자(2)보다 아래 */
+  pointer-events: none;
+}
+.hero_goo.is-gooey {
+  filter: url(#goo);
+}
+.hero_goo .hero_dot {
+  pointer-events: auto; /* 층은 클릭을 안 받고 점만 받음 */
+}
+/* 띠: 처음엔 원 하나 → 오른쪽으로 늘어남 (위치 · 크기는 script/main.js가 .hero_main 자리에 맞춤) */
+.hero_goo_band {
+  position: absolute;
+  border-radius: 999px;
+  background-color: var(--color-navy);
+  opacity: 0;
+}
+.hero_goo_band.is-shown {
+  opacity: 1;
+}
+/* 필터를 거치면 작은 파편은 사라져서 조금 크게 */
+.hero_goo .hero_burst_piece {
+  width: 10px;
+  height: 10px;
+}
+/* 띠를 층으로 옮겨서 원래 띠는 숨기고, 글자를 층보다 위로 */
+.hero.is-goo .hero_main::before {
+  opacity: 0;
+  animation: none;
+}
+.hero.is-goo .hero_main {
+  z-index: 2;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* JS가 등장시키기 전까지 숨김 (페이지 열 때 최종 화면이 잠깐 보이는 깜빡임 방지)
+     .js는 index.html <head>에서 붙임 → JS가 꺼져 있으면 그냥 다 보임 */
+  .js .hero:not(.is-play) .hero_title,
+  .js .hero:not(.is-play) .hero_name {
+    visibility: hidden;
+  }
+  .js .hero:not(.is-play):not(.is-goo) .hero_dot {
+    visibility: hidden;
+  }
+  /* 끈적 인트로 뒤에는 띠가 이미 있으니 글자부터 바로 (기존 순서에서 띠 0.45초를 뺌) */
+  .hero.is-goo.is-play .hero_main_letter {
+    animation-delay: calc(0.05s + var(--i) * 0.05s);
+  }
+  .hero.is-goo.is-play .hero_sub--top,
+  .hero.is-goo.is-play .hero_sub--bottom {
+    animation-delay: 0.55s;
+  }
+  .hero.is-goo.is-play .hero_name {
+    animation-delay: 1s;
+  }
+  .hero.is-goo.is-play .hero_dot:not(.is-burst):not(.is-respawn) {
+    animation-delay: calc(1.3s + var(--i) * 0.1s), calc(1.7s + var(--float-delay));
+  }
+}
+
+/* 2번 날아가는 원은 PC만 (아래 1024 미디어쿼리) */
+.travel_blob {
+  display: none;
+}
+
+/* ----- 3. Works: 프로젝트별 색 · 숫자판 ----- */
+/* 프로젝트마다 연한 색: PC는 목업 뒤 조약돌, 모바일은 슬라이더 배경 */
+.projects--tesla     { --work-tint: #E4E6EA; }
+.projects--beiligne  { --work-tint: #ECE3D6; }
+.projects--loccitane { --work-tint: #F1E5C0; }
+.projects--drawmate  { --work-tint: #F4DCE3; }
+.projects--slip      { --work-tint: #DFEBD0; }
+
+.works_slider {
+  transition: background-color 0.6s ease;
+}
+
+/* 숫자판: 0~9를 세로로 쌓아 두고 위치만 옮김 (script/main.js) */
+.odo {
+  display: inline-flex;
+  align-items: flex-start; /* 숫자 열이 한 줄 높이로 눌리지 않게 */
+  height: 1lh; /* 한 줄 높이만 보이게 */
+  overflow: hidden;
+}
+.odo_col {
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.8s cubic-bezier(0.7, 0, 0.2, 1.25); /* 끝에서 살짝 넘쳤다 돌아옴 */
+}
+.odo_col span {
+  height: 1lh;
+}
+
+@media (min-width: 1024px) {
+  .project_circle {
+    background: linear-gradient(145deg, color-mix(in srgb, var(--work-tint) 40%, #fff) 0%, var(--work-tint) 100%);
+  }
+  /* 목업에 마우스를 올리면 3D로 기울어짐 (script/main.js) */
+  .project_mockup {
+    transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .project_circle {
+    transition: translate 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* ----- 2. 섹션 따라 날아가는 원 ----- */
+  /* 섹션마다 있던 대표 원 대신 화면에 고정된 원 하나가 다음 섹션의 원 자리로 날아감
+     자리 · 크기는 숨긴 원래 원의 CSS 값을 script/main.js가 읽어서 그대로 씀 → 시안 수치는 위 그대로
+     섹션 위에 있어서 mix-blend-mode: multiply로 글자가 비쳐 보이게 (흰 바탕에선 원래 색 그대로) */
+  .has-travel-blob .travel_blob {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 3; /* #fullpage(1) · 고정 WORKS(2)보다 위, 헤더(100)보다 아래 */
+    pointer-events: none;
+    mix-blend-mode: multiply;
+    will-change: transform;
+  }
+  /* Work style 원은 원래도 남색 띠 위에 그대로 보이는 원이라 섞지 않음 */
+  .has-travel-blob .travel_blob.is-normal {
+    mix-blend-mode: normal;
+  }
+  .travel_blob_shape {
+    position: absolute;
+    inset: 0;
+    background-color: #CFDBE6;
+    transition: background-color 1s ease;
+    animation: wobble 7s ease-in-out infinite,
+               spin 22s linear infinite;
+  }
+  /* 날아다니는 원이 대신하는 원래 원 (자리 계산엔 계속 쓰여서 visibility로만 숨김) */
+  .has-travel-blob .about_intro::before,
+  .has-travel-blob .about_workstyle::before,
+  .has-travel-blob .skills::before,
+  .has-travel-blob .works_deco_project::after {
+    visibility: hidden;
+  }
+}
+
+
 /* ===== Reduced Motion ===== */
 /* 움직임 줄이기 설정이면 배경 원, 커서 멈춤 */
 @media (prefers-reduced-motion: reduce) {

@@ -1,6 +1,9 @@
 // 움직임 줄이기 설정 (Header 스크롤, Hero 점에서 같이 씀)
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+// ms만큼 기다리기 (Hero 인트로, Contact 타이핑에서 같이 씀)
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 // 1024 이상에서 fullPage.js가 켜져 있는지 (맨 아래 fullPage.js 부분에서 바꿈)
 let isFullpage = false;
 
@@ -139,8 +142,115 @@ if (heroMain) {
   heroMain.replaceChildren(srText, letters);
 }
 
-// 페이지 처음 들어올 때 한 번만 재생
-if (hero) hero.classList.add('is-play');
+/* ===== Hero: 끈적 인트로 =====
+   1. 점 4개가 톡 나타남
+   2. 띠 왼쪽 끝으로 모이며 남색으로 → 필터(#goo) 때문에 서로 녹아 붙음
+   3. 남색 원 하나가 됨 → 오른쪽으로 쭉 늘어나 띠가 됨
+   4. 그다음은 원래 등장 순서(.is-play): 글자 → WEB · PUBLISHER → 이름 → 점이 제자리에 톡
+   점 · 띠는 .hero_goo 한 층에 모아 둠 (같은 층에 있어야 녹아 붙음)
+   움직임 줄이기 설정이면 예전처럼 최종 화면만 */
+const heroInner = document.querySelector('.hero_inner');
+const heroDots = [...document.querySelectorAll('.hero_dot')];
+const HERO_NAVY = '#33597F';
+const heroGoo = document.createElement('div');
+const heroBand = document.createElement('div');
+heroGoo.className = 'hero_goo';
+heroBand.className = 'hero_goo_band';
+heroBand.setAttribute('aria-hidden', 'true');
+let heroIntroDone = false;
+
+// 띠 자리: 원래 띠(.hero_main::before)와 같은 곳, 오른쪽은 화면 밖까지
+// width를 안 주면 다 늘어난 길이
+function placeHeroBand(width) {
+  const gooRect = heroGoo.getBoundingClientRect();
+  const mainRect = heroMain.getBoundingClientRect();
+  const bandLeft = mainRect.left + parseFloat(getComputedStyle(heroMain, '::before').left);
+  const fullWidth = window.innerWidth - bandLeft + mainRect.height; // 오른쪽 둥근 끝은 화면 밖으로
+  heroBand.style.left = `${bandLeft - gooRect.left}px`;
+  heroBand.style.top = `${mainRect.top - gooRect.top}px`;
+  heroBand.style.height = `${mainRect.height}px`;
+  heroBand.style.width = `${width ?? fullWidth}px`;
+  return { fullWidth, size: mainRect.height };
+}
+
+// WAAPI 애니메이션 끝날 때까지 기다리기 (중간에 취소돼도 멈추지 않게)
+const done = (animation) => animation.finished.catch(() => {});
+
+async function playHeroIntro() {
+  hero.classList.add('is-goo');
+  heroGoo.classList.add('is-gooey');
+  const { fullWidth, size } = placeHeroBand();
+  heroBand.style.width = `${size}px`; // 처음엔 띠 높이와 같은 원
+
+  // 모일 곳: 띠 왼쪽 끝 원의 가운데
+  const targetX = heroBand.offsetLeft + size / 2;
+  const targetY = heroBand.offsetTop + size / 2;
+
+  // 1. 점 등장
+  heroDots.forEach((dot, i) => {
+    dot.animate(
+      [{ transform: 'scale(0)' }, { transform: 'scale(1.25)', offset: 0.6 }, { transform: 'scale(1)' }],
+      { duration: 400, delay: i * 60, easing: 'ease-out', fill: 'backwards' }
+    );
+  });
+  await wait(600);
+
+  // 2. 가운데로 모이기 (둥글게 휘어서 날아감)
+  const flights = heroDots.map((dot, i) => {
+    const dx = targetX - (dot.offsetLeft + dot.offsetWidth / 2);
+    const dy = targetY - (dot.offsetTop + dot.offsetHeight / 2);
+    const bend = (i % 2 ? 1 : -1) * size * 0.4; // 점마다 반대쪽으로 휨
+    const grow = (size * 0.55) / dot.offsetWidth;
+    const color = getComputedStyle(dot).backgroundColor;
+    return dot.animate([
+      { transform: 'translate(0, 0) scale(1)', backgroundColor: color },
+      { transform: `translate(${dx / 2 + bend}px, ${dy / 2 - Math.abs(bend)}px) scale(1.2)`, backgroundColor: color, offset: 0.5 },
+      { transform: `translate(${dx}px, ${dy}px) scale(${grow})`, backgroundColor: HERO_NAVY },
+    ], { duration: 700, delay: i * 50, easing: 'cubic-bezier(0.6, 0, 0.25, 1)', fill: 'forwards' });
+  });
+  await done(flights.at(-1));
+
+  // 3. 남색 원 하나로 합체
+  heroBand.classList.add('is-shown');
+  heroBand.animate(
+    [{ transform: 'scale(0.55)' }, { transform: 'scale(1.08)', offset: 0.6 }, { transform: 'scale(1)' }],
+    { duration: 300, easing: 'ease-out' }
+  );
+  heroDots.forEach((dot) => dot.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 150, delay: 100, fill: 'forwards' }));
+  await wait(250);
+
+  // 4. 띠로 늘어나면서 원래 등장 순서 시작 (글자는 띠가 반쯤 늘어났을 때)
+  const stretch = heroBand.animate(
+    [{ width: `${size}px` }, { width: `${fullWidth}px` }],
+    { duration: 650, easing: 'cubic-bezier(0.7, 0, 0.2, 1)', fill: 'forwards' }
+  );
+  await wait(200);
+  heroDots.forEach((dot) => dot.getAnimations().forEach((a) => a.cancel())); // CSS 등장(톡)이 이어받음
+  hero.classList.add('is-play');
+  await done(stretch);
+  stretch.cancel();
+  placeHeroBand(); // 애니메이션 값 대신 실제 값으로
+
+  heroIntroDone = true;
+  heroGoo.classList.remove('is-gooey'); // 필터는 무거워서 인트로가 끝나면 끔
+}
+
+if (hero && heroInner && heroMain) {
+  if (reduceMotion) {
+    hero.classList.add('is-play'); // 움직임 줄이기: CSS가 애니메이션을 빼서 최종 화면만
+  } else {
+    // 점과 띠를 한 층으로 (층이 .hero_inner와 같은 크기라 점의 % 위치는 그대로)
+    heroGoo.append(...heroDots, heroBand);
+    heroInner.prepend(heroGoo);
+
+    // 폰트가 바뀌면 PORTFOLIO 폭 → 띠 위치가 달라져서 폰트를 기다림 (오래 걸리면 1.5초 뒤 그냥 시작)
+    Promise.race([document.fonts?.ready, wait(1500)]).then(playHeroIntro);
+
+    window.addEventListener('resize', () => {
+      if (heroIntroDone) placeHeroBand();
+    });
+  }
+}
 
 // 점 주변으로 작은 파편 퍼뜨리기
 function scatterPieces(dot) {
@@ -191,8 +301,6 @@ const LOOP_DELAY = 3000;  // 두 번째 문구 끝 → 다시 처음
 const firstMessage = document.querySelector('.contact_message--first');
 const secondMessage = document.querySelector('.contact_message--second');
 const characters = document.querySelectorAll('.contact_character_img');
-
-const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // 문구를 글자마다 span으로 쪼개기 (스크린리더는 aria-label로 문장 전체를 읽음)
 function splitChars(message) {
@@ -307,9 +415,11 @@ function initFullpage() {
     verticalCentered: false, // 섹션 안 레이아웃은 지금 CSS 그대로
     scrollOverflow: true,    // 화면보다 긴 섹션은 안에서 스크롤한 뒤 다음 섹션으로
     // 첫 섹션(Hero)을 벗어나면 헤더를 반투명 유리 스타일로
-    onLeave: (origin, destination) => {
+    onLeave: (origin, destination, direction) => {
       header?.classList.toggle('is-scrolled', destination.index > 0);
       updateSideNav(destination.item.dataset.key); // 넘어가기 시작할 때 바로 바뀌게
+      moveTravelBlob(destination.item.dataset.key); // 원이 다음 섹션 자리로 날아감
+      animateWorksPc(origin, destination, direction); // Works 깊이감 · 숫자판 · 제목
       // Works끼리 넘길 때만 고정 WORKS(+띠)를 켜 둠
       // Works ↔ 다른 섹션일 땐 끄고, 섹션 안 WORKS가 섹션과 같이 움직이게
       const isWorks = (section) => section.item.dataset.key === 'projects';
@@ -321,6 +431,7 @@ function initFullpage() {
     },
   });
   isFullpage = true;
+  if (!reduceMotion && travelBlob) document.documentElement.classList.add('has-travel-blob');
   const activeKey = fullpage_api.getActiveSection().item.dataset.key;
   updateSideNav(activeKey);
   setWorksTitleFixed(activeKey === 'projects');
@@ -330,6 +441,9 @@ function destroyFullpage() {
   if (!isFullpage) return;
   fullpage_api.destroy('all'); // fullPage.js가 넣은 스타일, 감싼 요소 전부 원래대로
   isFullpage = false;
+  document.documentElement.classList.remove('has-travel-blob'); // 모바일은 섹션마다 원래 원
+  travelKey = null;
+  travelBox = null;
   if (header) updateHeader();
   updateTopBtn();
 }
@@ -434,7 +548,7 @@ window.addEventListener('resize', () => {
 function updateWorksDots() {
   const index = currentWork();
   activeWork = index;
-  worksCountNow.textContent = pad(index + 1);
+  if (index !== shownWork) showWorkMobile(index); // 장이 바뀐 순간에만 숫자판 · 제목 · 배경색
   dots.forEach((dot, i) => {
     dot.classList.toggle('is-active', i === index);
     if (i === index) dot.setAttribute('aria-current', 'true');
@@ -449,6 +563,8 @@ function wrapWorks() {
   if (worksEyebrow) worksHead.prepend(worksEyebrow); // WORKS는 넘기는 줄 위에 고정 (숫자 왼쪽)
   worksTrack.append(...works);
   worksTrack.scrollLeft = 0;
+  shownWork = 0;
+  worksSlider.style.backgroundColor = workTint(0);
   updateWorksDots();
 }
 
@@ -477,10 +593,13 @@ function placeBox(box, el, section) {
 
 function placeWorksDeco() {
   if (!pcQuery.matches || !decoEyebrow || !decoVisual || !decoProject || !works[0]) return;
+  // 모바일 → PC로 창을 넓히는 순간엔 WORKS 제목이 아직 슬라이더에 있음 → 섹션으로 돌아온 뒤(handlePcQuery) 다시 계산
+  if (!works[0].querySelector('.eyebrow')) return;
   placeBox(decoEyebrow, works[0].querySelector('.eyebrow'), works[0]);
   placeBox(decoVisual, works[0].querySelector('.project_visual'), works[0]);
   placeBox(decoProject, works[0].querySelector('.project'), works[0]);
   placeWorksBand();
+  placeTravelBlob(); // Works 원 자리가 정해진 뒤에 날아가는 원 위치도 다시
 }
 
 /* WORKS 제목 층(.works_title)은 섹션보다 위에 있어서
@@ -506,6 +625,330 @@ function placeWorksBand() {
 window.addEventListener('resize', placeWorksDeco);
 window.addEventListener('load', placeWorksDeco); // 목업 이미지가 다 불러와져야 높이가 정해짐
 document.fonts?.ready.then(placeWorksDeco);     // 폰트가 바뀌면 WORKS 글자 크기 · 줄 높이가 달라짐
+
+/* ===== 1024 이상: 섹션을 따라 날아가는 원 =====
+   섹션마다 있던 대표 원(About 오른쪽 위, Work style 왼쪽, Skills 왼쪽 위, Works 오른쪽 위)은 CSS에서 숨기고
+   화면에 고정된 원 하나(.travel_blob)가 섹션을 넘길 때마다 다음 섹션의 원 자리로 날아감
+   자리 · 크기 · 색은 숨긴 원래 원의 CSS 값을 그대로 읽음 → 시안을 고쳐도 여기는 안 고쳐도 됨
+   Hero에선 파란 점 자리에 투명하게 숨어 있다가, 넘기면 파란 점에서 튀어나옴 */
+const travelBlob = document.querySelector('.travel_blob');
+const travelShape = travelBlob?.querySelector('.travel_blob_shape');
+const TRAVEL_DURATION = 1100;
+let travelKey = null; // 지금 원이 가 있는 섹션
+let travelBox = null; // 지금 원의 자리 · 크기 · 색
+
+const isTravelOn = () => isFullpage && !reduceMotion && Boolean(travelBlob);
+const sectionByKey = (key) => document.querySelector(`#fullpage .section[data-key="${key}"]`);
+
+// 가상 요소(::before 등)의 자리 · 크기 · 색
+// left · top은 right · bottom으로 정해 둔 원이어도 브라우저가 계산한 px로 돌려줌
+function pseudoBox(el, pseudo, baseX = 0, baseY = 0) {
+  const style = getComputedStyle(el, pseudo);
+  return {
+    x: baseX + parseFloat(style.left),
+    y: baseY + parseFloat(style.top),
+    w: parseFloat(style.width),
+    h: parseFloat(style.height),
+    color: style.backgroundColor,
+    opacity: 1,
+    blend: 'multiply',
+  };
+}
+
+// 섹션별 원 자리 (섹션이 화면 맨 위에 왔을 때 기준 = 화면 기준)
+function travelTarget(key) {
+  const section = sectionByKey(key);
+  if (key === 'hero') {
+    const dot = document.querySelector('.hero_dot--blue');
+    const sectionRect = section.getBoundingClientRect();
+    const layerRect = dot.offsetParent.getBoundingClientRect(); // 인트로 중에도 움직이지 않는 점의 원래 자리
+    return {
+      x: layerRect.left - sectionRect.left + dot.offsetLeft,
+      y: layerRect.top - sectionRect.top + dot.offsetTop,
+      w: dot.offsetWidth,
+      h: dot.offsetHeight,
+      color: '#78A9E8',
+      opacity: 0,
+      blend: 'multiply',
+    };
+  }
+  if (key === 'about' || key === 'skills') return pseudoBox(section, '::before');
+  if (key === 'workstyle') {
+    // 남색 띠 위에선 색을 바꾸느라 버벅여서, 위쪽 흰 바탕(헤더 아래 ~ 띠 위) 왼쪽에 걸쳐 둠
+    const sectionTop = section.getBoundingClientRect().top;
+    const whiteTop = parseFloat(getComputedStyle(section).paddingTop); // 헤더 높이
+    const whiteBottom = section.querySelector('.workstyle_band').getBoundingClientRect().top - sectionTop;
+    const h = Math.min(220, whiteBottom - whiteTop - 30); // 흰 바탕 안에 들어가는 크기
+    const w = h * 1.15;
+    return {
+      ...pseudoBox(section, '::before'),
+      x: -w * 0.3, // 왼쪽 끝에 걸침
+      y: whiteTop + (whiteBottom - whiteTop - h) / 2, // 흰 바탕 세로 가운데
+      w,
+      h,
+    };
+  }
+  if (key === 'projects') {
+    // Works 원은 화면에 고정된 .works_deco_project 안에 있음 (위치는 placeWorksDeco)
+    return pseudoBox(decoProject, '::after', parseFloat(decoProject.style.left) || 0, parseFloat(decoProject.style.top) || 0);
+  }
+  // Contact: 메일 보내기 버튼 가운데로 날아가 동그랗게 내려앉았다가, 점으로 줄어들며 버튼 속으로 빨려 들어감
+  // 최종 자리는 버튼 가운데의 크기 0 점 (거꾸로 넘기면 여기서 튀어나옴)
+  const mailBtn = section.querySelector('.contact_btn--mail');
+  const sectionRect = section.getBoundingClientRect();
+  const btnRect = mailBtn.getBoundingClientRect();
+  return {
+    x: btnRect.left - sectionRect.left + btnRect.width / 2,
+    y: btnRect.top - sectionRect.top + btnRect.height / 2,
+    w: 0,
+    h: 0,
+    land: btnRect.height * 1.4, // 내려앉을 때 원 크기
+    color: '#78A9E8',
+    opacity: 0,
+    blend: 'multiply',
+  };
+}
+
+function applyTravelBox(box) {
+  travelBlob.style.width = `${box.w}px`;
+  travelBlob.style.height = `${box.h}px`;
+  travelBlob.style.transform = `translate(${box.x}px, ${box.y}px)`;
+  travelBlob.style.opacity = box.opacity;
+  travelShape.style.backgroundColor = box.color;
+}
+
+// 지금 섹션 자리에 바로 놓기 (켤 때, 창 크기 바뀔 때)
+function placeTravelBlob() {
+  if (!isTravelOn()) return;
+  travelBlob.style.transformOrigin = 'center';
+  travelBlob.getAnimations().forEach((animation) => animation.cancel());
+  travelKey = fullpage_api.getActiveSection().item.dataset.key;
+  travelBox = travelTarget(travelKey);
+  applyTravelBox(travelBox);
+  travelBlob.classList.toggle('is-normal', travelBox.blend === 'normal');
+}
+
+// Contact: 멈추지 않고 점점 빨라지며 버튼 가운데로 날아가, 도착하는 순간 점으로 줄어들며 샥 들어감
+// 크기(width · height)를 바꾸면 매 프레임 다시 그려서 버벅임 → 크기는 고정하고 transform(scale)만 움직임
+function flyIntoButton(from, to) {
+  const size = to.land;
+  const duration = 500;
+  // 원 가운데 기준으로 옮기고 크기는 scale로 (transform-origin: center)
+  const at = (cx, cy, sx, sy = sx) => `translate(${cx - size / 2}px, ${cy - size / 2}px) scale(${sx}, ${sy})`;
+  const fromX = from.x + from.w / 2;
+  const fromY = from.y + from.h / 2;
+  const midX = (fromX + to.x) / 2;
+  const midY = (fromY + to.y) / 2 - 60; // 살짝 위로 휘어서
+
+  travelBlob.style.transformOrigin = 'center';
+  travelBlob.style.width = `${size}px`;
+  travelBlob.style.height = `${size}px`;
+  travelShape.style.backgroundColor = to.color;
+  // 버튼 바로 앞(남은 거리의 1/4) — 여기서부터 줄어들기 시작
+  const nearX = midX + (to.x - midX) * 0.75;
+  const nearY = midY + (to.y - midY) * 0.75;
+  // 칸마다 easing을 따로 주면 칸 경계에서 멈칫함 → 전체에 ease-in 하나만 (갈수록 빨라짐)
+  const fly = travelBlob.animate([
+    { transform: at(fromX, fromY, from.w / size, from.h / size), opacity: from.opacity },
+    { transform: at(midX, midY, (from.w / size + 1) / 2), opacity: 1, offset: 0.5 },
+    { transform: at(nearX, nearY, 0.8), opacity: 1, offset: 0.85 },
+    { transform: at(to.x, to.y, 0), opacity: 1 }, // 샥
+  ], { duration, easing: 'cubic-bezier(0.5, 0, 0.9, 0.4)', fill: 'forwards' });
+  setTimeout(popMailButton, duration * 0.97); // 들어가는 순간 버튼이 톡
+  fly.finished.then(() => {
+    fly.cancel();
+    applyTravelBox(to); // 최종: 버튼 가운데 크기 0, 투명
+  }).catch(() => {});
+}
+
+// 원이 들어간 뒤 메일 보내기 버튼이 한 번 톡 튐
+function popMailButton() {
+  document.querySelector('.contact_btn--mail')?.animate(
+    [{ transform: 'scale(1)' }, { transform: 'scale(1.1)', offset: 0.35 }, { transform: 'scale(1)' }],
+    { duration: 400, easing: 'ease-out' }
+  );
+}
+
+function moveTravelBlob(key) {
+  if (!isTravelOn() || key === travelKey) return; // Works끼리는 같은 자리라 그대로
+  const from = travelBox;
+  const to = travelTarget(key);
+  travelKey = key;
+  travelBox = to;
+  if (!from) {
+    applyTravelBox(to);
+    return;
+  }
+
+  // 날아가는 방향으로 늘어났다(가운데) → 도착하면서 살짝 반대로 눌렸다 → 원래 모양
+  // 모든 칸의 함수 목록을 같게 맞춰야 브라우저가 부드럽게 이어 줌
+  const angle = Math.atan2(to.y - from.y, to.x - from.x);
+  const frame = (x, y, scaleX = 1, scaleY = 1) =>
+    `translate(${x}px, ${y}px) rotate(${angle}rad) scale(${scaleX}, ${scaleY}) rotate(${-angle}rad)`;
+  const midX = (from.x + to.x) / 2;
+  const midY = (from.y + to.y) / 2 - 60; // 살짝 위로 휘어서
+  const midW = (from.w + to.w) / 2;
+  const midH = (from.h + to.h) / 2;
+
+  travelBlob.getAnimations().forEach((animation) => animation.cancel());
+  travelBlob.classList.remove('is-normal'); // 날아가는 동안엔 글자가 비쳐 보이게
+
+  if (to.land) {
+    flyIntoButton(from, to);
+    return;
+  }
+
+  travelBlob.animate([
+    { transform: frame(from.x, from.y), width: `${from.w}px`, height: `${from.h}px`, opacity: from.opacity },
+    { transform: frame(midX, midY, 1.3, 0.75), width: `${midW}px`, height: `${midH}px`, opacity: 1, offset: 0.45 },
+    { transform: frame(to.x, to.y, 0.94, 1.06), width: `${to.w}px`, height: `${to.h}px`, opacity: to.opacity || 1, offset: 0.82 },
+    { transform: frame(to.x, to.y), width: `${to.w}px`, height: `${to.h}px`, opacity: to.opacity },
+  ], { duration: TRAVEL_DURATION, easing: 'cubic-bezier(0.65, 0, 0.35, 1)' })
+    .finished.then(() => {
+      travelBlob.classList.toggle('is-normal', to.blend === 'normal');
+    }).catch(() => {});
+  applyTravelBox(to); // 애니메이션이 끝나면 이 값이 남음 (색은 CSS transition으로 바뀜)
+}
+
+
+/* ===== Works: 넘길 때 효과 =====
+   - 번호: 숫자판처럼 굴러감 (01 → 02)
+   - PC 제목: 글자가 섞였다가 왼쪽부터 맞춰짐 (모바일은 안 씀)
+   - PC: 목업 · 배경 조약돌 · 글이 서로 다른 거리로 늦게 따라와서 깊이감 + 목업에 마우스를 올리면 3D로 기울어짐
+   - 모바일: 슬라이더 배경색이 프로젝트 색으로 (색은 css --work-tint) */
+
+// 숫자판: 앞자리 0은 고정, 뒷자리 0~9를 세로로 쌓아 두고 위치만 옮김 (프로젝트 9개까지)
+function makeOdometer(el, value) {
+  const srText = document.createElement('span');
+  srText.className = 'sr-only';
+  srText.textContent = pad(value);
+
+  const odo = document.createElement('span');
+  odo.className = 'odo';
+  odo.setAttribute('aria-hidden', 'true');
+  const tens = document.createElement('span');
+  tens.textContent = '0';
+  const column = document.createElement('span');
+  column.className = 'odo_col';
+  for (let n = 0; n <= 9; n++) {
+    const digit = document.createElement('span');
+    digit.textContent = n;
+    column.appendChild(digit);
+  }
+  column.style.transform = `translateY(-${value * 10}%)`;
+  odo.append(tens, column);
+  el.replaceChildren(srText, odo);
+  return { column, srText };
+}
+
+// from 숫자에서 to 숫자로 굴리기
+function rollOdometer(odometer, from, to) {
+  odometer.srText.textContent = pad(to);
+  odometer.column.style.transition = 'none';
+  odometer.column.style.transform = `translateY(-${from * 10}%)`;
+  odometer.column.offsetHeight; // 시작 위치를 먼저 그리게 해야 transition이 걸림
+  odometer.column.style.transition = reduceMotion ? 'none' : '';
+  odometer.column.style.transform = `translateY(-${to * 10}%)`;
+}
+
+const workOdometers = works.map((section, i) => makeOdometer(section.querySelector('.project_num'), i + 1));
+const countOdometer = makeOdometer(worksCountNow, 1);
+
+// 제목 섞기 (PC fullPage에서만): 알파벳 · 기호로 섞음
+const SCRAMBLE_DURATION = 700;
+const SCRAMBLE_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ#*/<>';
+const scrambleFrames = new Map();
+const randomChar = () => SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)];
+
+function scrambleTitle(section) {
+  if (reduceMotion) return;
+  const title = section.querySelector('.project_title');
+  // L'OCCITANE처럼 PC · 모바일 글자가 따로 있으면 지금 보이는(PC) 쪽만
+  const target = [...title.children].find((el) => getComputedStyle(el).display !== 'none') || title;
+  if (target.children.length) return;
+  target.dataset.text ??= target.textContent; // 원래 글자 (섞는 중에 또 불려도 원래 글자로)
+  const text = target.dataset.text;
+  const start = performance.now();
+
+  cancelAnimationFrame(scrambleFrames.get(target));
+  function step(now) {
+    const progress = Math.min((now - start) / SCRAMBLE_DURATION, 1);
+    const fixedCount = Math.floor(progress * text.length); // 왼쪽부터 맞춰진 글자 수
+    target.textContent = [...text]
+      .map((char, i) => (i < fixedCount || /[\s·’']/.test(char) ? char : randomChar()))
+      .join('');
+    if (progress < 1) scrambleFrames.set(target, requestAnimationFrame(step));
+    else target.textContent = text;
+  }
+  scrambleFrames.set(target, requestAnimationFrame(step));
+}
+
+const workTint = (index) => getComputedStyle(works[index]).getPropertyValue('--work-tint').trim();
+
+// 모바일: 장이 바뀌면
+let shownWork = 0;
+function showWorkMobile(index) {
+  rollOdometer(countOdometer, shownWork + 1, index + 1);
+  worksSlider.style.backgroundColor = workTint(index);
+  shownWork = index;
+}
+
+// PC: fullPage.js onLeave에서 부름 (섹션은 fullPage.js가 0.8초에 옮김)
+function animateWorksPc(origin, destination, direction) {
+  const isWorks = (section) => section.item.dataset.key === 'projects';
+  if (!isWorks(destination)) return;
+  const toIndex = works.indexOf(destination.item);
+  const fromIndex = isWorks(origin) ? works.indexOf(origin.item) : -1; // 다른 섹션에서 오면 00부터
+  rollOdometer(workOdometers[toIndex], fromIndex + 1, toIndex + 1);
+  setTimeout(() => scrambleTitle(destination.item), 250);
+  if (reduceMotion) return;
+
+  // 깊이감: 층마다 다른 거리만큼 아래(위로 넘기면 위)에서 늦게 따라옴 → 목업이 가장 멀리서
+  const dir = direction === 'up' ? -1 : 1;
+  const ease = 'cubic-bezier(0.22, 1, 0.36, 1)';
+  const layers = [
+    ['.project_mockup', 170, 0, 1300],
+    ['.project_circle', 60, 0, 1400],
+    ['.project_content', 90, 80, 1200],
+    ['.project_details', 120, 160, 1200],
+  ];
+  layers.forEach(([selector, distance, delay, duration]) => {
+    destination.item.querySelector(selector)?.animate(
+      [{ transform: `translateY(${dir * distance}px)`, opacity: selector === '.project_circle' ? 1 : 0.2 }, { transform: 'none', opacity: 1 }],
+      { duration, delay, easing: ease, fill: 'backwards' }
+    );
+  });
+  // Works끼리 넘길 때: 나가는 목업은 섹션보다 빨리 빠져나감
+  if (isWorks(origin)) {
+    origin.item.querySelector('.project_mockup')?.animate(
+      [{ transform: 'none' }, { transform: `translateY(${-dir * 120}px)` }],
+      { duration: SCROLL_DURATION, easing: 'cubic-bezier(0.55, 0, 1, 0.45)' }
+    );
+  }
+}
+
+// PC: 목업에 마우스를 올리면 3D로 기울어지고, 뒤 조약돌은 반대로 살짝 → 앞뒤 거리감
+if (!reduceMotion) {
+  works.forEach((section) => {
+    const visual = section.querySelector('.project_visual');
+    const mockup = section.querySelector('.project_mockup');
+    const circle = section.querySelector('.project_circle');
+    if (!visual || !mockup) return;
+
+    visual.addEventListener('pointermove', (event) => {
+      if (event.pointerType !== 'mouse' || !pcQuery.matches) return;
+      const rect = visual.getBoundingClientRect();
+      const x = (event.clientX - rect.left) / rect.width - 0.5; // -0.5 ~ 0.5
+      const y = (event.clientY - rect.top) / rect.height - 0.5;
+      mockup.style.transform = `perspective(1000px) rotateY(${x * 12}deg) rotateX(${-y * 9}deg)`;
+      if (circle) circle.style.translate = `${-x * 30}px ${-y * 20}px`;
+    });
+    visual.addEventListener('pointerleave', () => {
+      mockup.style.transform = '';
+      if (circle) circle.style.translate = '';
+    });
+  });
+}
 
 function handlePcQuery() {
   if (pcQuery.matches) {
