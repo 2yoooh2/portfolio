@@ -927,12 +927,12 @@ body.is-menu-open {
 .project_mockup {
   width: 100%;
 }
-/* 모바일: 목업 아래, 제목 줄 오른쪽 (목업 위에 얹으면 기기 이미지가 가려져서) */
+/* 모바일: 목업 오른쪽 아래 모서리에 반쯤 걸침 (아래 절반은 목업 ~ 제목 사이 여백 40 안에)
+   → 제목 줄 오른쪽을 비워 둘 필요가 없어서 제목이 폭을 다 씀 */
 .project_link {
   position: absolute;
-  top: 100%;        /* 목업 바로 아래에서 */
+  bottom: -35px; /* 버튼 높이(70)의 절반만큼 목업 밖으로 */
   right: 0;
-  margin-top: 30px; /* 30 내려서 제목 줄 높이에 */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -1007,7 +1007,7 @@ body.is-menu-open {
   background-color: rgba(0, 0, 0, 0.7);
 }
 .project_title {
-  font-size: 34px;
+  font-size: 28px; /* 360에서 L’OCCITANE · RECEIPT PARSER가 한 줄에 들어가게 */
   font-weight: 700;
   line-height: 1.2;
 }
@@ -1016,11 +1016,6 @@ body.is-menu-open {
   font-size: 14px;
   line-height: 22px;
   color: #666;
-}
-/* 모바일: 오른쪽 VIEW SITE 버튼(70) 자리만큼 비우기 */
-.project_heading,
-.project_subtitle {
-  padding-right: 80px;
 }
 .project_desc {
   margin-top: 20px;
@@ -1860,9 +1855,9 @@ body.is-menu-open {
      pointer-events: none → 원이 마우스를 가로채지 않아서 이미지 밖으로 나가면 바로 사라짐 */
   .project_link {
     top: 50%;
+    bottom: auto;
     left: 50%;
     right: auto;
-    margin-top: 0;
     z-index: 2; /* 목업보다 위 */
     width: 120px;
     height: 120px;
@@ -1971,10 +1966,6 @@ body.is-menu-open {
 
   .project_text {
     flex: 1;
-  }
-  .project_heading,
-  .project_subtitle {
-    padding-right: 0; /* PC는 버튼이 커서를 따라다녀서 자리 안 비움 */
   }
   .project_content {
     margin-top: 0;
