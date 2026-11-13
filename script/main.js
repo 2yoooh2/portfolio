@@ -1270,15 +1270,48 @@ if (keywordBox && keywords.length) {
 /* ----- Work style: 번호가 하나씩 톡 → 점선이 다음 번호까지 그려짐 → 다음 번호 톡 ----- */
 const WORKSTYLE_STEP = 600; // 번호 사이 간격 (점선 0.45초 + 여유)
 
+// 번호 원 가운데 위치 (가로 배치면 x, 세로면 y)
+function workstyleCenters(items) {
+  const list = items[0]?.parentElement;
+  const horizontal = list && getComputedStyle(list).flexDirection === 'row';
+  return items.map((item) => {
+    const rect = item.querySelector('.workstyle_num').getBoundingClientRect();
+    return horizontal ? rect.left + rect.width / 2 : rect.top + rect.height / 2;
+  });
+}
+
+// 점선: 처음 번호부터 끝 번호까지 한 번에, 같은 속도로 이어 그림 (칸 사이에서 멈추지 않음)
+// 번호는 선이 닿을 때쯤 톡 → 이어서 제목 · 설명
 function playWorkstyle(root, delay = 0) {
   if (!root) return;
   riseTitle(root.querySelector('.eyebrow'), delay);
-  root.querySelectorAll('.workstyle_item').forEach((item, i) => {
-    const start = delay + 300 + i * WORKSTYLE_STEP;
-    popIn([item.querySelector('.workstyle_num')], start, 0);
-    revealLinesInOrder(item.querySelectorAll('.workstyle_title, .workstyle_desc'), start + 100, { lockWidth: true });
-    item.style.setProperty('--line-delay', `${start + 150}ms`); // 점선은 CSS transition (style.css 보조 애니메이션)
+  const items = [...root.querySelectorAll('.workstyle_item')];
+  const centers = workstyleCenters(items);
+  const total = centers.at(-1) - centers[0];
+  const lineDuration = WORKSTYLE_STEP * (items.length - 1); // 전체 선 그리는 시간 (칸이 같으면 예전과 같은 간격)
+  const lineStart = delay + 450; // 첫 번호가 나오고 바로
+  const reachAt = (i) => lineStart + (total > 0 ? ((centers[i] - centers[0]) / total) * lineDuration : i * WORKSTYLE_STEP);
+  items.forEach((item, i) => {
+    const pop = reachAt(i) - 150; // 선이 닿을 때 원이 커지는 중이게 살짝 먼저
+    popIn([item.querySelector('.workstyle_num')], pop, 0);
+    revealLinesInOrder(item.querySelectorAll('.workstyle_title, .workstyle_desc'), pop + 100, { lockWidth: true });
+    if (i < items.length - 1) {
+      // 점선은 CSS transition (style.css 보조 애니메이션)
+      item.style.setProperty('--line-delay', `${reachAt(i)}ms`);
+      item.style.setProperty('--line-duration', `${reachAt(i + 1) - reachAt(i)}ms`);
+    }
   });
+}
+
+// 모바일: 항목이 하나씩 나타나서 선도 칸마다 → 칸 길이에 비례한 시간으로 (어느 칸이든 같은 속도)
+const WORKSTYLE_LINE_SPEED = 0.25; // px / ms
+
+function setWorkstyleStepLine(item) {
+  const next = item.nextElementSibling;
+  if (!next) return;
+  const [from, to] = workstyleCenters([item, next]);
+  item.style.setProperty('--line-delay', '150ms'); // 번호가 나오고 바로
+  item.style.setProperty('--line-duration', `${Math.round(Math.abs(to - from) / WORKSTYLE_LINE_SPEED)}ms`);
 }
 
 /* ----- Skills: 구분선이 왼쪽부터 → 아이콘 카드가 남색 뒷면에서 차례로 뒤집혀 나타남 ----- */
@@ -1357,7 +1390,7 @@ const revealSteps = [
   ['.about_workstyle .workstyle_item', (item) => {
     popIn([item.querySelector('.workstyle_num')], 0, 0);
     revealLinesInOrder(item.querySelectorAll('.workstyle_title, .workstyle_desc'), 100, { lockWidth: true });
-    item.style.setProperty('--line-delay', '150ms'); // 다음 번호 쪽으로 점선
+    setWorkstyleStepLine(item); // 다음 번호 쪽으로 점선
   }],
   ['.skills_item', (item) => {
     playSkillText(item, 0);
@@ -1392,8 +1425,10 @@ function watchReveal(pairs, enterMargin) {
     entries.forEach((entry) => {
       const el = entry.target;
       if (!entry.isIntersecting || el.classList.contains('is-in')) return;
-      el.classList.add('is-in');
+      // 재생 먼저 → .is-in은 나중에: 재생 함수가 --line-delay 같은 값을 다 넣은 뒤에 CSS transition(점선 · 구분선)이 시작되게
+      // (.is-in을 먼저 붙이면 재생 함수 안에서 위치를 재는 순간 transition이 기본값으로 먼저 시작해 버림)
       plays.get(el)?.(el);
+      el.classList.add('is-in');
     });
   }, { rootMargin: `0px 0px ${enterMargin} 0px` });
   const leaveObserver = new IntersectionObserver((entries) => {

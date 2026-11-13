@@ -2868,14 +2868,15 @@ body.is-menu-open {
     opacity: 0;
   }
   /* Work style 점선: 위에서 아래로(가로 배치는 왼쪽에서 오른쪽으로) 그려짐
-     번호가 나오는 시간에 맞춰 칸마다 늦게 시작 */
+     칸마다 시작 시간 · 걸리는 시간을 번호 위치로 계산 → 처음 번호부터 끝 번호까지 한 번에 같은 속도로 이어짐 */
   .workstyle_item:not(:last-child)::before {
-    transition: clip-path 0.45s linear;
+    transition: clip-path var(--line-duration, 0.45s) linear; /* 칸 길이에 비례 (script/main.js) */
     transition-delay: var(--line-delay, 0s); /* 칸마다 다름 (script/main.js) */
   }
   .js .reveal:not(.is-in) .workstyle_item:not(:last-child)::before,
   .js .workstyle_item.reveal:not(.is-in):not(:last-child)::before {
     clip-path: inset(0 0 100% 0);
+    transition: none; /* 숨길 때는 바로 → 다시 들어오면 처음부터 다시 그림 (그릴 때만 시간 · 지연 적용) */
   }
   /* 끝값을 none이 아니라 inset(0)으로 둬야 사이 값이 생겨서 그려지는 게 보임 */
   .js .reveal.is-in .workstyle_item:not(:last-child)::before,
@@ -2891,6 +2892,7 @@ body.is-menu-open {
   .js .reveal:not(.is-in) .skills_item:not(:last-child)::after,
   .js .skills_item.reveal:not(.is-in):not(:last-child)::after {
     transform: scaleX(0);
+    transition: none; /* 숨길 때는 바로 (위 점선과 같은 이유) */
   }
   /* 모바일은 섹션 대신 항목마다 .reveal (script/main.js setupStepReveal) */
 }
