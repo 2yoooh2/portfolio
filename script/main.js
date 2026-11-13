@@ -906,11 +906,12 @@ function showWorkMobile(index) {
   playWorkMobileText(index);
 }
 
-// 모바일 Works 글: 제목은 떨어지고, 부제 · 설명은 줄마다 올라옴
+// 모바일 Works 글: 제목은 떨어지고, 부제 · 설명은 줄마다 올라오고, 이어서 VIEW · ROLE · TOOLS가 한 덩어리씩 (항상 아래에서)
 function playWorkMobileText(index) {
   const section = works[index];
   dropTitle(section);
-  revealLinesInOrder(section.querySelectorAll('.project_subtitle, .project_desc p'), 250);
+  const lines = revealLinesInOrder(section.querySelectorAll('.project_subtitle, .project_desc p'), 250);
+  if (!reduceMotion) revealDetails(section, 250 + lines * LINE_STEP, 'down');
 }
 
 // PC: fullPage.js onLeave에서 부름 (섹션은 fullPage.js가 0.8초에 옮김)
@@ -950,24 +951,25 @@ function animateWorksPc(origin, destination, direction) {
   // 깊이감: 층마다 다른 거리만큼 아래(위로 넘기면 위)에서 늦게 따라옴 → 목업이 가장 멀리서
   const dir = direction === 'up' ? -1 : 1;
   const ease = 'cubic-bezier(0.22, 1, 0.36, 1)';
+  // [선택자, 거리, 지연, 시간, 덧붙일 변형] → 목업은 넘기는 방향 반대로 살짝 기울고 작았다가 펴짐
   const layers = [
-    ['.project_mockup', 170, 0, 1300],
-    ['.project_circle', 60, 0, 1400],
+    ['.project_mockup', 240, 0, 1300, ` rotate(${dir * -3}deg) scale(0.95)`],
+    ['.project_circle', 80, 0, 1400, ''],
   ];
   // 글: 제목 스크램블(0.25초) 0.1초 뒤 부제 · 설명이 줄마다 → 이어서 VIEW · ROLE · TOOLS가 한 덩어리씩 (넘기는 방향대로)
   const textDelay = 350;
   const lines = revealLinesInOrder(destination.item.querySelectorAll('.project_subtitle, .project_desc p'), textDelay, { direction });
   revealDetails(destination.item, textDelay + lines * LINE_STEP, direction);
-  layers.forEach(([selector, distance, delay, duration]) => {
+  layers.forEach(([selector, distance, delay, duration, extra]) => {
     destination.item.querySelector(selector)?.animate(
-      [{ transform: `translateY(${dir * distance}px)`, opacity: selector === '.project_circle' ? 1 : 0.2 }, { transform: 'none', opacity: 1 }],
+      [{ transform: `translateY(${dir * distance}px)${extra}`, opacity: selector === '.project_circle' ? 1 : 0.2 }, { transform: 'none', opacity: 1 }],
       { duration, delay, easing: ease, fill: 'backwards' }
     );
   });
   // Works끼리 넘길 때: 나가는 목업은 섹션보다 빨리 빠져나감
   if (isWorks(origin)) {
     origin.item.querySelector('.project_mockup')?.animate(
-      [{ transform: 'none' }, { transform: `translateY(${-dir * 120}px)` }],
+      [{ transform: 'none' }, { transform: `translateY(${-dir * 160}px)` }],
       { duration: SCROLL_DURATION, easing: 'cubic-bezier(0.55, 0, 1, 0.45)' }
     );
   }
@@ -1360,9 +1362,10 @@ const revealSteps = [
     flipCards(item.querySelectorAll('.skills_icon'), 200);
   }],
   // Works: 지금 보이는 장의 글이 화면에 들어올 때 (넘길 때는 showWorkMobile이 따로 재생)
-  ['.works_track .project_content', (content) => {
-    const index = works.indexOf(content.closest('.projects'));
-    if (index !== shownWork || content.querySelector('.drop_char')) return; // 넘기는 중이면 이미 재생 중
+  // 글 영역 전체(.project_text = 제목 · 부제 · 설명 + VIEW · ROLE · TOOLS)를 감시 → 상세 칸도 미리 숨겨둠
+  ['.works_track .project_text', (text) => {
+    const index = works.indexOf(text.closest('.projects'));
+    if (index !== shownWork || text.querySelector('.drop_char')) return; // 넘기는 중이면 이미 재생 중
     playWorkMobileText(index);
   }],
 ];
@@ -1428,7 +1431,7 @@ function setupStepReveal() {
 
 // 등장 전 숨길 요소 표시 (CSS가 .reveal:not(.is-in) [data-reveal]를 숨김)
 // Works 글은 모바일에서만 숨김 (PC는 Works 섹션에 .reveal이 없음)
-const REVEAL_TARGETS = '.about_profile, .about_keywords span, .about_title, .about_text, .workstyle_num, .workstyle_content, .skills_content, .skills_icon, .projects .project_title, .projects .project_subtitle, .projects .project_desc';
+const REVEAL_TARGETS = '.about_profile, .about_keywords span, .about_title, .about_text, .workstyle_num, .workstyle_content, .skills_content, .skills_icon, .projects .project_title, .projects .project_subtitle, .projects .project_desc, .projects .project_details';
 
 let useStepReveal = false; // 모바일 항목별 등장은 .works_slider가 만들어진 뒤(handlePcQuery 아래)에 켬
 
