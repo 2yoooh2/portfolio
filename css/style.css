@@ -2692,6 +2692,187 @@ body.is-menu-open {
 }
 
 
+/* ===== 보조 애니메이션 ===== */
+/* 4. 섹션 등장 · 5. Work style 과정 · 6. Skills 줄 · 카드 · 7. 사이드 메뉴 막대 (script/main.js)
+   섹션이 화면에 들어오면 JS가 .is-in을 붙이고 한 번만 재생
+   아래 "등장 전 숨김"은 JS가 켜져 있고(.js) 움직임 줄이기가 꺼져 있을 때만 → 그 외엔 처음부터 다 보임 */
+
+/* 제목 글자: 단어마다 창(overflow: hidden)을 두고 글자가 아래에서 올라옴
+   단어 단위로 묶어서 ABOUT / ME 두 줄 줄바꿈은 그대로 */
+.rise_word {
+  display: inline-flex;
+  overflow: hidden;
+  padding-bottom: 0.08em; /* 글자 아래가 잘리지 않게 */
+  margin-bottom: -0.08em;
+  vertical-align: top;
+}
+.rise_char {
+  display: inline-block;
+}
+
+/* About 키워드: 칠해지는 남색 바탕 + 아래 근거 한 줄 */
+.about_keywords span {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate; /* 바탕(::before)을 글자 뒤로 */
+  cursor: pointer;
+  transition: color 0.35s;
+}
+.about_keywords span::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-color: var(--color-navy);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.about_keywords span.is-lit {
+  color: #fff;
+}
+.about_keywords span.is-lit::before {
+  transform: scaleX(1);
+}
+.about_keywords span:focus-visible {
+  outline: 2px solid var(--color-navy);
+  outline-offset: 2px;
+}
+/* 키워드 줄(.about_keywords) 안 마지막 줄로 들어감 → 레이아웃(그리드) 그대로 */
+.about_keywords {
+  flex-wrap: wrap;
+}
+.about_keyword_line {
+  flex-basis: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  min-height: 22px; /* 글이 바뀌어도 아래가 들썩이지 않게 */
+  margin-top: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 22px;
+  color: var(--color-navy);
+  word-break: keep-all;
+}
+.about_keyword_line::before {
+  content: '';
+  flex-shrink: 0;
+  width: 14px;
+  height: 2px;
+  background-color: currentColor;
+}
+.about_keyword_line.is-hint {
+  font-weight: 400;
+  font-size: 12px;
+  color: #888;
+}
+.about_keyword_line.is-hint::before,
+.about_keyword_line:empty::before {
+  display: none;
+}
+
+/* Skills 카드 뒷면: 남색 + Hero 점 4색 (뒤집혀 나타날 때 앞 절반만 보임) */
+.skills_icon {
+  position: relative;
+  transition: translate 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s;
+}
+.skills_icon_back {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 3px;
+  border-radius: inherit;
+  background-color: var(--color-navy);
+  opacity: 0; /* 뒤집히는 동안에만 보임 (script/main.js) */
+  pointer-events: none;
+}
+.skills_icon_back i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+/* 마우스를 올리면 살짝 떠오르기만 (뒤집지 않음) */
+@media (hover: hover) {
+  .skills_icon:hover {
+    translate: 0 -6px;
+    box-shadow: 0 10px 18px rgba(51, 89, 127, 0.16);
+  }
+}
+
+@media (min-width: 1024px) {
+  .about_keyword_line {
+    justify-content: flex-start; /* PC는 키워드처럼 왼쪽 정렬 */
+  }
+
+  /* 사이드 메뉴: 현재 칸을 칠하던 대신 남색 막대 하나가 칸 사이를 늘어났다 줄어들며 이동 */
+  .side_nav_bar {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 3px;
+    height: 30px;
+    background-color: var(--color-navy);
+    pointer-events: none;
+    transition: background-color 0.3s;
+  }
+  .side_nav.is-dark .side_nav_bar {
+    background-color: #fff;
+  }
+  .side_nav.has-bar li.is-active a::after {
+    background-color: #B5B5B5; /* 막대가 대신 칠함 */
+  }
+  .side_nav.has-bar.is-dark li.is-active a::after {
+    background-color: rgba(255, 255, 255, 0.4);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* 등장 전 숨김 */
+  .js .reveal:not(.is-in) .rise_char {
+    transform: translateY(110%);
+  }
+  .js .reveal:not(.is-in) [data-reveal],
+  .js .reveal[data-reveal]:not(.is-in) {
+    opacity: 0;
+  }
+  /* Work style 점선: 위에서 아래로(가로 배치는 왼쪽에서 오른쪽으로) 그려짐
+     번호가 나오는 시간에 맞춰 칸마다 늦게 시작 */
+  .workstyle_item:not(:last-child)::before {
+    transition: clip-path 0.45s linear;
+    transition-delay: var(--line-delay, 0s); /* 칸마다 다름 (script/main.js) */
+  }
+  .js .reveal:not(.is-in) .workstyle_item:not(:last-child)::before,
+  .js .workstyle_item.reveal:not(.is-in):not(:last-child)::before {
+    clip-path: inset(0 0 100% 0);
+  }
+  /* 끝값을 none이 아니라 inset(0)으로 둬야 사이 값이 생겨서 그려지는 게 보임 */
+  .js .reveal.is-in .workstyle_item:not(:last-child)::before,
+  .js .workstyle_item.reveal.is-in:not(:last-child)::before {
+    clip-path: inset(0);
+  }
+  /* Skills 구분선: 왼쪽에서 오른쪽으로 */
+  .skills_item:not(:last-child)::after {
+    transform-origin: left;
+    transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay: var(--line-delay, 0s); /* 줄마다 다름 (script/main.js) */
+  }
+  .js .reveal:not(.is-in) .skills_item:not(:last-child)::after,
+  .js .skills_item.reveal:not(.is-in):not(:last-child)::after {
+    transform: scaleX(0);
+  }
+  /* 모바일은 섹션 대신 항목마다 .reveal (script/main.js setupStepReveal) */
+}
+@media (prefers-reduced-motion: no-preference) and (min-width: 1024px) {
+  .js .reveal:not(.is-in) .workstyle_band .workstyle_item:not(:last-child)::before {
+    clip-path: inset(0 100% 0 0);
+  }
+}
+
+
 /* ===== Reduced Motion ===== */
 /* 움직임 줄이기 설정이면 배경 원, 커서 멈춤 */
 @media (prefers-reduced-motion: reduce) {

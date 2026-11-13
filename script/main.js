@@ -404,6 +404,7 @@ function updateSideNav(key) {
   const isDark = key === 'contact' || key === 'workstyle' || (key === 'about' && bigQuery.matches);
   sideNav.classList.toggle('is-dark', isDark);
   sideNav.classList.toggle('is-hidden', key === 'hero'); // Home에서는 숨김
+  moveSideNavBar(key); // 남색 막대 이동 (보조 애니메이션)
 }
 
 function initFullpage() {
@@ -442,6 +443,7 @@ function destroyFullpage() {
   fullpage_api.destroy('all'); // fullPage.js가 넣은 스타일, 감싼 요소 전부 원래대로
   isFullpage = false;
   document.documentElement.classList.remove('has-travel-blob'); // 모바일은 섹션마다 원래 원
+  sideNavBarTop = null; // 다시 켤 때 막대가 이전 자리에서 날아오지 않게
   travelKey = null;
   travelBox = null;
   if (header) updateHeader();
@@ -958,6 +960,350 @@ if (!reduceMotion) {
     });
   });
 }
+
+/* ===== 보조 애니메이션: 섹션 등장 =====
+   About · Work style · Skills · Contact가 화면에 들어오면 한 번만 재생
+   IntersectionObserver는 fullPage.js가 섹션을 옮길 때도 화면에 들어오는 걸 감지해서 PC · 모바일 같은 코드로 씀
+   등장 전 숨김은 CSS(.reveal:not(.is-in))가, 움직임은 여기서 WAAPI로
+   움직임 줄이기 설정이면 등장 효과 없이 처음부터 다 보이고, 키워드 한 줄 기능만 켬 */
+const EASE_OUT = 'cubic-bezier(0.22, 1, 0.36, 1)';
+
+// 제목을 단어 · 글자로 나눔 → 글자가 아래에서 올라옴 (스크린 리더는 aria-label로 원래 제목을 읽음)
+function splitRise(title) {
+  if (!title || title.dataset.split) return;
+  const text = title.textContent.trim();
+  title.dataset.split = 'true';
+  title.setAttribute('aria-label', text);
+  title.textContent = '';
+  let index = 0;
+  text.split(/\s+/).forEach((word, w) => {
+    if (w > 0) title.append(' '); // 단어 사이 띄어쓰기 → 원래 줄바꿈 그대로
+    const wordEl = document.createElement('span');
+    wordEl.className = 'rise_word';
+    wordEl.setAttribute('aria-hidden', 'true');
+    [...word].forEach((char) => {
+      const charEl = document.createElement('span');
+      charEl.className = 'rise_char';
+      charEl.textContent = char;
+      charEl.dataset.i = index++;
+      wordEl.appendChild(charEl);
+    });
+    title.appendChild(wordEl);
+  });
+}
+
+function riseTitle(title, delay = 0) {
+  title?.querySelectorAll('.rise_char').forEach((char) => {
+    char.animate(
+      [{ transform: 'translateY(110%)' }, { transform: 'none' }],
+      { duration: 750, delay: delay + char.dataset.i * 35, easing: EASE_OUT, fill: 'backwards' }
+    );
+  });
+}
+
+// 아래에서 살짝 올라오며 나타남 (step: 요소 사이 간격)
+function fadeUp(elements, delay = 0, step = 80, distance = 18) {
+  [...elements].forEach((el, i) => {
+    el.animate(
+      [{ transform: `translateY(${distance}px)`, opacity: 0 }, { transform: 'none', opacity: 1 }],
+      { duration: 650, delay: delay + i * step, easing: EASE_OUT, fill: 'backwards' }
+    );
+  });
+}
+
+// 작게 → 살짝 크게 → 원래 크기 (톡)
+function popIn(elements, delay = 0, step = 60) {
+  [...elements].forEach((el, i) => {
+    el.animate(
+      [{ transform: 'scale(0.4)', opacity: 0 }, { transform: 'scale(1.08)', opacity: 1, offset: 0.65 }, { transform: 'none', opacity: 1 }],
+      { duration: 500, delay: delay + i * step, easing: 'ease-out', fill: 'backwards' }
+    );
+  });
+}
+
+/* ----- About 키워드: 칠해지며 등장 + 누르거나 마우스를 올리면 근거 한 줄 ----- */
+const keywordBox = document.querySelector('.about_keywords');
+const keywords = keywordBox ? [...keywordBox.querySelectorAll('span[data-line]')] : [];
+const keywordLine = document.createElement('p');
+keywordLine.className = 'about_keyword_line';
+keywordLine.setAttribute('aria-live', 'polite'); // 바뀐 한 줄을 스크린 리더가 읽음
+let keywordTimers = [];
+const canHover = window.matchMedia('(hover: hover)');
+
+function stopKeywordTimers() {
+  keywordTimers.forEach(clearTimeout);
+  keywordTimers = [];
+}
+
+function showKeyword(keyword) {
+  stopKeywordTimers();
+  keywords.forEach((item) => {
+    item.classList.toggle('is-lit', item === keyword);
+    item.setAttribute('aria-pressed', item === keyword ? 'true' : 'false');
+  });
+  keywordLine.classList.remove('is-hint');
+  keywordLine.textContent = keyword.dataset.line;
+  if (!reduceMotion) {
+    keywordLine.animate([{ transform: 'translateY(8px)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 400, easing: EASE_OUT });
+  }
+}
+
+function showKeywordHint() {
+  keywords.forEach((item) => {
+    item.classList.remove('is-lit');
+    item.setAttribute('aria-pressed', 'false');
+  });
+  keywordLine.textContent = canHover.matches ? '키워드에 마우스를 올려 보세요' : '키워드를 눌러 보세요';
+  keywordLine.classList.add('is-hint');
+}
+
+// 등장할 때: 하나씩 남색으로 칠해졌다가 차례로 돌아가고 → 안내 문구
+function playKeywordLit(delay) {
+  const step = 180;
+  keywords.forEach((item, i) => {
+    keywordTimers.push(setTimeout(() => item.classList.add('is-lit'), delay + i * step));
+    keywordTimers.push(setTimeout(() => item.classList.remove('is-lit'), delay + keywords.length * step + 700 + i * 120));
+  });
+  keywordTimers.push(setTimeout(showKeywordHint, delay + keywords.length * (step + 120) + 900));
+}
+
+if (keywordBox && keywords.length) {
+  keywordBox.appendChild(keywordLine);
+  keywords.forEach((keyword) => {
+    keyword.setAttribute('role', 'button'); // span이지만 버튼처럼 (Tab · Enter · Space)
+    keyword.setAttribute('aria-pressed', 'false');
+    keyword.tabIndex = 0;
+    keyword.addEventListener('pointerenter', (event) => {
+      if (event.pointerType === 'mouse') showKeyword(keyword);
+    });
+    keyword.addEventListener('pointerleave', (event) => {
+      if (event.pointerType === 'mouse' && document.activeElement !== keyword) showKeywordHint();
+    });
+    keyword.addEventListener('click', () => showKeyword(keyword)); // 모바일은 누르기
+    keyword.addEventListener('focus', () => showKeyword(keyword));
+    keyword.addEventListener('blur', showKeywordHint);
+    keyword.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        showKeyword(keyword);
+      }
+    });
+  });
+}
+
+/* ----- Work style: 번호가 하나씩 톡 → 점선이 다음 번호까지 그려짐 → 다음 번호 톡 ----- */
+const WORKSTYLE_STEP = 600; // 번호 사이 간격 (점선 0.45초 + 여유)
+
+function playWorkstyle(root, delay = 0) {
+  if (!root) return;
+  riseTitle(root.querySelector('.eyebrow'), delay);
+  root.querySelectorAll('.workstyle_item').forEach((item, i) => {
+    const start = delay + 300 + i * WORKSTYLE_STEP;
+    popIn([item.querySelector('.workstyle_num')], start, 0);
+    fadeUp([item.querySelector('.workstyle_content')], start + 100, 0, 14);
+    item.style.setProperty('--line-delay', `${start + 150}ms`); // 점선은 CSS transition (style.css 보조 애니메이션)
+  });
+}
+
+/* ----- Skills: 구분선이 왼쪽부터 → 아이콘 카드가 남색 뒷면에서 차례로 뒤집혀 나타남 ----- */
+const DOT_COLORS = ['#F2A0B5', '#F2C96D', '#78A9E8', '#B5D66D']; // Hero 점 색 (뒤집힌 상태로 보여서 거꾸로 넣음)
+
+function setupSkillCards() {
+  document.querySelectorAll('.skills_icon').forEach((icon) => {
+    const back = document.createElement('span');
+    back.className = 'skills_icon_back';
+    back.setAttribute('aria-hidden', 'true');
+    DOT_COLORS.forEach((color) => {
+      const dot = document.createElement('i');
+      dot.style.backgroundColor = color;
+      back.appendChild(dot);
+    });
+    icon.appendChild(back);
+  });
+}
+
+function flipCards(cards, delay) {
+  const timing = (i) => ({ duration: 700, delay: delay + i * 60, easing: 'cubic-bezier(0.45, 0, 0.25, 1)', fill: 'backwards' });
+  [...cards].forEach((card, i) => {
+    // 남색 뒷면(180도) → 옆면(90도, 여기서 뒷면이 사라짐) → 살짝 더 돌았다(-12도) → 앞면
+    card.animate([
+      { transform: 'perspective(600px) rotateY(180deg)', opacity: 0 },
+      { opacity: 1, offset: 0.1 },
+      { transform: 'perspective(600px) rotateY(90deg)', offset: 0.45 },
+      { transform: 'perspective(600px) rotateY(-12deg)', offset: 0.8 },
+      { transform: 'perspective(600px) rotateY(0deg)', opacity: 1 },
+    ], timing(i));
+    card.querySelector('.skills_icon_back')?.animate(
+      [{ opacity: 1 }, { opacity: 1, offset: 0.45 }, { opacity: 0, offset: 0.4501 }, { opacity: 0 }],
+      timing(i)
+    );
+  });
+}
+
+function playSkills(section) {
+  riseTitle(section.querySelector('.eyebrow'));
+  section.querySelectorAll('.skills_item').forEach((item, row) => {
+    const start = 300 + row * 150;
+    item.style.setProperty('--line-delay', `${start}ms`); // 구분선은 CSS transition
+    fadeUp([item.querySelector('.skills_content')], start, 0, 12);
+    flipCards(item.querySelectorAll('.skills_icon'), start + 200);
+  });
+}
+
+/* ----- 섹션별 등장 순서 ----- */
+function playAbout(section) {
+  riseTitle(section.querySelector('.about_main .eyebrow'));
+  fadeUp([section.querySelector('.about_profile')], 250, 0, 24);
+  popIn(keywords, 450);
+  playKeywordLit(800);
+  fadeUp(section.querySelectorAll('.about_title, .about_text'), 650);
+  if (bigQuery.matches) playWorkstyle(section.querySelector('.about_workstyle_pc'), 600); // 1600: 오른쪽 남색 칸
+}
+
+const revealPlays = [
+  ['.about_intro', playAbout],
+  ['.about_workstyle', (section) => playWorkstyle(section)],
+  ['.skills', playSkills],
+  ['.contact', (section) => riseTitle(section.querySelector('.contact_title'))],
+];
+
+/* ----- 모바일: 섹션이 길어서 한 번에 말고, 내려가면서 항목마다 화면에 들어올 때 하나씩 ----- */
+const revealSteps = [
+  ['.about_main .eyebrow, .about_workstyle .eyebrow, .skills .eyebrow, .contact_title', (el) => riseTitle(el)],
+  ['.about_keywords', () => {
+    popIn(keywords, 0);
+    playKeywordLit(350);
+  }],
+  ['.about_profile', (el) => fadeUp([el], 0, 0, 24)],
+  ['.about_title, .about_text', (el) => fadeUp([el])],
+  ['.about_workstyle .workstyle_item', (item) => {
+    popIn([item.querySelector('.workstyle_num')], 0, 0);
+    fadeUp([item.querySelector('.workstyle_content')], 100, 0, 14);
+    item.style.setProperty('--line-delay', '150ms'); // 다음 번호 쪽으로 점선
+  }],
+  ['.skills_item', (item) => {
+    fadeUp([item.querySelector('.skills_content')], 0, 0, 12);
+    flipCards(item.querySelectorAll('.skills_icon'), 200);
+  }],
+];
+
+function setupStepReveal() {
+  const steps = [];
+  revealSteps.forEach(([selector, play]) => {
+    document.querySelectorAll(selector).forEach((el) => {
+      el.classList.add('reveal');
+      steps.push([el, play]);
+    });
+  });
+
+  // 이미 화면 위로 지나간 항목(메뉴로 한 번에 이동, 중간에서 새로고침 등)은 효과 없이 바로 보임
+  const showPassed = () => {
+    steps.forEach(([el]) => {
+      if (el.classList.contains('is-in') || el.getBoundingClientRect().bottom >= 0) return;
+      stepObserver.unobserve(el);
+      el.classList.add('is-in');
+    });
+  };
+
+  const stepObserver = new IntersectionObserver((entries) => {
+    showPassed();
+    entries.forEach((entry) => {
+      const el = entry.target;
+      if (!entry.isIntersecting || el.classList.contains('is-in')) return;
+      stepObserver.unobserve(el); // 한 번만
+      el.classList.add('is-in');
+      steps.find(([target]) => target === el)?.[1](el);
+    });
+  }, { rootMargin: '0px 0px -15% 0px' }); // 항목 위쪽이 화면 아래 15% 선을 넘으면
+
+  steps.forEach(([el]) => stepObserver.observe(el));
+
+  let passedTick = false;
+  window.addEventListener('scroll', () => {
+    if (passedTick) return;
+    passedTick = true;
+    requestAnimationFrame(() => {
+      passedTick = false;
+      showPassed();
+    });
+  }, { passive: true });
+
+  // PC로 넓어지면 남은 항목은 바로 보이게
+  pcQuery.addEventListener('change', () => {
+    if (!pcQuery.matches) return;
+    stepObserver.disconnect();
+    steps.forEach(([el]) => el.classList.add('is-in'));
+  });
+}
+
+// 등장 전 숨길 요소 표시 (CSS가 .reveal:not(.is-in) [data-reveal]를 숨김)
+const REVEAL_TARGETS = '.about_profile, .about_keywords span, .about_title, .about_text, .workstyle_num, .workstyle_content, .skills_content, .skills_icon';
+
+if (!reduceMotion && 'IntersectionObserver' in window) {
+  setupSkillCards();
+  document.querySelectorAll('.about_main .eyebrow, .about_workstyle .eyebrow, .about_workstyle_pc .eyebrow, .skills .eyebrow, .contact_title').forEach(splitRise);
+  document.querySelectorAll(REVEAL_TARGETS).forEach((el) => { el.dataset.reveal = ''; });
+
+  if (pcQuery.matches) {
+    // PC: 섹션 단위로 한 번에
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        revealObserver.unobserve(entry.target); // 한 번만
+        entry.target.classList.add('is-in');
+        revealPlays.find(([selector]) => entry.target.matches(selector))?.[1](entry.target);
+      });
+    }, { rootMargin: '0px 0px -25% 0px' }); // 섹션 위쪽이 화면 아래 1/4 선을 넘으면
+
+    revealPlays.forEach(([selector]) => {
+      const section = document.querySelector(selector);
+      if (!section) return;
+      section.classList.add('reveal');
+      revealObserver.observe(section);
+    });
+  } else {
+    setupStepReveal();
+  }
+} else {
+  showKeywordHint();
+}
+
+
+/* ===== 보조 애니메이션: 사이드 메뉴 막대 =====
+   현재 칸만 칠하던 대신 남색 막대 하나가 다음 칸으로 이동
+   이동하는 동안 두 칸 사이를 덮을 만큼 늘어났다가 도착하며 줄어듦 (섹션 넘김 0.8초와 같은 시간 · 곡선) */
+const sideNavBar = document.createElement('span');
+sideNavBar.className = 'side_nav_bar';
+sideNavBar.setAttribute('aria-hidden', 'true');
+let sideNavBarTop = null;
+
+if (sideNav) {
+  sideNav.appendChild(sideNavBar);
+  sideNav.classList.add('has-bar');
+}
+
+function moveSideNavBar(key, instant = false) {
+  const link = sideNav?.querySelector(`li[data-key="${key}"] a`);
+  if (!link || !pcQuery.matches) return;
+  const top = link.offsetTop; // .side_nav 기준
+  const height = link.offsetHeight;
+  const from = sideNavBarTop;
+  sideNavBarTop = top;
+  sideNavBar.style.top = `${top}px`;
+  sideNavBar.style.height = `${height}px`;
+  sideNavBar.getAnimations().forEach((animation) => animation.cancel());
+  if (instant || from === null || from === top || reduceMotion) return;
+  sideNavBar.animate([
+    { top: `${from}px`, height: `${height}px` },
+    { top: `${Math.min(from, top)}px`, height: `${Math.abs(top - from) + height}px`, offset: 0.5 },
+    { top: `${top}px`, height: `${height}px` },
+  ], { duration: SCROLL_DURATION, easing: 'cubic-bezier(0.65, 0, 0.35, 1)' });
+}
+
+window.addEventListener('resize', () => {
+  // 1600 이상/미만이 바뀌면 Work style 칸이 숨거나 나타나서 칸 위치가 달라짐
+  if (isFullpage) moveSideNavBar(fullpage_api.getActiveSection().item.dataset.key, true);
+});
 
 function handlePcQuery() {
   if (pcQuery.matches) {
