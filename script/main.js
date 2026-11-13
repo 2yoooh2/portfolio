@@ -950,11 +950,13 @@ function animateWorksPc(origin, destination, direction) {
 
   // 깊이감: 층마다 다른 거리만큼 아래(위로 넘기면 위)에서 늦게 따라옴 → 목업이 가장 멀리서
   const dir = direction === 'up' ? -1 : 1;
-  const ease = 'cubic-bezier(0.22, 1, 0.36, 1)';
+  // 천천히 출발하는 곡선: 섹션이 화면에 들어오는 동안(0.3~0.8초) 목업이 확실히 뒤처져 보이게
+  // (빨리 출발하면 섹션이 아직 화면 밖일 때 다 따라잡아서 깊이감이 안 보임)
+  const ease = 'cubic-bezier(0.55, 0, 0.15, 1)';
   // [선택자, 거리, 지연, 시간, 덧붙일 변형] → 목업은 넘기는 방향 반대로 살짝 기울고 작았다가 펴짐
   const layers = [
-    ['.project_mockup', 240, 0, 1300, ` rotate(${dir * -3}deg) scale(0.95)`],
-    ['.project_circle', 80, 0, 1400, ''],
+    ['.project_mockup', 240, 0, 1500, ` rotate(${dir * -3}deg) scale(0.95)`],
+    ['.project_circle', 80, 0, 1500, ''],
   ];
   // 글: 제목 스크램블(0.25초) 0.1초 뒤 부제 · 설명이 줄마다 → 이어서 VIEW · ROLE · TOOLS가 한 덩어리씩 (넘기는 방향대로)
   const textDelay = 350;
