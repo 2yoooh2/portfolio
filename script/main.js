@@ -902,6 +902,14 @@ function showWorkMobile(index) {
   rollOdometer(countOdometer, shownWork + 1, index + 1);
   worksSlider.style.backgroundColor = workTint(index);
   shownWork = index;
+  playWorkMobileText(index);
+}
+
+// 모바일 Works 글: 제목은 떨어지고, 부제 · 설명은 줄마다 올라옴
+function playWorkMobileText(index) {
+  const section = works[index];
+  dropTitle(section);
+  revealLinesInOrder(section.querySelectorAll('.project_subtitle, .project_desc p'), 250);
 }
 
 // PC: fullPage.js onLeave에서 부름 (섹션은 fullPage.js가 0.8초에 옮김)
@@ -1021,6 +1029,124 @@ function popIn(elements, delay = 0, step = 60) {
   });
 }
 
+/* ----- 본문 줄 효과: 줄마다 아래에서 밀어 올림 -----
+   1. 단어마다 span으로 감싸서 화면에서 실제로 몇 번째 줄인지 잼 (반응형 줄바꿈 그대로)
+   2. 줄마다 창(.line_mask) 안에 넣고 안쪽을 밀어 올림
+   3. 끝나면 원래 HTML로 되돌림 → 창 크기가 바뀌어도 줄바꿈이 꼬이지 않음
+   돌려주는 값: 줄 수 (다음 요소 시작 시간을 맞출 때 씀) */
+const LINE_STEP = 90; // 줄 사이 간격
+const lineOriginals = new WeakMap(); // 요소 → 원래 HTML
+const isShown = (el) => Boolean(el) && el.getClientRects().length > 0; // display: none이면 false
+
+function revealLines(el, delay = 0) {
+  if (reduceMotion || !isShown(el)) return 0;
+  if (lineOriginals.has(el)) el.innerHTML = lineOriginals.get(el); // 아직 도는 중이면 원래대로 돌리고 다시
+  const original = el.innerHTML;
+  lineOriginals.set(el, original);
+
+  // 1. 단어 단위로 나누기 (<br>은 그대로 두어서 줄바꿈 유지)
+  const words = [];
+  [...el.childNodes].forEach((node) => {
+    if (node.nodeType === Node.TEXT_NODE) {
+      const fragment = document.createDocumentFragment();
+      node.textContent.split(/(\s+)/).forEach((part) => {
+        if (!part) return;
+        if (/^\s+$/.test(part)) {
+          fragment.append(' ');
+          return;
+        }
+        const word = document.createElement('span');
+        word.textContent = part;
+        words.push(word);
+        fragment.append(word);
+      });
+      node.replaceWith(fragment);
+    } else if (node.nodeName !== 'BR') {
+      words.push(node); // 링크 같은 다른 태그는 통째로 한 단어
+    }
+  });
+  if (!words.length) {
+    el.innerHTML = original;
+    lineOriginals.delete(el);
+    return 0;
+  }
+
+  // 2. 화면에서 같은 높이에 있는 단어끼리 한 줄
+  const lines = [];
+  let lastTop = null;
+  words.forEach((word) => {
+    const top = Math.round(word.getBoundingClientRect().top);
+    if (lastTop === null || Math.abs(top - lastTop) > 2) {
+      lines.push([]);
+      lastTop = top;
+    }
+    lines.at(-1).push(word);
+  });
+
+  // 3. 줄마다 창 > 안쪽으로 다시 짜서 밀어 올리기
+  el.textContent = '';
+  const animations = lines.map((lineWords, i) => {
+    const mask = document.createElement('span');
+    const inner = document.createElement('span');
+    mask.className = 'line_mask';
+    inner.className = 'line_inner';
+    lineWords.forEach((word, w) => {
+      if (w > 0) inner.append(' ');
+      inner.append(word);
+    });
+    mask.appendChild(inner);
+    el.appendChild(mask);
+    return inner.animate(
+      [{ transform: 'translateY(105%)' }, { transform: 'none' }],
+      { duration: 800, delay: delay + i * LINE_STEP, easing: EASE_OUT, fill: 'backwards' }
+    );
+  });
+  animations.at(-1).finished.then(() => {
+    if (lineOriginals.get(el) !== original) return; // 그 사이 다시 시작했으면 그쪽이 되돌림
+    el.innerHTML = original;
+    lineOriginals.delete(el);
+  }).catch(() => {});
+  return lines.length;
+}
+
+// 여러 요소를 이어서: 앞 요소의 마지막 줄 다음 순서로 시작
+function revealLinesInOrder(elements, delay = 0) {
+  let line = 0;
+  [...elements].forEach((el) => {
+    line += revealLines(el, delay + line * LINE_STEP);
+  });
+  return line;
+}
+
+/* ----- 모바일 Works 제목: 글자가 위에서 하나씩 떨어져 통통 튀며 자리 잡음 ----- */
+function dropTitle(section) {
+  if (reduceMotion) return;
+  const title = section.querySelector('.project_title');
+  // L'OCCITANE처럼 PC · 모바일 글자가 따로 있으면 지금 보이는 쪽(모바일: 록시땅)만
+  const target = [...title.children].find(isShown) || title;
+  if (target.children.length && !target.querySelector('.drop_char')) return;
+  target.dataset.text ??= target.textContent;
+  const text = target.dataset.text;
+  target.textContent = '';
+  const chars = [...text].map((char) => {
+    const span = document.createElement('span');
+    span.className = 'drop_char';
+    span.setAttribute('aria-hidden', 'true');
+    span.textContent = char;
+    target.appendChild(span);
+    return span;
+  });
+  const animations = chars.map((span, i) => span.animate([
+    { transform: 'translateY(-120%) rotate(-12deg)', opacity: 0 },
+    { transform: 'translateY(8%) scale(1.08, 0.88)', opacity: 1, offset: 0.55 }, // 바닥에서 눌림
+    { transform: 'translateY(-14%) scale(0.97, 1.04)', offset: 0.78 },          // 살짝 튀어 오름
+    { transform: 'none', opacity: 1 },
+  ], { duration: 650, delay: i * 55, easing: 'cubic-bezier(0.33, 0, 0.2, 1)', fill: 'backwards' }));
+  animations.at(-1).finished.then(() => {
+    if (target.firstChild === chars[0]) target.textContent = text; // 끝나면 원래 글자로 (스크린 리더용)
+  }).catch(() => {});
+}
+
 /* ----- About 키워드: 칠해지며 등장 + 누르거나 마우스를 올리면 근거 한 줄 ----- */
 const keywordBox = document.querySelector('.about_keywords');
 const keywords = keywordBox ? [...keywordBox.querySelectorAll('span[data-line]')] : [];
@@ -1100,7 +1226,7 @@ function playWorkstyle(root, delay = 0) {
   root.querySelectorAll('.workstyle_item').forEach((item, i) => {
     const start = delay + 300 + i * WORKSTYLE_STEP;
     popIn([item.querySelector('.workstyle_num')], start, 0);
-    fadeUp([item.querySelector('.workstyle_content')], start + 100, 0, 14);
+    revealLinesInOrder(item.querySelectorAll('.workstyle_title, .workstyle_desc'), start + 100);
     item.style.setProperty('--line-delay', `${start + 150}ms`); // 점선은 CSS transition (style.css 보조 애니메이션)
   });
 }
@@ -1145,9 +1271,15 @@ function playSkills(section) {
   section.querySelectorAll('.skills_item').forEach((item, row) => {
     const start = 300 + row * 150;
     item.style.setProperty('--line-delay', `${start}ms`); // 구분선은 CSS transition
-    fadeUp([item.querySelector('.skills_content')], start, 0, 12);
+    playSkillText(item, start);
     flipCards(item.querySelectorAll('.skills_icon'), start + 200);
   });
+}
+
+// Skills 글: 번호는 살짝 올라오고, 제목 · 설명은 줄마다
+function playSkillText(item, delay) {
+  fadeUp([item.querySelector('.skills_num')], delay, 0, 12);
+  revealLinesInOrder(item.querySelectorAll('.skills_title, .skills_desc'), delay);
 }
 
 /* ----- 섹션별 등장 순서 ----- */
@@ -1156,7 +1288,7 @@ function playAbout(section) {
   fadeUp([section.querySelector('.about_profile')], 250, 0, 24);
   popIn(keywords, 450);
   playKeywordLit(800);
-  fadeUp(section.querySelectorAll('.about_title, .about_text'), 650);
+  revealLinesInOrder(section.querySelectorAll('.about_title, .about_text'), 650);
   if (bigQuery.matches) playWorkstyle(section.querySelector('.about_workstyle_pc'), 600); // 1600: 오른쪽 남색 칸
 }
 
@@ -1175,16 +1307,17 @@ const revealSteps = [
     playKeywordLit(350);
   }],
   ['.about_profile', (el) => fadeUp([el], 0, 0, 24)],
-  ['.about_title, .about_text', (el) => fadeUp([el])],
+  ['.about_title, .about_text', (el) => revealLines(el)],
   ['.about_workstyle .workstyle_item', (item) => {
     popIn([item.querySelector('.workstyle_num')], 0, 0);
-    fadeUp([item.querySelector('.workstyle_content')], 100, 0, 14);
+    revealLinesInOrder(item.querySelectorAll('.workstyle_title, .workstyle_desc'), 100);
     item.style.setProperty('--line-delay', '150ms'); // 다음 번호 쪽으로 점선
   }],
   ['.skills_item', (item) => {
-    fadeUp([item.querySelector('.skills_content')], 0, 0, 12);
+    playSkillText(item, 0);
     flipCards(item.querySelectorAll('.skills_icon'), 200);
   }],
+  ['.works_slider', () => playWorkMobileText(shownWork)], // Works 첫 장도 처음 보일 때 한 번
 ];
 
 function setupStepReveal() {
@@ -1239,6 +1372,8 @@ function setupStepReveal() {
 // 등장 전 숨길 요소 표시 (CSS가 .reveal:not(.is-in) [data-reveal]를 숨김)
 const REVEAL_TARGETS = '.about_profile, .about_keywords span, .about_title, .about_text, .workstyle_num, .workstyle_content, .skills_content, .skills_icon';
 
+let useStepReveal = false; // 모바일 항목별 등장은 .works_slider가 만들어진 뒤(handlePcQuery 아래)에 켬
+
 if (!reduceMotion && 'IntersectionObserver' in window) {
   setupSkillCards();
   document.querySelectorAll('.about_main .eyebrow, .about_workstyle .eyebrow, .about_workstyle_pc .eyebrow, .skills .eyebrow, .contact_title').forEach(splitRise);
@@ -1262,16 +1397,16 @@ if (!reduceMotion && 'IntersectionObserver' in window) {
       revealObserver.observe(section);
     });
   } else {
-    setupStepReveal();
+    useStepReveal = true;
   }
 } else {
   showKeywordHint();
 }
 
 
-/* ===== 보조 애니메이션: 사이드 메뉴 막대 =====
-   현재 칸만 칠하던 대신 남색 막대 하나가 다음 칸으로 이동
-   이동하는 동안 두 칸 사이를 덮을 만큼 늘어났다가 도착하며 줄어듦 (섹션 넘김 0.8초와 같은 시간 · 곡선) */
+/* ===== 보조 애니메이션: 사이드 메뉴 점 =====
+   가는 레일 위 동그란 점 하나가 다음 칸으로 이동
+   이동하는 동안 두 칸 사이를 덮는 알약으로 늘어났다가 도착하며 다시 원 (섹션 넘김 0.8초와 같은 시간 · 곡선) */
 const sideNavBar = document.createElement('span');
 sideNavBar.className = 'side_nav_bar';
 sideNavBar.setAttribute('aria-hidden', 'true');
@@ -1285,18 +1420,18 @@ if (sideNav) {
 function moveSideNavBar(key, instant = false) {
   const link = sideNav?.querySelector(`li[data-key="${key}"] a`);
   if (!link || !pcQuery.matches) return;
-  const top = link.offsetTop; // .side_nav 기준
-  const height = link.offsetHeight;
+  const size = sideNavBar.offsetWidth || 9; // 점 지름 (style.css .side_nav_bar)
+  const top = link.offsetTop + (link.offsetHeight - size) / 2; // 칸 가운데 (.side_nav 기준)
   const from = sideNavBarTop;
   sideNavBarTop = top;
   sideNavBar.style.top = `${top}px`;
-  sideNavBar.style.height = `${height}px`;
   sideNavBar.getAnimations().forEach((animation) => animation.cancel());
   if (instant || from === null || from === top || reduceMotion) return;
+  // 원 → 두 칸 사이를 덮는 알약(가운데) → 원
   sideNavBar.animate([
-    { top: `${from}px`, height: `${height}px` },
-    { top: `${Math.min(from, top)}px`, height: `${Math.abs(top - from) + height}px`, offset: 0.5 },
-    { top: `${top}px`, height: `${height}px` },
+    { top: `${from}px`, height: `${size}px` },
+    { top: `${Math.min(from, top)}px`, height: `${Math.abs(top - from) + size}px`, offset: 0.5 },
+    { top: `${top}px`, height: `${size}px` },
   ], { duration: SCROLL_DURATION, easing: 'cubic-bezier(0.65, 0, 0.35, 1)' });
 }
 
@@ -1318,6 +1453,7 @@ function handlePcQuery() {
 
 handlePcQuery();
 pcQuery.addEventListener('change', handlePcQuery);
+if (useStepReveal) setupStepReveal(); // wrapWorks()로 .works_slider가 생긴 뒤 → Works 첫 장도 등록됨
 
 // 1600 이상에서는 Work style 섹션이 About 안으로 합쳐져서 섹션 수가 바뀜
 // fullPage.js는 켤 때만 섹션을 세므로, 1600을 넘나들면 껐다가 다시 켬

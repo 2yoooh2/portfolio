@@ -2808,13 +2808,36 @@ body.is-menu-open {
     justify-content: flex-start; /* PC는 키워드처럼 왼쪽 정렬 */
   }
 
-  /* 사이드 메뉴: 현재 칸을 칠하던 대신 남색 막대 하나가 칸 사이를 늘어났다 줄어들며 이동 */
+  /* 사이드 메뉴: 굵은 칸 레일 대신 가는 선 + 동그란 점 하나
+     점이 다음 칸으로 갈 때 두 칸 사이를 덮을 만큼 늘어났다가(알약) 도착하며 다시 동그랗게 (script/main.js)
+     이름표(알약)는 그대로 */
+  .side_nav.has-bar a::after {
+    right: 4px; /* 점 가운데에 오게 (점 9px의 가운데) */
+    width: 1px;
+    background-color: #D5D9DE;
+  }
+  .side_nav.has-bar li.is-active a::after {
+    background-color: #D5D9DE; /* 현재 칸은 점이 표시 */
+  }
+  .side_nav.has-bar a:hover::after,
+  .side_nav.has-bar a:focus-visible::after {
+    background-color: var(--color-main);
+  }
+  .side_nav.has-bar.is-dark a::after,
+  .side_nav.has-bar.is-dark li.is-active a::after {
+    background-color: rgba(255, 255, 255, 0.35);
+  }
+  .side_nav.has-bar.is-dark a:hover::after,
+  .side_nav.has-bar.is-dark a:focus-visible::after {
+    background-color: #fff;
+  }
   .side_nav_bar {
     position: absolute;
     top: 0;
     right: 0;
-    width: 3px;
-    height: 30px;
+    width: 9px;
+    height: 9px;
+    border-radius: 999px; /* 늘어나면 알약, 평소엔 원 */
     background-color: var(--color-navy);
     pointer-events: none;
     transition: background-color 0.3s;
@@ -2822,12 +2845,23 @@ body.is-menu-open {
   .side_nav.is-dark .side_nav_bar {
     background-color: #fff;
   }
-  .side_nav.has-bar li.is-active a::after {
-    background-color: #B5B5B5; /* 막대가 대신 칠함 */
-  }
-  .side_nav.has-bar.is-dark li.is-active a::after {
-    background-color: rgba(255, 255, 255, 0.4);
-  }
+}
+
+/* 본문 줄 효과: 줄마다 창(.line_mask)을 두고 안쪽(.line_inner)을 밀어 올림
+   애니메이션이 끝나면 script/main.js가 원래 HTML로 되돌려서 반응형 줄바꿈에 영향 없음 */
+.line_mask {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.12em; /* 글자 아래가 잘리지 않게 */
+  margin-bottom: -0.12em;
+}
+.line_inner {
+  display: inline-block;
+}
+/* 모바일 Works 제목 떨어지기: 글자 하나씩 */
+.drop_char {
+  display: inline-block;
+  white-space: pre;
 }
 
 @media (prefers-reduced-motion: no-preference) {
