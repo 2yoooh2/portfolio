@@ -401,7 +401,8 @@ function updateSideNav(key) {
     if (isCurrent) item.querySelector('a').setAttribute('aria-current', 'true');
     else item.querySelector('a').removeAttribute('aria-current');
   });
-  const isDark = key === 'contact' || key === 'workstyle' || (key === 'about' && bigQuery.matches);
+  // Work style(1024~1599)은 메뉴 밑에 연한 배경 원이 걸려서 밝은 쪽 색(회색 레일 · 남색 점)
+  const isDark = key === 'contact' || (key === 'about' && bigQuery.matches);
   sideNav.classList.toggle('is-dark', isDark);
   sideNav.classList.toggle('is-hidden', key === 'hero'); // Home에서는 숨김
   moveSideNavBar(key); // 남색 막대 이동 (보조 애니메이션)
@@ -1035,14 +1036,15 @@ function popIn(elements, delay = 0, step = 60) {
    3. 끝나면 원래 HTML로 되돌림 → 창 크기가 바뀌어도 줄바꿈이 꼬이지 않음
    돌려주는 값: 줄 수 (다음 요소 시작 시간을 맞출 때 씀) */
 const LINE_STEP = 90; // 줄 사이 간격
-const lineOriginals = new WeakMap(); // 요소 → 원래 HTML
+const lineOriginals = new WeakMap(); // 요소 → { html: 원래 HTML, run: 이번 재생 표시 }
 const isShown = (el) => Boolean(el) && el.getClientRects().length > 0; // display: none이면 false
 
 function revealLines(el, delay = 0) {
   if (reduceMotion || !isShown(el)) return 0;
-  if (lineOriginals.has(el)) el.innerHTML = lineOriginals.get(el); // 아직 도는 중이면 원래대로 돌리고 다시
+  if (lineOriginals.has(el)) el.innerHTML = lineOriginals.get(el).html; // 아직 도는 중이면 원래대로 돌리고 다시
   const original = el.innerHTML;
-  lineOriginals.set(el, original);
+  const run = {}; // 다시 재생되면 바뀜 → 이전 재생이 끝나도 새 재생을 지우지 않게
+  lineOriginals.set(el, { html: original, run });
 
   // 1. 단어 단위로 나누기 (<br>은 그대로 두어서 줄바꿈 유지)
   const words = [];
@@ -1102,7 +1104,7 @@ function revealLines(el, delay = 0) {
     );
   });
   animations.at(-1).finished.then(() => {
-    if (lineOriginals.get(el) !== original) return; // 그 사이 다시 시작했으면 그쪽이 되돌림
+    if (lineOriginals.get(el)?.run !== run) return; // 그 사이 다시 시작했으면 그쪽이 되돌림
     el.innerHTML = original;
     lineOriginals.delete(el);
   }).catch(() => {});
@@ -1154,7 +1156,6 @@ const keywordLine = document.createElement('p');
 keywordLine.className = 'about_keyword_line';
 keywordLine.setAttribute('aria-live', 'polite'); // 바뀐 한 줄을 스크린 리더가 읽음
 let keywordTimers = [];
-const canHover = window.matchMedia('(hover: hover)');
 
 function stopKeywordTimers() {
   keywordTimers.forEach(clearTimeout);
@@ -1167,30 +1168,20 @@ function showKeyword(keyword) {
     item.classList.toggle('is-lit', item === keyword);
     item.setAttribute('aria-pressed', item === keyword ? 'true' : 'false');
   });
-  keywordLine.classList.remove('is-hint');
   keywordLine.textContent = keyword.dataset.line;
   if (!reduceMotion) {
     keywordLine.animate([{ transform: 'translateY(8px)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 400, easing: EASE_OUT });
   }
 }
 
-function showKeywordHint() {
-  keywords.forEach((item) => {
-    item.classList.remove('is-lit');
-    item.setAttribute('aria-pressed', 'false');
-  });
-  keywordLine.textContent = canHover.matches ? '키워드에 마우스를 올려 보세요' : '키워드를 눌러 보세요';
-  keywordLine.classList.add('is-hint');
-}
-
-// 등장할 때: 하나씩 남색으로 칠해졌다가 차례로 돌아가고 → 안내 문구
+// 등장할 때: 하나씩 남색으로 칠해졌다가 차례로 돌아가고 → 첫 키워드(꼼꼼함)가 선택된 채로 남음
 function playKeywordLit(delay) {
   const step = 180;
   keywords.forEach((item, i) => {
     keywordTimers.push(setTimeout(() => item.classList.add('is-lit'), delay + i * step));
     keywordTimers.push(setTimeout(() => item.classList.remove('is-lit'), delay + keywords.length * step + 700 + i * 120));
   });
-  keywordTimers.push(setTimeout(showKeywordHint, delay + keywords.length * (step + 120) + 900));
+  keywordTimers.push(setTimeout(() => showKeyword(keywords[0]), delay + keywords.length * (step + 120) + 900));
 }
 
 if (keywordBox && keywords.length) {
@@ -1199,15 +1190,12 @@ if (keywordBox && keywords.length) {
     keyword.setAttribute('role', 'button'); // span이지만 버튼처럼 (Tab · Enter · Space)
     keyword.setAttribute('aria-pressed', 'false');
     keyword.tabIndex = 0;
+    // 마우스를 떼거나 포커스가 빠져도 마지막으로 고른 키워드를 그대로 둠
     keyword.addEventListener('pointerenter', (event) => {
       if (event.pointerType === 'mouse') showKeyword(keyword);
     });
-    keyword.addEventListener('pointerleave', (event) => {
-      if (event.pointerType === 'mouse' && document.activeElement !== keyword) showKeywordHint();
-    });
     keyword.addEventListener('click', () => showKeyword(keyword)); // 모바일은 누르기
     keyword.addEventListener('focus', () => showKeyword(keyword));
-    keyword.addEventListener('blur', showKeywordHint);
     keyword.addEventListener('keydown', (event) => {
       if (event.key === 'Enter' || event.key === ' ') {
         event.preventDefault();
@@ -1317,60 +1305,76 @@ const revealSteps = [
     playSkillText(item, 0);
     flipCards(item.querySelectorAll('.skills_icon'), 200);
   }],
-  ['.works_slider', () => playWorkMobileText(shownWork)], // Works 첫 장도 처음 보일 때 한 번
+  // Works: 지금 보이는 장의 글이 화면에 들어올 때 (넘길 때는 showWorkMobile이 따로 재생)
+  ['.works_track .project_content', (content) => {
+    const index = works.indexOf(content.closest('.projects'));
+    if (index !== shownWork || content.querySelector('.drop_char')) return; // 넘기는 중이면 이미 재생 중
+    playWorkMobileText(index);
+  }],
 ];
+
+/* ----- 내려가면서 다시 만나면 또 재생 (Hero 빼고) -----
+   들어올 때(enterMargin 선을 넘으면) .is-in + 재생
+   화면 아래쪽으로 완전히 나가면(위로 올라가서 지나친 경우) .is-in을 빼서 다시 숨김 → 다시 내려올 때 재생
+   화면 위쪽으로 나간 건 그대로 → 위로 올라가며 다시 만나면 이미 보이는 상태
+   나가는 도중엔 그대로 두어서 사라지는 게 보이지 않음 */
+function resetKeywords() {
+  stopKeywordTimers();
+  keywords.forEach((item) => {
+    item.classList.remove('is-lit');
+    item.setAttribute('aria-pressed', 'false');
+  });
+  keywordLine.textContent = '';
+}
+
+function watchReveal(pairs, enterMargin) {
+  const plays = new Map(pairs);
+  const enterObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      const el = entry.target;
+      if (!entry.isIntersecting || el.classList.contains('is-in')) return;
+      el.classList.add('is-in');
+      plays.get(el)?.(el);
+    });
+  }, { rootMargin: `0px 0px ${enterMargin} 0px` });
+  const leaveObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      const el = entry.target;
+      if (entry.isIntersecting || !el.classList.contains('is-in')) return;
+      if (entry.boundingClientRect.top <= 0) return; // 위쪽으로 나감 → 그대로 (가로로 넘긴 Works 장은 다시 숨김)
+      el.classList.remove('is-in');
+      if (keywordBox && el.contains(keywordBox)) resetKeywords(); // About 키워드 칠하기도 처음부터
+    });
+  }, { rootMargin: '-1px' }); // 화면 가장자리에 딱 붙은 섹션(fullPage.js)도 나간 걸로 보게
+  plays.forEach((play, el) => {
+    el.classList.add('reveal');
+    enterObserver.observe(el);
+    leaveObserver.observe(el);
+  });
+  return () => {
+    enterObserver.disconnect();
+    leaveObserver.disconnect();
+  };
+}
 
 function setupStepReveal() {
   const steps = [];
   revealSteps.forEach(([selector, play]) => {
-    document.querySelectorAll(selector).forEach((el) => {
-      el.classList.add('reveal');
-      steps.push([el, play]);
-    });
+    document.querySelectorAll(selector).forEach((el) => steps.push([el, play]));
   });
+  const stopWatching = watchReveal(steps, '-15%'); // 항목 위쪽이 화면 아래 15% 선을 넘으면
 
-  // 이미 화면 위로 지나간 항목(메뉴로 한 번에 이동, 중간에서 새로고침 등)은 효과 없이 바로 보임
-  const showPassed = () => {
-    steps.forEach(([el]) => {
-      if (el.classList.contains('is-in') || el.getBoundingClientRect().bottom >= 0) return;
-      stepObserver.unobserve(el);
-      el.classList.add('is-in');
-    });
-  };
-
-  const stepObserver = new IntersectionObserver((entries) => {
-    showPassed();
-    entries.forEach((entry) => {
-      const el = entry.target;
-      if (!entry.isIntersecting || el.classList.contains('is-in')) return;
-      stepObserver.unobserve(el); // 한 번만
-      el.classList.add('is-in');
-      steps.find(([target]) => target === el)?.[1](el);
-    });
-  }, { rootMargin: '0px 0px -15% 0px' }); // 항목 위쪽이 화면 아래 15% 선을 넘으면
-
-  steps.forEach(([el]) => stepObserver.observe(el));
-
-  let passedTick = false;
-  window.addEventListener('scroll', () => {
-    if (passedTick) return;
-    passedTick = true;
-    requestAnimationFrame(() => {
-      passedTick = false;
-      showPassed();
-    });
-  }, { passive: true });
-
-  // PC로 넓어지면 남은 항목은 바로 보이게
+  // PC로 넓어지면 전부 바로 보이게
   pcQuery.addEventListener('change', () => {
     if (!pcQuery.matches) return;
-    stepObserver.disconnect();
+    stopWatching();
     steps.forEach(([el]) => el.classList.add('is-in'));
   });
 }
 
 // 등장 전 숨길 요소 표시 (CSS가 .reveal:not(.is-in) [data-reveal]를 숨김)
-const REVEAL_TARGETS = '.about_profile, .about_keywords span, .about_title, .about_text, .workstyle_num, .workstyle_content, .skills_content, .skills_icon';
+// Works 글은 모바일에서만 숨김 (PC는 Works 섹션에 .reveal이 없음)
+const REVEAL_TARGETS = '.about_profile, .about_keywords span, .about_title, .about_text, .workstyle_num, .workstyle_content, .skills_content, .skills_icon, .projects .project_title, .projects .project_subtitle, .projects .project_desc';
 
 let useStepReveal = false; // 모바일 항목별 등장은 .works_slider가 만들어진 뒤(handlePcQuery 아래)에 켬
 
@@ -1381,26 +1385,15 @@ if (!reduceMotion && 'IntersectionObserver' in window) {
 
   if (pcQuery.matches) {
     // PC: 섹션 단위로 한 번에
-    const revealObserver = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (!entry.isIntersecting) return;
-        revealObserver.unobserve(entry.target); // 한 번만
-        entry.target.classList.add('is-in');
-        revealPlays.find(([selector]) => entry.target.matches(selector))?.[1](entry.target);
-      });
-    }, { rootMargin: '0px 0px -25% 0px' }); // 섹션 위쪽이 화면 아래 1/4 선을 넘으면
-
-    revealPlays.forEach(([selector]) => {
-      const section = document.querySelector(selector);
-      if (!section) return;
-      section.classList.add('reveal');
-      revealObserver.observe(section);
-    });
+    const sections = revealPlays
+      .map(([selector, play]) => [document.querySelector(selector), play])
+      .filter(([section]) => section);
+    watchReveal(sections, '-25%'); // 섹션 위쪽이 화면 아래 1/4 선을 넘으면
   } else {
     useStepReveal = true;
   }
-} else {
-  showKeywordHint();
+} else if (keywords.length) {
+  showKeyword(keywords[0]); // 움직임 줄이기: 처음부터 첫 키워드가 선택된 상태
 }
 
 

@@ -2763,12 +2763,6 @@ body.is-menu-open {
   height: 2px;
   background-color: currentColor;
 }
-.about_keyword_line.is-hint {
-  font-weight: 400;
-  font-size: 12px;
-  color: #888;
-}
-.about_keyword_line.is-hint::before,
 .about_keyword_line:empty::before {
   display: none;
 }
