@@ -914,6 +914,30 @@ function playWorkMobileText(index) {
 }
 
 // PC: fullPage.js onLeave에서 부름 (섹션은 fullPage.js가 0.8초에 옮김)
+// PC Works VIEW · ROLE · TOOLS: 라벨 + 내용을 한 덩어리로, 칸(창) 안에서 통째로 밀어 올림 (위로 넘기면 내려옴)
+// 창(overflow: hidden)은 도는 동안만 → 끝나면 원래대로 (그 사이 다시 시작했으면 새 쪽이 풂)
+const DETAIL_STEP = 120; // 덩어리 사이 간격
+const detailRuns = new WeakMap();
+
+function revealDetails(section, delay, direction) {
+  const dir = direction === 'up' ? -1 : 1;
+  section.querySelectorAll('.project_detail').forEach((detail, i) => {
+    const run = {};
+    detailRuns.set(detail, run);
+    detail.style.overflow = 'hidden';
+    const distance = detail.offsetHeight + 4; // 칸 높이만큼 → 라벨 · 내용이 함께 칸 밖에서 시작
+    const animations = [...detail.children].map((child) => child.animate(
+      [{ transform: `translateY(${dir * distance}px)` }, { transform: 'none' }],
+      { duration: 800, delay: delay + i * DETAIL_STEP, easing: EASE_OUT, fill: 'backwards' }
+    ));
+    animations.at(-1)?.finished.then(() => {
+      if (detailRuns.get(detail) !== run) return;
+      detail.style.overflow = '';
+      detailRuns.delete(detail);
+    }).catch(() => {});
+  });
+}
+
 function animateWorksPc(origin, destination, direction) {
   const isWorks = (section) => section.item.dataset.key === 'projects';
   if (!isWorks(destination)) return;
@@ -929,9 +953,11 @@ function animateWorksPc(origin, destination, direction) {
   const layers = [
     ['.project_mockup', 170, 0, 1300],
     ['.project_circle', 60, 0, 1400],
-    ['.project_content', 90, 80, 1200],
-    ['.project_details', 120, 160, 1200],
   ];
+  // 글: 제목 스크램블(0.25초) 0.1초 뒤 부제 · 설명이 줄마다 → 이어서 VIEW · ROLE · TOOLS가 한 덩어리씩 (넘기는 방향대로)
+  const textDelay = 350;
+  const lines = revealLinesInOrder(destination.item.querySelectorAll('.project_subtitle, .project_desc p'), textDelay, { direction });
+  revealDetails(destination.item, textDelay + lines * LINE_STEP, direction);
   layers.forEach(([selector, distance, delay, duration]) => {
     destination.item.querySelector(selector)?.animate(
       [{ transform: `translateY(${dir * distance}px)`, opacity: selector === '.project_circle' ? 1 : 0.2 }, { transform: 'none', opacity: 1 }],
@@ -1039,9 +1065,20 @@ const LINE_STEP = 90; // 줄 사이 간격
 const lineOriginals = new WeakMap(); // 요소 → { html: 원래 HTML, run: 이번 재생 표시 }
 const isShown = (el) => Boolean(el) && el.getClientRects().length > 0; // display: none이면 false
 
-function revealLines(el, delay = 0) {
+// lockWidth: 도는 동안 지금 너비보다 좁아지지 않게 (Work style처럼 부모 너비가 글 길이로 정해지면
+//            줄마다 나눈 순간 부모가 줄어들어 줄이 한 번 더 꺾임 → 끝나면 풂)
+//            width가 아니라 min-width: 단어를 span으로 나누면 글 너비가 1px 미만 달라질 수 있어서 늘어날 여지는 둠
+// direction: 'down'(기본)이면 아래에서 올라오고, 'up'이면 위에서 내려옴 (PC Works 넘기는 방향)
+function revealLines(el, delay = 0, { lockWidth = false, direction = 'down' } = {}) {
   if (reduceMotion || !isShown(el)) return 0;
   if (lineOriginals.has(el)) el.innerHTML = lineOriginals.get(el).html; // 아직 도는 중이면 원래대로 돌리고 다시
+  if (lockWidth) {
+    el.style.minWidth = ''; // 원래 글 상태의 너비로 다시 잼
+    el.style.minWidth = `${el.getBoundingClientRect().width}px`;
+  }
+  const unlockWidth = () => {
+    if (lockWidth) el.style.minWidth = '';
+  };
   const original = el.innerHTML;
   const run = {}; // 다시 재생되면 바뀜 → 이전 재생이 끝나도 새 재생을 지우지 않게
   lineOriginals.set(el, { html: original, run });
@@ -1070,6 +1107,7 @@ function revealLines(el, delay = 0) {
   if (!words.length) {
     el.innerHTML = original;
     lineOriginals.delete(el);
+    unlockWidth();
     return 0;
   }
 
@@ -1099,7 +1137,7 @@ function revealLines(el, delay = 0) {
     mask.appendChild(inner);
     el.appendChild(mask);
     return inner.animate(
-      [{ transform: 'translateY(105%)' }, { transform: 'none' }],
+      [{ transform: direction === 'up' ? 'translateY(-105%)' : 'translateY(105%)' }, { transform: 'none' }],
       { duration: 800, delay: delay + i * LINE_STEP, easing: EASE_OUT, fill: 'backwards' }
     );
   });
@@ -1107,20 +1145,31 @@ function revealLines(el, delay = 0) {
     if (lineOriginals.get(el)?.run !== run) return; // 그 사이 다시 시작했으면 그쪽이 되돌림
     el.innerHTML = original;
     lineOriginals.delete(el);
+    unlockWidth();
   }).catch(() => {});
   return lines.length;
 }
 
 // 여러 요소를 이어서: 앞 요소의 마지막 줄 다음 순서로 시작
-function revealLinesInOrder(elements, delay = 0) {
+function revealLinesInOrder(elements, delay = 0, options) {
   let line = 0;
   [...elements].forEach((el) => {
-    line += revealLines(el, delay + line * LINE_STEP);
+    line += revealLines(el, delay + line * LINE_STEP, options);
   });
   return line;
 }
 
-/* ----- 모바일 Works 제목: 글자가 위에서 하나씩 떨어져 통통 튀며 자리 잡음 ----- */
+/* ----- 떨어지기: 위에서 떨어져 바닥에서 눌렸다가 살짝 튀어 오르며 자리 잡음 (Works 제목 · About 키워드) ----- */
+const DROP_FRAMES = [
+  { transform: 'translateY(-120%) rotate(-12deg)', opacity: 0 },
+  { transform: 'translateY(8%) scale(1.08, 0.88)', opacity: 1, offset: 0.55 }, // 바닥에서 눌림
+  { transform: 'translateY(-14%) scale(0.97, 1.04)', offset: 0.78 },          // 살짝 튀어 오름
+  { transform: 'none', opacity: 1 },
+];
+const DROP_DURATION = 650;
+const DROP_EASE = 'cubic-bezier(0.33, 0, 0.2, 1)';
+
+/* ----- 모바일 Works 제목: 글자가 하나씩 떨어짐 ----- */
 function dropTitle(section) {
   if (reduceMotion) return;
   const title = section.querySelector('.project_title');
@@ -1138,12 +1187,10 @@ function dropTitle(section) {
     target.appendChild(span);
     return span;
   });
-  const animations = chars.map((span, i) => span.animate([
-    { transform: 'translateY(-120%) rotate(-12deg)', opacity: 0 },
-    { transform: 'translateY(8%) scale(1.08, 0.88)', opacity: 1, offset: 0.55 }, // 바닥에서 눌림
-    { transform: 'translateY(-14%) scale(0.97, 1.04)', offset: 0.78 },          // 살짝 튀어 오름
-    { transform: 'none', opacity: 1 },
-  ], { duration: 650, delay: i * 55, easing: 'cubic-bezier(0.33, 0, 0.2, 1)', fill: 'backwards' }));
+  const animations = chars.map((span, i) => span.animate(
+    DROP_FRAMES,
+    { duration: DROP_DURATION, delay: i * 55, easing: DROP_EASE, fill: 'backwards' }
+  ));
   animations.at(-1).finished.then(() => {
     if (target.firstChild === chars[0]) target.textContent = text; // 끝나면 원래 글자로 (스크린 리더용)
   }).catch(() => {});
@@ -1156,10 +1203,12 @@ const keywordLine = document.createElement('p');
 keywordLine.className = 'about_keyword_line';
 keywordLine.setAttribute('aria-live', 'polite'); // 바뀐 한 줄을 스크린 리더가 읽음
 let keywordTimers = [];
+let keywordDrop = null; // 이번 떨어지기 표시 (마우스 · 누르기 · 화면 밖으로 나가면 stopKeywordTimers가 지움)
 
 function stopKeywordTimers() {
   keywordTimers.forEach(clearTimeout);
   keywordTimers = [];
+  keywordDrop = null; // 떨어진 뒤 첫 키워드 자동 선택도 취소
 }
 
 function showKeyword(keyword) {
@@ -1174,14 +1223,23 @@ function showKeyword(keyword) {
   }
 }
 
-// 등장할 때: 하나씩 남색으로 칠해졌다가 차례로 돌아가고 → 첫 키워드(꼼꼼함)가 선택된 채로 남음
-function playKeywordLit(delay) {
-  const step = 180;
-  keywords.forEach((item, i) => {
-    keywordTimers.push(setTimeout(() => item.classList.add('is-lit'), delay + i * step));
-    keywordTimers.push(setTimeout(() => item.classList.remove('is-lit'), delay + keywords.length * step + 700 + i * 120));
-  });
-  keywordTimers.push(setTimeout(() => showKeyword(keywords[0]), delay + keywords.length * (step + 120) + 900));
+// 등장할 때: 키워드가 회색(선택 안 된 모습)으로 하나씩 떨어지고 → 다 떨어지면 첫 키워드(꼼꼼함) 선택 + 근거 한 줄
+// 떨어지는 도중에 마우스를 올리거나 누르면 showKeyword가 타이머를 멈추고 그 키워드로
+const KEYWORD_DROP_STEP = 90; // 키워드 사이 간격
+
+function dropKeywords(delay = 0) {
+  stopKeywordTimers();
+  const run = {};
+  keywordDrop = run;
+  const animations = keywords.map((item, i) => item.animate(
+    DROP_FRAMES,
+    { duration: DROP_DURATION, delay: delay + i * KEYWORD_DROP_STEP, easing: DROP_EASE, fill: 'backwards' }
+  ));
+  // 시간 계산 대신 마지막 키워드가 실제로 다 떨어진 뒤에 선택 (애니메이션 시작이 늦어져도 순서 그대로)
+  animations.at(-1)?.finished.then(() => {
+    if (keywordDrop !== run) return; // 그 사이 다른 키워드를 골랐으면 그대로
+    keywordTimers.push(setTimeout(() => showKeyword(keywords[0]), 100));
+  }).catch(() => {});
 }
 
 if (keywordBox && keywords.length) {
@@ -1214,7 +1272,7 @@ function playWorkstyle(root, delay = 0) {
   root.querySelectorAll('.workstyle_item').forEach((item, i) => {
     const start = delay + 300 + i * WORKSTYLE_STEP;
     popIn([item.querySelector('.workstyle_num')], start, 0);
-    revealLinesInOrder(item.querySelectorAll('.workstyle_title, .workstyle_desc'), start + 100);
+    revealLinesInOrder(item.querySelectorAll('.workstyle_title, .workstyle_desc'), start + 100, { lockWidth: true });
     item.style.setProperty('--line-delay', `${start + 150}ms`); // 점선은 CSS transition (style.css 보조 애니메이션)
   });
 }
@@ -1274,8 +1332,7 @@ function playSkillText(item, delay) {
 function playAbout(section) {
   riseTitle(section.querySelector('.about_main .eyebrow'));
   fadeUp([section.querySelector('.about_profile')], 250, 0, 24);
-  popIn(keywords, 450);
-  playKeywordLit(800);
+  dropKeywords(450);
   revealLinesInOrder(section.querySelectorAll('.about_title, .about_text'), 650);
   if (bigQuery.matches) playWorkstyle(section.querySelector('.about_workstyle_pc'), 600); // 1600: 오른쪽 남색 칸
 }
@@ -1290,15 +1347,12 @@ const revealPlays = [
 /* ----- 모바일: 섹션이 길어서 한 번에 말고, 내려가면서 항목마다 화면에 들어올 때 하나씩 ----- */
 const revealSteps = [
   ['.about_main .eyebrow, .about_workstyle .eyebrow, .skills .eyebrow, .contact_title', (el) => riseTitle(el)],
-  ['.about_keywords', () => {
-    popIn(keywords, 0);
-    playKeywordLit(350);
-  }],
+  ['.about_keywords', () => dropKeywords(0)],
   ['.about_profile', (el) => fadeUp([el], 0, 0, 24)],
   ['.about_title, .about_text', (el) => revealLines(el)],
   ['.about_workstyle .workstyle_item', (item) => {
     popIn([item.querySelector('.workstyle_num')], 0, 0);
-    revealLinesInOrder(item.querySelectorAll('.workstyle_title, .workstyle_desc'), 100);
+    revealLinesInOrder(item.querySelectorAll('.workstyle_title, .workstyle_desc'), 100, { lockWidth: true });
     item.style.setProperty('--line-delay', '150ms'); // 다음 번호 쪽으로 점선
   }],
   ['.skills_item', (item) => {
