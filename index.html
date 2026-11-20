@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>유혜지 | 웹 퍼블리셔 포트폴리오</title>
+  <meta name="description" content="작은 차이를 놓치지 않는 웹 퍼블리셔 유혜지의 포트폴리오입니다.">
+
+  <!-- 링크 공유 미리보기 (카카오톡 · 메일 · SNS) -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://2yoooh2.github.io/portfolio/">
+  <meta property="og:title" content="유혜지 | 웹 퍼블리셔 포트폴리오">
+  <meta property="og:description" content="작은 차이를 놓치지 않는 웹 퍼블리셔 유혜지의 포트폴리오입니다.">
+  <meta property="og:image" content="https://2yoooh2.github.io/portfolio/img/about.png">
+  <meta property="og:locale" content="ko_KR">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <!-- 폰트 -->
+  <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+
+  <!-- fullPage.js CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/4.0.41/fullpage.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Swiper/11.1.14/swiper-bundle.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <!-- JS가 켜져 있으면 Hero를 등장 전까지 숨겨 둠 (깜빡임 방지, css 추가 애니메이션 참고) -->
+  <script>document.documentElement.classList.add('js');</script>
+</head>
+
+<body>
+
+  <!-- Hero 끈적 효과용 필터: 흐리게 한 뒤 투명도를 날카롭게 → 가까운 도형끼리 녹아 붙음 -->
+  <svg width="0" height="0" style="position: absolute;" aria-hidden="true" focusable="false">
+    <filter id="goo" x="-35%" y="-20%" width="170%" height="140%" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur" />
+      <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -7" result="goo" />
+      <feComposite in="SourceGraphic" in2="goo" operator="atop" />
+    </filter>
+  </svg>
+
+  <header class="header">
+    <div class="header_inner">
+      <a href="#hero" class="logo">
+        <img src="img/logo.png" alt="로고">
+      </a>
+
+      <nav class="nav">
+        <ul>
+          <li data-menuanchor="hero"><a href="#hero">Home</a></li>
+          <li data-menuanchor="about"><a href="#about">About</a></li>
+          <li data-menuanchor="projects"><a href="#projects">Works</a></li>
+          <li data-menuanchor="contact"><a href="#contact">Contact</a></li>
+        </ul>
+      </nav>
+
+      <!-- 1024 미만: 햄버거 (가운데 줄 = 지금 섹션까지 진행률, script/main.js) -->
+      <button class="burger" type="button" aria-expanded="false" aria-controls="mobileMenu" aria-label="메뉴 열기">
+        <span class="burger_box">
+          <span class="burger_line burger_line--top"></span>
+          <span class="burger_mid"><span class="burger_fill"></span></span>
+          <span class="burger_line burger_line--bot"></span>
+        </span>
+      </button>
+    </div>
+  </header>
+
+  <!-- 1024 미만: 햄버거 누르면 버튼 자리에서 원이 퍼지며 열리는 전체 화면 메뉴 -->
+  <nav class="mobile_menu" id="mobileMenu" aria-label="메뉴" inert>
+    <ol class="mobile_menu_list">
+      <li><a href="#hero"><span class="mobile_menu_num">01</span>Home</a></li>
+      <li><a href="#about"><span class="mobile_menu_num">02</span>About</a></li>
+      <li><a href="#workstyle"><span class="mobile_menu_num">03</span>Work Style</a></li>
+      <li><a href="#skills"><span class="mobile_menu_num">04</span>Skills</a></li>
+      <li><a href="#projects"><span class="mobile_menu_num">05</span>Works</a></li>
+      <li><a href="#contact"><span class="mobile_menu_num">06</span>Contact</a></li>
+    </ol>
+    <a class="mobile_menu_mail" href="mailto:2yooh2@naver.com">2yooh2@naver.com</a>
+  </nav>
+
+  <!-- 1024 이상: 오른쪽 사이드 메뉴 (현재 섹션 표시는 script/main.js) -->
+  <!-- 처음엔 Home이라 숨긴 채로 시작 (페이지 열 때 깜빡임 방지) -->
+  <nav class="side_nav is-hidden" aria-label="섹션 이동">
+    <ul>
+      <li data-key="hero"><a href="#hero"><span class="side_nav_label">Home</span></a></li>
+      <li data-key="about"><a href="#about"><span class="side_nav_label">About</span></a></li>
+      <li data-key="workstyle"><a href="#workstyle"><span class="side_nav_label">Work Style</span></a></li>
+      <li data-key="skills"><a href="#skills"><span class="side_nav_label">Skills</span></a></li>
+      <li data-key="projects"><a href="#projects"><span class="side_nav_label">Works</span></a></li>
+      <li data-key="contact"><a href="#contact"><span class="side_nav_label">Contact</span></a></li>
+    </ul>
+  </nav>
+
+  <!-- 오른쪽 아래 맨 위로 버튼 (Home 벗어나면 나타남, script/main.js) -->
+  <a href="#hero" class="top_btn" aria-label="맨 위로">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+      <path d="M10 16V4M4 10l6-6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </a>
+
+  <!-- 1024 이상: Works 장식 원 (섹션을 넘겨도 제자리에 고정, 위치는 script/main.js) -->
+  <div class="works_deco" aria-hidden="true">
+    <div class="works_deco_visual"></div>
+    <div class="works_deco_project"></div>
+  </div>
+  <!-- 1024 이상: 섹션을 넘길 때마다 다음 섹션의 원 자리로 날아가는 원 (script/main.js) -->
+  <div class="travel_layer" aria-hidden="true"><div class="travel_blob"><span class="travel_blob_shape"></span></div></div>
+  <!-- 1024 이상: WORKS 제목 + 목업 너비만큼의 배경 띠 (섹션보다 위 층, 넘길 때 목업이 띠 뒤로 지나감) -->
+  <div class="works_title" aria-hidden="true">
+    <div class="works_title_band"></div>
+    <span class="eyebrow works_deco_eyebrow">WORKS</span>
+  </div>
+
+  <div id="fullpage">
+    <section class="section hero" id="hero" data-key="hero">
+      <div class="hero_inner">
+
+        <!-- 색 점: 누르면 터졌다가 2초 뒤 다시 나타남 (script/main.js) -->
+        <button type="button" class="hero_dot hero_dot--green" aria-label="초록 점 터뜨리기"></button>
+        <button type="button" class="hero_dot hero_dot--blue" aria-label="파란 점 터뜨리기"></button>
+        <button type="button" class="hero_dot hero_dot--orange" aria-label="노란 점 터뜨리기"></button>
+        <button type="button" class="hero_dot hero_dot--pink" aria-label="분홍 점 터뜨리기"></button>
+
+        <h1 class="hero_title">
+          <span class="hero_sub hero_sub--top">WEB</span>
+          <span class="hero_main">PORTFOLIO</span>
+          <span class="hero_sub hero_sub--bottom">PUBLISHER</span>
+        </h1>
+        <p class="hero_name">YOO HYE JI</p>
+      </div>
+    </section>
+
+    <section class="section about_intro" id="about" data-key="about">
+        <div class="about_inner">
+          <div class="about_main">
+            <h2 class="eyebrow">ABOUT ME</h2>
+
+            <!-- data-line: 키워드를 누르거나 마우스를 올리면 아래에 뜨는 근거 한 줄 (script/main.js) -->
+            <div class="about_keywords">
+              <span data-line="시안과 화면을 겹쳐 보며 간격을 맞춰요">꼼꼼함</span>
+              <span data-line="맡은 일은 끝까지 책임지고 마무리해요">책임감</span>
+              <span data-line="처음 써 보는 기술도 프로젝트에 직접 적용해요">배움</span>
+              <span data-line="피드백은 반갑게 듣고, 의견은 근거와 함께 전해요">소통</span>
+              <span data-line="원인을 찾을 때까지 하나씩 바꿔 가며 확인해요">끈기</span>
+            </div>
+
+            <div class="about_profile">
+              <div class="about_character">
+                <img src="./img/about.png" alt="프로필 캐릭터">
+              </div>
+
+              <div class="about_info">
+                <p class="about_name">유혜지 | YOO HYE JI</p>
+                <p class="about_job">Web Publisher</p>
+                <a class="about_email" href="mailto:2yooh2@naver.com">
+                  2yooh2@naver.com
+                </a>
+              </div>
+            </div>
+
+            <div class="about_content">
+              <p class="about_title">작은 차이를 놓치지 않는<br>웹 퍼블리셔 유혜지입니다.</p>
+              <div class="about_desc">
+                <p class="about_text">디자인의 의도를 이해하고
+                  <br>웹으로 옮기는 과정이 즐겁습니다.</p>
+                <p class="about_text">레이아웃의 간격부터 작은 인터랙션까지
+                  <br>완성도를 높이는 디테일을 중요하게 생각합니다.</p>
+                <p class="about_text">새로운 기술은 직접 시도하며 익히고
+                  <br>그 경험을 다음 작업에 녹여냅니다.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- 1600 이상: 아래 Work style 섹션 대신 About 오른쪽 남색 칸에 보여줌 -->
+          <div class="about_workstyle_pc">
+            <h2 class="eyebrow">MY WORK STYLE</h2>
+
+            <ol class="workstyle_list">
+              <li class="workstyle_item">
+                <span class="workstyle_num">01</span>
+                <div class="workstyle_content">
+                  <h3 class="workstyle_title">이해하기</h3>
+                  <p class="workstyle_desc">
+                    요구사항과 디자인 의도를 살펴보고,<br>
+                    전체적인 구조와 방향을 정리합니다.
+                  </p>
+                </div>
+              </li>
+
+              <li class="workstyle_item">
+                <span class="workstyle_num">02</span>
+                <div class="workstyle_content">
+                  <h3 class="workstyle_title">구현하기</h3>
+                  <p class="workstyle_desc">
+                    막히는 부분은 여러 방법을 찾아 직접 적용해 봅니다.<br>
+                    문제를 하나씩 해결하면서 새로운 것을 배워 나갑니다.
+                  </p>
+                </div>
+              </li>
+
+              <li class="workstyle_item">
+                <span class="workstyle_num">03</span>
+                <div class="workstyle_content">
+                  <h3 class="workstyle_title">점검하기</h3>
+                  <p class="workstyle_desc">
+                    작업한 페이지를 다양한 화면 크기에서 확인하고,<br>
+                    피드백을 반영해 부족한 부분을 수정합니다.
+                  </p>
+                </div>
+              </li>
+            </ol>
+          </div>
+        </div>
+    </section>
+
+
+    <section class="section about_workstyle" id="workstyle" data-key="workstyle">
+      <div class="about_inner">
+        <h2 class="eyebrow">MY WORK STYLE</h2>
+      </div>
+
+      <!-- 목록 영역 (PC에서는 남색 띠) -->
+      <div class="workstyle_band">
+        <div class="about_inner">
+          <ol class="workstyle_list">
+
+            <li class="workstyle_item">
+              <span class="workstyle_num">01</span>
+
+              <div class="workstyle_content">
+                <h3 class="workstyle_title">이해하기</h3>
+                <p class="workstyle_desc workstyle_desc--desktop">
+                  요구사항과 디자인 의도를 살펴보고,<br>
+                  전체적인 구조와 방향을 정리합니다.
+                </p>
+                <p class="workstyle_desc workstyle_desc--mobile">
+                  요구사항과 디자인 의도를 살펴보고 구조와 방향을 먼저 정리합니다.
+                </p>
+              </div>
+            </li>
+
+            <li class="workstyle_item">
+              <span class="workstyle_num">02</span>
+
+              <div class="workstyle_content">
+                <h3 class="workstyle_title">구현하기</h3>
+                <p class="workstyle_desc workstyle_desc--desktop">
+                  막히는 부분은 여러 방법을 찾아 직접 적용해 봅니다.<br>
+                  문제를 하나씩 해결하면서 새로운 것을 배워 나갑니다.
+                </p>
+                <p class="workstyle_desc workstyle_desc--mobile">
+                  막히는 부분은 여러 방법을 시도하며 하나씩 해결해 나갑니다.
+                </p>
+              </div>
+            </li>
+
+            <li class="workstyle_item">
+              <span class="workstyle_num">03</span>
+
+              <div class="workstyle_content">
+                <h3 class="workstyle_title">점검하기</h3>
+                <p class="workstyle_desc workstyle_desc--desktop">
+                  작업한 페이지를 다양한 화면 크기에서 확인하고,<br>
+                  피드백을 반영해 부족한 부분을 수정합니다.
+                </p>
+                <p class="workstyle_desc workstyle_desc--mobile">
+                  다양한 화면 크기에서 확인하고 피드백을 반영해 수정합니다.
+                </p>
+              </div>
+            </li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="section skills" id="skills" data-key="skills">
+      <div class="skills_inner">
+        <h2 class="eyebrow">SKILLS</h2>
+
+        <ul class="skills_list">
+
+          <li class="skills_item skills_item--publishing">
+            <div class="skills_content">
+              <span class="skills_num">01</span>
+              <h3 class="skills_title">Publishing</h3>
+              <p class="skills_desc skills_desc--desktop">
+                시맨틱 마크업을 기반으로 반응형 웹페이지를 제작하고,<br>
+                다양한 인터랙션을 구현합니다.
+              </p>
+              <p class="skills_desc skills_desc--mobile">
+                반응형 웹 제작과 다양한 인터랙션 구현
+              </p>
+            </div>
+
+            <ul class="skills_icons">
+              <li class="skills_icon">
+                <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/html5/html5-original.svg" alt="">
+                <span class="skills_name">HTML5</span>
+              </li>
+              <li class="skills_icon">
+                <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/css3/css3-original.svg" alt="">
+                <span class="skills_name">CSS3</span>
+              </li>
+              <li class="skills_icon">
+                <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/jquery/jquery-original.svg" alt="">
+                <span class="skills_name">jQuery</span>
+              </li>
+              <li class="skills_icon">
+                <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg" alt="">
+                <span class="skills_name">JavaScript</span>
+              </li>
+            </ul>
+          </li>
+
+          <li class="skills_item skills_item--design">
+            <div class="skills_content">
+              <span class="skills_num">02</span>
+              <h3 class="skills_title">Design</h3>
+              <p class="skills_desc skills_desc--desktop">
+                디자인 시안을 제작하고, 웹페이지에 필요한<br>
+                이미지와 그래픽 요소를 편집합니다.
+              </p>
+              <p class="skills_desc skills_desc--mobile">
+                디자인 시안 제작과 그래픽 편집
+              </p>
+            </div>
+
+            <ul class="skills_icons">
+              <li class="skills_icon">
+                <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/figma/figma-original.svg" alt="">
+                <span class="skills_name">Figma</span>
+              </li>
+              <li class="skills_icon">
+                <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/photoshop/photoshop-original.svg" alt="">
+                <span class="skills_name">Photoshop</span>
+              </li>
+              <li class="skills_icon">
+                <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/illustrator/illustrator-original.svg" alt="">
+                <span class="skills_name">Illustrator</span>
+              </li>
+            </ul>
+          </li>
+
+        <li class="skills_item skills_item--tools">
+          <div class="skills_content">
+            <span class="skills_num">03</span>
+            <h3 class="skills_title">Tools</h3>
+            <p class="skills_desc skills_desc--desktop">
+              개발 도구를 활용해 코드를 작성하고 프로젝트를 관리하며,<br>
+              AI 도구를 활용해 작업 효율을 높입니다.
+            </p>
+            <p class="skills_desc skills_desc--mobile">
+              프로젝트 관리와 AI 도구 활용
+            </p>
+          </div>
+
+          <ul class="skills_icons">
+            <li class="skills_icon">
+              <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vscode/vscode-original.svg" alt="">
+              <span class="skills_name">VS Code</span>
+            </li>
+            <li class="skills_icon">
+              <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/git/git-original.svg" alt="">
+              <span class="skills_name">Git</span>
+            </li>
+            <li class="skills_icon">
+              <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg" alt="">
+              <span class="skills_name">GitHub</span>
+            </li>
+            <li class="skills_icon">
+              <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/claudecode/claudecode-original.svg" alt="">
+              <span class="skills_name">Claude Code</span>
+            </li>
+            <li class="skills_icon">
+              <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/slack/slack-original.svg" alt="">
+              <span class="skills_name">Slack</span>
+            </li>
+          </ul>
+        </li>
+
+        </ul>
+      </div>
+    </section>
+
+    <section class="section projects projects--tesla" id="projects" data-key="projects">
+      <div class="projects_inner">
+        <span class="eyebrow">WORKS</span>
+
+        <!-- PC: 이미지 왼쪽, 글 오른쪽 -->
+        <div class="project">
+          <div class="project_visual">
+            <!-- PC: 목업 뒤 배경 조약돌 (목업보다 작게) -->
+            <span class="project_circle" aria-hidden="true"></span>
+            <img class="project_mockup" src="./img/work_tesla_mockup.png" alt="Tesla 웹사이트 리뉴얼 목업">
+            <!-- PC에서는 목업에 마우스를 올리면 커서를 따라다님 (script/main.js) -->
+            <a class="project_link" href="https://2yoooh2.github.io/TESLA/" target="_blank" rel="noopener noreferrer"
+              aria-label="Tesla 웹사이트 새 창에서 보기">
+              <span class="project_link_txt">VIEW<br>SITE</span>
+              <!-- 색 원 4개: 가운데서 차례로 퍼짐 (색은 Hero 점 색) -->
+              <span class="project_link_bg" aria-hidden="true"></span>
+              <span class="project_link_bg" aria-hidden="true"></span>
+              <span class="project_link_bg" aria-hidden="true"></span>
+              <span class="project_link_bg" aria-hidden="true"></span>
+            </a>
+          </div>
+
+          <div class="project_text">
+            <div class="project_content">
+              <div class="project_heading">
+                <span class="project_num">01</span>
+                <h2 class="project_title">TESLA</h2>
+              </div>
+
+              <p class="project_subtitle">Main + 4 Sub Pages</p>
+              <div class="project_desc project_desc--desktop">
+                <p>흑백 대비와 레드 포인트 컬러로 Tesla의 기술적인 이미지를 표현한 PC 웹사이트 리뉴얼입니다.</p>
+                <p>OTA 섹션에서는 카드가 차량 이미지로 흡수되는 스크롤 애니메이션을 구현했습니다.</p>
+              </div>
+              <div class="project_desc project_desc--mobile">
+                <p>
+                  흑백 대비와 레드 포인트 컬러로 Tesla의
+                  기술적인 이미지를 표현한
+                  PC 웹사이트 리뉴얼입니다.
+                </p>
+              </div>
+            </div>
+
+            <div class="project_details">
+              <div class="project_detail">
+                <h3 class="project_label">VIEW</h3>
+                <p class="project_value">Desktop</p>
+              </div>
+
+              <div class="project_detail">
+                <h3 class="project_label">ROLE</h3>
+                <p class="project_value">Design · Publishing</p>
+              </div>
+
+              <div class="project_detail">
+                <h3 class="project_label">TOOLS</h3>
+                <p class="project_value">
+                  HTML · CSS · JavaScript · jQuery<br>
+                  Swiper · AOS · Figma · Claude Code</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section projects projects--beiligne" data-key="projects">
+      <div class="projects_inner">
+        <span class="eyebrow">WORKS</span>
+
+        <!-- PC: 이미지 왼쪽, 글 오른쪽 -->
+        <div class="project">
+          <div class="project_visual">
+            <!-- PC: 목업 뒤 배경 조약돌 (목업보다 작게) -->
+            <span class="project_circle" aria-hidden="true"></span>
+            <img class="project_mockup" src="./img/work_beiligne_mockup.png" alt="Beiligne 프로젝트 목업">
+            <!-- PC에서는 목업에 마우스를 올리면 커서를 따라다님 (script/main.js) -->
+            <a class="project_link" href="https://2yoooh2.github.io/BEILIGNE/" target="_blank" rel="noopener noreferrer"
+              aria-label="바이리네 웹사이트 새 창에서 보기">
+              <span class="project_link_txt">VIEW<br>SITE</span>
+              <!-- 색 원 4개: 가운데서 차례로 퍼짐 (색은 Hero 점 색) -->
+              <span class="project_link_bg" aria-hidden="true"></span>
+              <span class="project_link_bg" aria-hidden="true"></span>
+              <span class="project_link_bg" aria-hidden="true"></span>
+              <span class="project_link_bg" aria-hidden="true"></span>
+            </a>
+          </div>
+
+          <div class="project_text">
+            <div class="project_content">
+              <div class="project_heading">
+                <span class="project_num">02</span>
+                <h2 class="project_title">BEI LIGNE</h2>
+              </div>
+
+              <p class="project_subtitle">Main Page</p>
+              <div class="project_desc project_desc--desktop">
+                <p>미니멀 가구 브랜드의 차분한 분위기를 이미지와 여백 중심으로 풀어낸 반응형 웹사이트 리뉴얼입니다.</p>
+                <p>스크롤에 반응하는 헤더와 핫스팟 카드 인터랙션을 구현했습니다.</p>
+              </div>
+              <div class="project_desc project_desc--mobile">
+                <p>
+                  미니멀 가구 브랜드의 차분한 분위기를
+                  이미지와 여백 중심으로 풀어낸
+                  반응형 웹사이트 리뉴얼입니다.
+                </p>
+              </div>
+            </div>
+
+            <div class="project_details">
+              <div class="project_detail">
+                <h3 class="project_label">VIEW</h3>
+                <p class="project_value">Desktop · Tablet · Mobile</p>
+              </div>
+
+              <div class="project_detail">
+                <h3 class="project_label">ROLE</h3>
+                <p class="project_value">Design · Publishing</p>
+              </div>
+
+              <div class="project_detail">
+                <h3 class="project_label">TOOLS</h3>
+                <p class="project_value">
+                  HTML · CSS · JavaScript · jQuery<br>
+                  Swiper · AOS · Figma</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section projects projects--loccitane" data-key="projects">
+      <div class="projects_inner">
+        <span class="eyebrow">WORKS</span>
+
+        <!-- PC: 이미지 왼쪽, 글 오른쪽 -->
+        <div class="project">
+          <div class="project_visual">
+            <!-- PC: 목업 뒤 배경 조약돌 (목업보다 작게) -->
+            <span class="project_circle" aria-hidden="true"></span>
+            <img class="project_mockup" src="./img/work_loccitane_mockup.png" alt="L'Occitane 프로젝트 목업">
+            <!-- PC에서는 목업에 마우스를 올리면 커서를 따라다님 (script/main.js) -->
+            <a class="project_link" href="https://2yoooh2.github.io/loccitane/" target="_blank" rel="noopener noreferrer"
+              aria-label="록시땅 웹사이트 새 창에서 보기">
+              <span class="project_link_txt">VIEW<br>SITE</span>
+              <!-- 색 원 4개: 가운데서 차례로 퍼짐 (색은 Hero 점 색) -->
+              <span class="project_link_bg" aria-hidden="true"></span>
+              <span class="project_link_bg" aria-hidden="true"></span>
+              <span class="project_link_bg" aria-hidden="true"></span>
+              <span class="project_link_bg" aria-hidden="true"></span>
+            </a>
+          </div>
+
+          <div class="project_text">
+            <div class="project_content">
+              <div class="project_heading">
+                <span class="project_num">03</span>
+                <h2 class="project_title"><span class="project_title--desktop">L’OCCITANE</span><span class="project_title--mobile">록시땅</span></h2>
+              </div>
+
+              <p class="project_subtitle">Main Page</p>
+              <div class="project_desc project_desc--desktop">
+                <p>자연 친화적인 브랜드 이미지를 담은 반응형 웹사이트 리뉴얼입니다.</p>
+                <p>인트로 영상과 제품·원료 비주얼이 돋보이도록 화면을 구성했습니다.</p>
+              </div>
+              <div class="project_desc project_desc--mobile">
+                <p>
+                  자연 친화적인 브랜드 이미지를 담은
+                  반응형 웹사이트 리뉴얼입니다.
+                </p>
+              </div>
+            </div>
+
+            <div class="project_details">
+              <div class="project_detail">
+                <h3 class="project_label">VIEW</h3>
+                <p class="project_value">Desktop · Tablet · Mobile</p>
+              </div>
+
+              <div class="project_detail">
+                <h3 class="project_label">ROLE</h3>
+                <p class="project_value">Design · Publishing</p>
+              </div>
+
+              <div class="project_detail">
+                <h3 class="project_label">TOOLS</h3>
+                <p class="project_value">
+                  HTML · CSS · JavaScript · jQuery<br>
+                  Swiper · AOS · Figma</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section projects projects--drawmate" data-key="projects">
+      <div class="projects_inner">
+        <span class="eyebrow">WORKS</span>
+
+        <!-- PC: 이미지 왼쪽, 글 오른쪽 -->
+        <div class="project">
+          <div class="project_visual">
+            <!-- PC: 목업 뒤 배경 조약돌 (목업보다 작게) -->
+            <span class="project_circle" aria-hidden="true"></span>
+            <img class="project_mockup" src="./img/work_drawmate_mockup.png" alt="Drawmate 프로젝트 목업">
+            <!-- PC에서는 목업에 마우스를 올리면 커서를 따라다님 (script/main.js) -->
+            <a class="project_link" href="https://draw-mate.onrender.com/" target="_blank" rel="noopener noreferrer"
+              aria-label="그림판 새 창에서 보기">
+              <span class="project_link_txt">VIEW<br>SITE</span>
+              <!-- 색 원 4개: 가운데서 차례로 퍼짐 (색은 Hero 점 색) -->
+              <span class="project_link_bg" aria-hidden="true"></span>
+              <span class="project_link_bg" aria-hidden="true"></span>
+              <span class="project_link_bg" aria-hidden="true"></span>
+              <span class="project_link_bg" aria-hidden="true"></span>
+            </a>
+          </div>
+
+          <div class="project_text">
+            <div class="project_content">
+              <div class="project_heading">
+                <span class="project_num">04</span>
+                <h2 class="project_title">DRAW MATE</h2>
+              </div>
+
+              <p class="project_subtitle">Web Application</p>
+              <div class="project_desc project_desc--desktop">
+                <p>방 코드로 입장해 함께 그림을 그리는 실시간 협업 그림판입니다.</p>
+                <p>Socket.IO를 활용해 펜·텍스트·이미지 작업을 실시간으로 동기화했습니다.</p>
+              </div>
+              <div class="project_desc project_desc--mobile">
+                <p>
+                  방 코드로 입장해 함께 그림을 그리는
+                  실시간 협업 그림판입니다.
+                </p>
+              </div>
+            </div>
+
+            <div class="project_details">
+              <div class="project_detail">
+                <h3 class="project_label">BUILD</h3>
+                <p class="project_value">Vibe Coding</p>
+              </div>
+
+              <div class="project_detail">
+                <h3 class="project_label">ROLE</h3>
+                <p class="project_value">
+                  Planning · UI Design<br>
+                  AI-assisted Development</p>
+              </div>
+
+              <div class="project_detail">
+                <h3 class="project_label">TOOLS</h3>
+                <p class="project_value">
+                  HTML · CSS · JavaScript · Node.js<br>
+                  Express · Socket.IO · Claude Code</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section projects projects--slip" data-key="projects">
+      <div class="projects_inner">
+        <span class="eyebrow">WORKS</span>
+
+        <!-- PC: 이미지 왼쪽, 글 오른쪽 -->
+        <div class="project">
+          <div class="project_visual">
+            <!-- PC: 목업 뒤 배경 조약돌 (목업보다 작게) -->
+            <span class="project_circle" aria-hidden="true"></span>
+            <img class="project_mockup" src="./img/work_slip_mockup.png" alt="SLIP 프로젝트 목업">
+            <!-- PC에서는 목업에 마우스를 올리면 커서를 따라다님 (script/main.js) -->
+            <a class="project_link" href="https://2yoooh2.github.io/slip/" target="_blank" rel="noopener noreferrer"
+              aria-label="SLIP 새 창에서 보기">
+              <span class="project_link_txt">VIEW<br>SITE</span>
+              <!-- 색 원 4개: 가운데서 차례로 퍼짐 (색은 Hero 점 색) -->
+              <span class="project_link_bg" aria-hidden="true"></span>
+              <span class="project_link_bg" aria-hidden="true"></span>
+              <span class="project_link_bg" aria-hidden="true"></span>
+              <span class="project_link_bg" aria-hidden="true"></span>
+            </a>
+          </div>
+
+          <div class="project_text">
+            <div class="project_content">
+              <div class="project_heading">
+                <span class="project_num">05</span>
+                <h2 class="project_title">SLIP</h2>
+              </div>
+
+              <p class="project_subtitle">Work Utility</p>
+              <div class="project_desc project_desc--desktop">
+                <p>업무 중 영수증 내용을 엑셀에 직접 옮기던 불편을 줄이려고 만든 웹 도구입니다.</p>
+                <p>여러 PDF에서 품목·수량·금액을 추출해 엑셀에 바로 붙여넣을 수 있도록 구현했습니다.</p>
+              </div>
+              <div class="project_desc project_desc--mobile">
+                <p>
+                  업무 중 영수증 내용을 엑셀에
+                  직접 옮기던 불편을 줄이려고
+                  만든 웹 도구입니다.
+                </p>
+              </div>
+            </div>
+
+            <div class="project_details project_details--four">
+              <div class="project_detail">
+                <h3 class="project_label">STATUS</h3>
+                <p class="project_value">In Actual Use</p>
+              </div>
+
+              <div class="project_detail">
+                <h3 class="project_label">BUILD</h3>
+                <p class="project_value">Vibe Coding</p>
+              </div>
+
+              <div class="project_detail">
+                <h3 class="project_label">ROLE</h3>
+                <p class="project_value">
+                  Planning<br>
+                  AI-assisted Development</p>
+              </div>
+
+              <div class="project_detail">
+                <h3 class="project_label">TOOLS</h3>
+                <p class="project_value">
+                  HTML · CSS · JavaScript<br>
+                  PDF.js · Claude Code</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="section contact" id="contact" data-key="contact">
+      <!-- 문구 1 타이핑 → 문구 2 타이핑(캐릭터 2로 바뀜) → 3초 뒤 처음부터 반복 (script/main.js) -->
+      <div class="contact_inner contact_visual">
+        <p class="contact_message contact_message--first">함께 일할 동료를 찾고 계신가요?</p>
+        <p class="contact_message contact_message--second">저 여기 있어요!!</p>
+
+        <div class="contact_character">
+          <img class="contact_character_img is-active" src="./img/contact1.png" alt="기다리는 캐릭터">
+          <img class="contact_character_img" src="./img/contact2.png" alt="손을 흔드는 캐릭터">
+        </div>
+      </div>
+
+      <div class="contact_content">
+        <div class="contact_inner">
+          <h2 class="contact_title">CONTACT</h2>
+
+          <!-- 이메일 · 전화 한 줄씩 + 아래 버튼 2개 (360 · 1024 같은 마크업, 크기만 CSS로) -->
+          <div class="contact_info">
+            <ul class="contact_list">
+              <li class="contact_item">
+                <span class="contact_label">EMAIL</span>
+                <span class="contact_value">2yooh2@naver.com</span>
+                <!-- 누르면 체크 아이콘 → 3초 뒤 원래대로 (script/main.js) -->
+                <button class="contact_copy" type="button" data-copy="2yooh2@naver.com" aria-label="이메일 복사하기">
+                  <svg class="contact_icon contact_icon--copy" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M7 9.667a2.667 2.667 0 0 1 2.667 -2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1 -2.667 2.667h-8.666a2.667 2.667 0 0 1 -2.667 -2.667l0 -8.666" />
+                    <path d="M4.012 16.737a2.005 2.005 0 0 1 -1.012 -1.737v-10c0 -1.1 .9 -2 2 -2h10c.75 0 1.158 .385 1.5 1" />
+                  </svg>
+                  <svg class="contact_icon contact_icon--check" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M5 12l5 5l10 -10" />
+                  </svg>
+                </button>
+              </li>
+              <li class="contact_item">
+                <span class="contact_label">PHONE</span>
+                <!-- 모바일: 누르면 전화 걸기 (PC에서는 링크 끔) -->
+                <a class="contact_value" href="tel:010-5661-9802">010-5661-9802</a>
+                <button class="contact_copy" type="button" data-copy="010-5661-9802" aria-label="전화번호 복사하기">
+                  <svg class="contact_icon contact_icon--copy" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M7 9.667a2.667 2.667 0 0 1 2.667 -2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1 -2.667 2.667h-8.666a2.667 2.667 0 0 1 -2.667 -2.667l0 -8.666" />
+                    <path d="M4.012 16.737a2.005 2.005 0 0 1 -1.012 -1.737v-10c0 -1.1 .9 -2 2 -2h10c.75 0 1.158 .385 1.5 1" />
+                  </svg>
+                  <svg class="contact_icon contact_icon--check" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M5 12l5 5l10 -10" />
+                  </svg>
+                </button>
+              </li>
+            </ul>
+
+            <div class="contact_btns">
+              <a class="contact_btn contact_btn--mail" href="mailto:2yooh2@naver.com">
+                <svg class="contact_icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M10 14l11 -11" />
+                  <path d="M21 3l-6.5 18a.55 .55 0 0 1 -1 0l-3.5 -7l-7 -3.5a.55 .55 0 0 1 0 -1l18 -6.5" />
+                </svg>
+                EMAIL ME
+              </a>
+              <!-- TODO: 이력서 주소 넣기 -->
+              <a class="contact_btn contact_btn--letter" href="#" target="_blank" rel="noopener noreferrer">
+                <svg class="contact_icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+                  <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2" />
+                  <path d="M9 9l1 0" />
+                  <path d="M9 13l6 0" />
+                  <path d="M9 17l6 0" />
+                </svg>
+                RESUME
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <footer class="footer">
+          <p class="footer_copyright">
+            © 2026 YOO HYE JI. All rights reserved.
+          </p>
+          <p class="footer_notice">
+            본 사이트는 개인 포트폴리오 용도로 제작되었으며,<br>
+            상업적 목적으로 사용되지 않습니다.
+          </p>
+        </footer>
+      </div>
+    </section>
+  </div>
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/4.0.41/fullpage.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/11.1.14/swiper-bundle.min.js"></script>
+  <script src="script/main.js"></script>
+</body>
+
+</html>
