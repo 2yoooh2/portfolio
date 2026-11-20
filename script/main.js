@@ -901,6 +901,24 @@ function playWorkMobileText(index) {
 const DETAIL_STEP = 120; // 덩어리 사이 간격
 const detailRuns = new WeakMap();
 
+// .project_visual은 목업 · 원이 움직이는 동안만 overflow: hidden
+// (translateY로 칸 밖에서 들어오는 움직임이 fullPage.js의 .fp-overflow까지 "넘친 콘텐츠"로 잡혀서
+//  세로 스크롤바가 애니메이션 도는 동안만 깜빡이는 걸 막음 → 그 사이 다시 시작했으면 새 쪽이 풂)
+const visualRuns = new WeakMap();
+
+function clipWhileAnimating(visual, animations) {
+  const list = animations.filter(Boolean);
+  if (!visual || !list.length) return;
+  const run = {};
+  visualRuns.set(visual, run);
+  visual.style.overflow = 'hidden';
+  Promise.all(list.map((animation) => animation.finished.catch(() => {}))).then(() => {
+    if (visualRuns.get(visual) !== run) return;
+    visual.style.overflow = '';
+    visualRuns.delete(visual);
+  });
+}
+
 function revealDetails(section, delay, direction) {
   const dir = direction === 'up' ? -1 : 1;
   // 구분선(PC만 보임): 상세 칸보다 살짝 먼저 왼쪽부터 그려짐
@@ -948,18 +966,20 @@ function animateWorksPc(origin, destination, direction) {
   const textDelay = 350;
   const lines = revealLinesInOrder(destination.item.querySelectorAll('.project_subtitle, .project_desc p'), textDelay, { direction });
   revealDetails(destination.item, textDelay + lines * LINE_STEP, direction);
-  layers.forEach(([selector, distance, delay, duration, extra]) => {
+  const destAnimations = layers.map(([selector, distance, delay, duration, extra]) =>
     destination.item.querySelector(selector)?.animate(
       [{ transform: `translateY(${dir * distance}px)${extra}`, opacity: selector === '.project_circle' ? 1 : 0.2 }, { transform: 'none', opacity: 1 }],
       { duration: fast(duration), delay: fast(delay), easing: ease, fill: 'backwards' }
-    );
-  });
+    )
+  );
+  clipWhileAnimating(destination.item.querySelector('.project_visual'), destAnimations);
   // Works끼리 넘길 때: 나가는 목업은 섹션보다 빨리 빠져나감
   if (isWorks(origin)) {
-    origin.item.querySelector('.project_mockup')?.animate(
+    const exitAnimation = origin.item.querySelector('.project_mockup')?.animate(
       [{ transform: 'none' }, { transform: `translateY(${-dir * 160}px)` }],
       { duration: SCROLL_DURATION, easing: 'cubic-bezier(0.55, 0, 1, 0.45)' }
     );
+    clipWhileAnimating(origin.item.querySelector('.project_visual'), [exitAnimation]);
   }
 }
 
